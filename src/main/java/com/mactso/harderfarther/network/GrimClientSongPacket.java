@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import com.mactso.harderfarther.client.GrimSongManager;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 public class GrimClientSongPacket {
 	private int song;

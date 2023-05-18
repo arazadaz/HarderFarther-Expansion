@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
 
 public class SyncAllGCWithClientPacket {
 	

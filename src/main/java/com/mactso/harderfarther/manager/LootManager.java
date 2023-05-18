@@ -29,7 +29,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.random.RandomGenerator;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class LootManager {
 	private static int rareDice = 0;

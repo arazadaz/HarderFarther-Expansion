@@ -3,7 +3,6 @@ package com.mactso.harderfarther.sounds;
 import com.mactso.harderfarther.Main;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModSounds {
 //	Attribution Tags for Ambient Music

@@ -31,7 +31,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap.Type;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class Utility {
 	public final static int FOUR_SECONDS = 80;

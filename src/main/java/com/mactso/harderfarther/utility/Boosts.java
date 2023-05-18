@@ -21,7 +21,6 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SpiderEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraftforge.coremod.api.ASMAPI;
 
 public class Boosts {
 

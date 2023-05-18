@@ -8,7 +8,6 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
-import net.minecraftforge.registries.IForgeRegistry;
 
 
 public class ModItems {

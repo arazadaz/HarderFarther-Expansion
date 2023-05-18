@@ -8,8 +8,6 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 
 // this method only *limits* xp drops that happen to past.  it is part of the farm limiter.

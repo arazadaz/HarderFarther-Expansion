@@ -4,9 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BackgroundRenderer.FogType;
-import net.minecraftforge.client.event.ViewportEvent.ComputeFogColor;
-import net.minecraftforge.client.event.ViewportEvent.RenderFog;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class FogColorsEventHandler {
 	

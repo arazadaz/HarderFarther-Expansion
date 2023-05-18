@@ -4,8 +4,6 @@ import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.timer.LastMobDeathTimeProvider;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ChunkEvent {
 
