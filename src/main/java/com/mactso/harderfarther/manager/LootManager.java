@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
+import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -130,9 +131,9 @@ public class LootManager {
 		Item ret = Items.PAPER;
 		try {
 			Identifier key = new Identifier(name);
-			if (ForgeRegistries.ITEMS.containsKey(key))
+			if (Registry.ITEM.containsId(key))
 			{
-				ret = ForgeRegistries.ITEMS.getValue(key);
+				ret = Registry.ITEM.get(key);
 			}
 			else
 				LOGGER.warn("Unknown item: " + name);

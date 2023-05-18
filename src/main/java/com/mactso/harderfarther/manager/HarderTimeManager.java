@@ -2,6 +2,8 @@ package com.mactso.harderfarther.manager;
 
 import java.util.Arrays;
 import java.util.List;
+
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -178,7 +180,8 @@ public class HarderTimeManager {
 				} else if (b instanceof GrassBlock) {
 					sl.setBlockState(temp, Blocks.COARSE_DIRT.getDefaultState(), 3);
 					sl.setBlockState(temp.up(), Blocks.FIRE.getDefaultState(), 131);
-				} else if ((rand.nextInt(8)==1) && (bs.isFlammable(sl, pPos, null))) {
+					//FlammableBlockRegistry.getDefaultInstance().get(bs.getBlock()).getSpreadChance() > 0 means is flamable
+				} else if ((rand.nextInt(8)==1) && (FlammableBlockRegistry.getDefaultInstance().get(bs.getBlock()).getSpreadChance() > 0)) {
 					sl.setBlockState(temp, Blocks.FIRE.getDefaultState(), 131);
 				}   else if (b instanceof SnowBlock) {
 					sl.setBlockState(temp, Blocks.ICE.getDefaultState(), 3);

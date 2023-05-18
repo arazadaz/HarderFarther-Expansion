@@ -59,6 +59,7 @@ import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import org.jetbrains.annotations.Nullable;
 
 public class GrimCitadelManager {
 	private static long checkTimer = 0;
