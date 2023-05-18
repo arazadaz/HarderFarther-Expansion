@@ -56,9 +56,8 @@ public class GrimHeartBlock extends BlockWithEntity {
 	}
 
 	@Override
-	public int getExpDrop(BlockState state, WorldView world, RandomGenerator rand, BlockPos pos, int fortune, int silktouch) {
-
-		return 171;
+	public void dropExperience(ServerWorld world, BlockPos pos, int size) {
+		super.dropExperience(world, pos, 171);
 	}
 
 	@Override
