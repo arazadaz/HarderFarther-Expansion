@@ -1,5 +1,5 @@
 plugins {
-	id 'org.quiltmc.loom' version '1.1.+'
+	id 'fabric-loom' version '1.0-SNAPSHOT'
 	id 'maven-publish'
 }
 

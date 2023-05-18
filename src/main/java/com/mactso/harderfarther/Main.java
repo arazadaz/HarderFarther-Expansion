@@ -4,7 +4,6 @@ package com.mactso.harderfarther;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import net.minecraft.util.math.BlockPos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +30,12 @@ import com.mactso.harderfarther.RegisterHandlers.InitRH;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.LootHandler.HFLootModifier;
 import com.mactso.harderfarther.utility.Utility;
+
+import net.fabricmc.api.ModInitializer;
+
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 
