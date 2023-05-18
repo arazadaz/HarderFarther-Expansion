@@ -2,7 +2,6 @@ package com.mactso.harderfarther.blockentities;
 
 import com.mactso.harderfarther.block.ModBlocks;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModBlockEntities
 {
