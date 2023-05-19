@@ -10,6 +10,7 @@ import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.sounds.ModSounds;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidFillable;
@@ -27,6 +28,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -35,7 +37,6 @@ import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.World;
 
 
-@Mod.EventBusSubscriber(bus = Bus.FORGE, modid = Main.MODID)
 public class BlockEvents {
 
 	static int grimBonusDistSqr = MyConfig.getGrimCitadelBonusDistanceSq();
@@ -46,88 +47,73 @@ public class BlockEvents {
 	// client side variables.
 	static long cGameTime = 0;
 
-	@SubscribeEvent
-	public static void onBreakingSpeed(BreakSpeed event) {
-		// note: This is both server and clientside. client uses to display properly.
-		if (event.getEntity() == null) {
-			return;
-		} else if (event.getEntity().isCreative()) {
-			return;
-		} else if (!(event.getPosition().isPresent())) {
-			return;
-		}
+	public static void onBreakBlockBeforeRegister(){
+		PlayerBlockBreakEvents.BEFORE.register(
+				(world, player, pos, state, blockEntity) -> {
 
-		PlayerEntity p = event.getEntity();
-		Vec3d rfv = p.getRotationVecClient().negate().multiply(0.6);
-		World level = p.world;
-		long gameTime = level.getTime();
-		RandomGenerator rand = level.getRandom();
-		BlockPos ePos = event.getPosition().get();
+					Vec3d rfv = player.getRotationVecClient().negate().multiply(0.6);
+					long gameTime = world.getTime();
+					RandomGenerator rand = world.getRandom();
 
-		float adjustY = 0;
-		if (p.getBlockPos().getY() < ePos.getY()) {
-			adjustY = -0.5f;
-		}
+					float adjustY = 0;
+					if (player.getBlockPos().getY() < pos.getY()) {
+						adjustY = -0.5f;
+					}
 
-		if (GrimCitadelManager.getClosestGrimCitadelDistanceSq(ePos) <= PROTECTED_DISTANCE) {
-			if (GrimCitadelManager.getProtectedBlocks().contains(level.getBlockState(ePos).getBlock())
-					&& event.isCancelable()) {
-				event.setNewSpeed(event.getOriginalSpeed() / 20);
-				event.setCanceled(true);
-				if (level.isClient) {
-					if (cGameTime < gameTime ) { 
-						cGameTime = gameTime + 20 + rand.nextInt(40);
-						level.playSound(p, ePos, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.AMBIENT, 0.11f, 0.6f);
-						for (int j = 0; j < 21; ++j) {
-							double x = (double) ePos.getX() + rand.nextDouble() * (double) 0.1F;
-							double y = (double) ePos.getY() + rand.nextDouble()+adjustY;
-							double z = (double) ePos.getZ() + rand.nextDouble();
-							level.addParticle(ParticleTypes.WITCH, x, y, z, rfv.x, rfv.y, rfv.z);
+					if(GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos) <= PROTECTED_DISTANCE){
+						if(GrimCitadelManager.getProtectedBlocks().contains(world.getBlockState(pos).getBlock())){
+							//event.setNewSpeed(event.getOriginalSpeed() / 20);    Might re-add in the future, but not for initial port.
+							return false;
+						}
+						if(world.isClient()){
+							if(cGameTime < gameTime){
+								cGameTime = gameTime + 20 + rand.nextInt(40);
+								world.playSound(player, pos, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.AMBIENT, 0.11f, 0.06f);
+								for (int j = 0; j < 21; ++j) {
+									double x = (double) pos.getX() + rand.nextDouble() * (double) 0.1F;
+									double y = (double) pos.getY() + rand.nextDouble() + adjustY;
+									double z = (double) pos.getZ() + rand.nextDouble();
+									world.addParticle(ParticleTypes.WITCH, x, y, z, rfv.x, rfv.y, rfv.z);
+								}
+							}
 						}
 					}
-				}
-			}
-		}
 
+					return true;
+				});
 	}
 
-	@SubscribeEvent
-	public static void onBreakBlock(BreakEvent event) {
+	//server-side only event.
+	public static void onBreakBlockAfterRegister(){
+		PlayerBlockBreakEvents.AFTER.register(
+				(world, player, pos, state, blockEntity) -> {
 
-		// server side only event.
-		ServerPlayerEntity sp = (ServerPlayerEntity) event.getPlayer();
-		ServerWorld serverLevel = (ServerWorld) sp.world;
-		BlockPos pos = event.getPos();
-		BlockState bs = serverLevel.getBlockState(pos);
-		Block b = bs.getBlock();
-		if (b == ModBlocks.GRIM_GATE) {
-			GrimCitadelManager.doBrokenGrimGate(sp, serverLevel, pos, bs);
-		} else if (b == ModBlocks.GRIM_HEART) {
-			Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_LAKE_DESTINY), sp);
-		}
+					if (player.isCreative()){
+						return;
+					}
 
-		if (sp.isCreative())
-			return;
+					Block block = state.getBlock();
 
-		if (GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos) <= PROTECTED_DISTANCE) {
-			if (GrimCitadelManager.getProtectedBlocks().contains(serverLevel.getBlockState(pos).getBlock())
-					&& event.isCancelable()) {
-				event.setCanceled(true);
-			}
-		}
+					if(block == ModBlocks.GRIM_GATE) {
+						GrimCitadelManager.doBrokenGrimGate((ServerPlayerEntity)player, (ServerWorld)world, pos, state);
+					}else if(block == ModBlocks.GRIM_HEART){
+						new GrimClientSongPacket(ModSounds.NUM_LAKE_DESTINY).send(player);
+					}
+
+				});
 	}
 
-	@SubscribeEvent
-	public static void onBlockPlacement(EntityPlaceEvent event) {
 
-		if (!(event.getEntity() instanceof PlayerEntity))
-			return;
-
-		if (GrimCitadelManager.isInGrimProtectedArea(event.getPos())) {
-			event.setCanceled(true);
-			updateHands((ServerPlayerEntity) event.getEntity());
-		}
-
+	//Uses a custom event I made since I couldn't find a block place event in the fabric API, but I'm probably blind & one probably exists.
+	public static void onBlockPlacementRegister(){
+		placeBlockCallback.EVENT.register(
+				(context, state) -> {
+					if(GrimCitadelManager.isInGrimProtectedArea(context.getBlockPos())){
+						updateHands((ServerPlayerEntity) context.getPlayer());
+						return ActionResult.FAIL;
+					}
+					return ActionResult.PASS;
+				});
 	}
 
 	/**
@@ -151,7 +137,8 @@ public class BlockEvents {
 				new ScreenHandlerSlotUpdateS2CPacket(menu.syncId, menu.nextRevision(), index, itemstack));
 	}
 
-	@SubscribeEvent
+	//Not included in initial port
+	/*@SubscribeEvent
 	public static void onBucket(FillBucketEvent event) {
 
 		HitResult target = event.getTarget();
@@ -201,7 +188,7 @@ public class BlockEvents {
 
 			}
 		}
-	}
+	}*/
 
 //	@SubscribeEvent
 //	public static void onCreateFluidSourceEvent (CreateFluidSourceEvent event)
@@ -223,7 +210,8 @@ public class BlockEvents {
 //		killWaterPos.clear();
 //	}
 
-	@SubscribeEvent
+	//Not included in initial port
+	/*@SubscribeEvent
 	public static void onExplosionDetonate(Detonate event) {
 		World level = event.getLevel();
 		List<BlockPos> list = event.getAffectedBlocks();
@@ -237,6 +225,6 @@ public class BlockEvents {
 				}
 			}
 		}
-	}
+	}*/
 
 }

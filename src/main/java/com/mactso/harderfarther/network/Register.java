@@ -23,10 +23,6 @@ public class Register {
 				SyncDifficultyToClientsPacket::readPacketData,
 				SyncDifficultyToClientsPacket::processPacket);
 
-		
-		Network.registerMessage(GrimClientSongPacket.class,
-				GrimClientSongPacket::writePacketData,
-				GrimClientSongPacket::readPacketData,
-				GrimClientSongPacket::processPacket);
+
 	}
 }
