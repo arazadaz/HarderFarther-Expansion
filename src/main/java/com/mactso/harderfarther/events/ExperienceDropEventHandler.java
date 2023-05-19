@@ -10,11 +10,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 
-// this method only *limits* xp drops that happen to past.  it is part of the farm limiter.
+// this method only *limits* xp drops that happen to fast.  it is part of the farm limiter.
 
 public class ExperienceDropEventHandler {
 
-	public static long tickTimer = 0;
+	public static long tickTimer = 0; //This might have to be redone to be per player?, for fabric anyways.
 
 	@SubscribeEvent
 	public void onMonsterDrops(LivingExperienceDropEvent event) {
