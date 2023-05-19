@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.condition.LootCondition;
 import net.minecraft.loot.context.LootContext;
@@ -17,49 +18,30 @@ import net.minecraft.util.math.Vec3d;
 
 public class LootHandler
 {
- 
-    public static class HFLootModifier extends LootModifier
-    {
+        //Need to find working alternative to get loot table origin on fabric
+        /*public static void register(){
+            LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
+                // Let's only modify built-in loot tables and leave data pack loot tables untouched by checking the source.
+                // We also check that the loot table ID is equal to the ID we want.
+                if (source.isBuiltin() && !LootTableListManager.isBonusLootTable(id)) {
+//        		    System.out.println("false:" + context.getQueriedLootTableId());
+                    //do nothing
 
-        public static final Supplier<Codec<HFLootModifier>> CODEC = Suppliers.memoize(() -> RecordCodecBuilder.create(inst -> codecStart(inst).apply(inst, HFLootModifier::new)));
-
-
-        public HFLootModifier(final LootCondition[] conditionsIn) {
-            super(conditionsIn);
-
-        }
-
-        @Override
-        protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-
-        	if (!LootTableListManager.isBonusLootTable(context.getQueriedLootTableId())) {
-//        		System.out.println("false:" + context.getQueriedLootTableId());
-        		return generatedLoot;
-        	}
-
-        	Vec3d origin = context.get(LootContextParameters.ORIGIN);
-        	if (origin == null) { // can't calculate difficulty without coordinates
+                }else if (source.isBuiltin()) {
+                    Vec3d origin = .get(LootContextParameters.ORIGIN); // originally context.get(LootContextParameters.ORIGIN);
+                    if (origin == null) { // can't calculate difficulty without coordinates
 //        		System.out.println("No Origin for loot:" + context.getQueriedLootTableId());
-        		return generatedLoot;        	
-        	}
-        	
+                        return generatedLoot;
+                    }
 
-        	ItemStack stack = ChestLootManager.doGetLootStack(context.getWorld(), origin);
+
+                    ItemStack stack = ChestLootManager.doGetLootStack(context.getWorld(), origin);
 //    		System.out.println("Adding Bonus Loot:" + context.getQueriedLootTableId() + ": " +stack.getItem().toString());
-        	generatedLoot.add(stack);
-			return generatedLoot;
-
-        }
-
-
-        @Override
-        public Codec<? extends IGlobalLootModifier> codec() {
-            return CODEC.get();
-        }
-
-        
-
-    }
+                    generatedLoot.add(stack);
+                    return generatedLoot;
+                }
+            });
+        }*/
   
        
 }

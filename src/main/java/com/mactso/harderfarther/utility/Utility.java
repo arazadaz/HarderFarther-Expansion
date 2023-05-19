@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.utility;
 
+import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -233,9 +234,9 @@ public class Utility {
 		Item ret = Items.AIR;
 		try {
 			Identifier key = new Identifier(name);
-			if (ForgeRegistries.ITEMS.containsKey(key))
+			if (Registry.ITEM.containsId(key))
 			{
-				ret = ForgeRegistries.ITEMS.getValue(key);
+				ret = Registry.ITEM.get(key);
 			}
 			else {
 				LOGGER.warn("Unknown item: " + name);

@@ -30,10 +30,11 @@ public class Boosts {
 	private static final float NO_CHANGE = 1.0f;
 	static {
 		// FD: net/minecraft/world/entity/Mob/f_21364_
-		// net/minecraft/world/entity/Mob/xpReward
+		// net/minecraft/entity/mob/MobEntity::experiencePoints - previously xpReward
 		try {
-			String name = ASMAPI.mapField("f_21364_");
-			fieldXpReward = MobEntity.class.getDeclaredField(name);
+			//String name = ASMAPI.mapField("f_21364_");
+			//fieldXpReward = MobEntity.class.getDeclaredField(name);
+			fieldXpReward = MobEntity.class.getDeclaredField("experiencePoints");
 			fieldXpReward.setAccessible(true);
 		} catch (Exception e) {
 			LOGGER.error("XXX Unexpected Reflection Failure xpReward in Mob");
