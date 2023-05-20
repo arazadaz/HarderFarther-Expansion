@@ -176,15 +176,13 @@ public class LootManager {
 
 	}
 	
-	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemEntity> eventItems, RandomGenerator rand) {
+	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemStack> eventItems, RandomGenerator rand) {
 		int d100 = (int) (Math.ceil(rand.nextDouble() * 100));
 		if (d100 < MyConfig.getOddsDropExperienceBottle()) {
 			Utility.debugMsg(1, "XP Bottle dropped with roll " + d100);
 			ItemStack itemStackToDrop;
 			itemStackToDrop = new ItemStack(Items.EXPERIENCE_BOTTLE, (int) 1);
-			ItemEntity myItemEntity = new ItemEntity(eventEntity.world, eventEntity.getX(), eventEntity.getY(),
-					eventEntity.getZ(), itemStackToDrop);
-			eventItems.add(myItemEntity);
+			eventItems.add(itemStackToDrop);
 		}
 	}
 	

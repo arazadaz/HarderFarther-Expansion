@@ -14,7 +14,6 @@ import com.mactso.harderfarther.blockentities.ModBlockEntities;
 import com.mactso.harderfarther.command.HarderFartherCommands;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.events.BlockEvents;
-import com.mactso.harderfarther.events.ChunkEvent;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.events.LivingEventMovementHandler;
