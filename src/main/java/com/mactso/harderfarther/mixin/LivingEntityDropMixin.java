@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 public class LivingEntityDropMixin {
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropInventory()V)"), method = "drop", cancellable = true)
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropLoot(Lnet/minecraft/entity/damage/DamageSource;Z)V"), method = "drop", cancellable = true)
     private void onDrop(final DamageSource source, final CallbackInfoReturnable<Boolean> info) {
         ActionResult result = LivingEntityDropCallback.EVENT.invoker().interact(source, (LivingEntity) (Object) this);
 
