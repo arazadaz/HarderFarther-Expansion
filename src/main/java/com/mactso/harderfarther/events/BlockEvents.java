@@ -1,25 +1,12 @@
 package com.mactso.harderfarther.events;
 
-import java.util.List;
-import java.util.ListIterator;
-
-import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
-import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.sounds.ModSounds;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidFillable;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.particle.ParticleTypes;
@@ -29,12 +16,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.World;
 
 
 public class BlockEvents {
@@ -106,7 +89,7 @@ public class BlockEvents {
 
 	//Uses a custom event I made since I couldn't find a block place event in the fabric API, but I'm probably blind & one probably exists.
 	public static void onBlockPlacementRegister(){
-		placeBlockCallback.EVENT.register(
+		PlaceBlockCallback.EVENT.register(
 				(context, state) -> {
 					if(GrimCitadelManager.isInGrimProtectedArea(context.getBlockPos())){
 						updateHands((ServerPlayerEntity) context.getPlayer());

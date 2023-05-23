@@ -2,17 +2,19 @@ package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.HarderTimeManager;
+import net.minecraft.util.ActionResult;
 
 public class PlayerTickEventHandler {
-	
-	@SubscribeEvent
-	public void onTick(PlayerTickEvent event) {
 
-		if ((event.phase != Phase.START))
-			return;
-		if (MyConfig.isMakeHarderOverTime()) {
-			HarderTimeManager.doScarySpookyThings(event.player);
-		}
-			
+	public static void onPlayerTickRegister() {
+		PlayerTickCallback.EVENT.register(
+				(player) -> {
+
+					if (MyConfig.isMakeHarderOverTime()) {
+						HarderTimeManager.doScarySpookyThings(player);
+					}
+
+					return ActionResult.PASS;
+				});
 	}
 }

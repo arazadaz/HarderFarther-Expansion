@@ -3,15 +3,16 @@ package com.mactso.harderfarther.events;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.ActionResult;
 
-public interface placeBlockCallback {
+public interface PlayerTickCallback {
 
-    Event<placeBlockCallback> EVENT = EventFactory.createArrayBacked(placeBlockCallback.class,
-            (listeners) -> (context, state) -> {
-                for (placeBlockCallback listener : listeners) {
-                    ActionResult result = listener.interact(context, state);
+    Event<PlayerTickCallback> EVENT = EventFactory.createArrayBacked(PlayerTickCallback.class,
+            (listeners) -> (player) -> {
+                for (PlayerTickCallback listener : listeners) {
+                    ActionResult result = listener.interact(player);
 
                     if(result != ActionResult.PASS) {
                         return result;
@@ -21,6 +22,6 @@ public interface placeBlockCallback {
                 return ActionResult.PASS;
             });
 
-    ActionResult interact(ItemPlacementContext context, BlockState state);
-}
+    ActionResult interact(PlayerEntity player);
 
+}
