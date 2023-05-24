@@ -19,10 +19,10 @@ public class RenderSystemFogColorMixin {
     private static void onFog(float f, float g, float h, float i, CallbackInfo info) {
         float[] newColor = FogColorCallback.EVENT.invoker().interact(f, g, h, i);
 
-        shaderFogColor[0] = f;
-        shaderFogColor[1] = g;
-        shaderFogColor[2] = h;
-        shaderFogColor[3] = i;
+        shaderFogColor[0] = newColor[0];
+        shaderFogColor[1] = newColor[1];
+        shaderFogColor[2] = newColor[2];
+        shaderFogColor[3] = newColor[3];
     }
 
 }
