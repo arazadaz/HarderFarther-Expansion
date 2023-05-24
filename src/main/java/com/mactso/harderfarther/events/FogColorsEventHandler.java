@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BackgroundRenderer.FogType;
+import net.minecraft.util.ActionResult;
 
 public class FogColorsEventHandler {
 	
@@ -63,13 +64,13 @@ public class FogColorsEventHandler {
 
 	}
 
-	private long colorTick = 0;
+	private static long colorTick = 0;
 
-	private long fogTick = 0;
+	private static long fogTick = 0;
 
 	private int antiSpam = 0;
 
-	private void adjustFogColor(ComputeFogColor event, float slider) {
+	private static float[] adjustFogColor(float f, float g, float h, float i, float slider) {
 
 		double redSlider = Math.max(RedFromServer, slider);
 		double greenSlider = Math.max(GreenFromserver, slider);
@@ -77,13 +78,15 @@ public class FogColorsEventHandler {
 //		if (++antiSpam%100 == 0)
 //		System.out.println("fog color slider:" + slider);
 		if (slider != 0) {
-			event.setRed(event.getRed() * (float) redSlider);
-			event.setGreen(event.getGreen() * (float) greenSlider);
-			event.setBlue(event.getBlue() * (float) blueSlider);
+			f*=redSlider;
+			g*=greenSlider;
+			h*=blueSlider;
+			return new float[]{f, g, h, i};
 		}
+		return new float[]{f, g, h, i};
 	}
 
-	private void adjustFogDistance(RenderFog event, float closeFogPercent, float farFogPercent) {
+	private static void adjustFogDistance(float closeFogPercent, float farFogPercent) {
 
 		if ((closeFogPercent < 1) || (farFogPercent < 1)) {
 //			if (antiSpam%100 == 0)
@@ -102,7 +105,7 @@ public class FogColorsEventHandler {
 
 	}
 
-	private float doSlideToPercent(float slider, float target) {
+	private static float doSlideToPercent(float slider, float target) {
 		final double slideAmount = 0.005f;
 		if (slider > target+0.005f) {
 			slider -= slideAmount;
@@ -115,62 +118,67 @@ public class FogColorsEventHandler {
 	}
 
 	// clientside gui event
-	@SubscribeEvent
-	public void onFogColorCheck(ComputeFogColor event) {
+	public static void onFogColorRegister(){
+		FogColorCallback.EVENT.register(
+				(f, g, h, i) -> {
 
-		MinecraftClient m = MinecraftClient.getInstance();
-		ClientPlayerEntity cp = m.player;
-		long gametick = cp.world.getTime();
-		if ((colorTick != gametick)) {
-			colorTick = gametick;
-			float percent = Math.max(clientLocalGrimDifficulty, clientLocalTimeDifficulty);
-			if ((percent > 0) && (percent < 0.1f)){
-				percent = 0.1f;
-			}
-			percent = Math.max(percent, 0.00f);
-			percent = Math.min(percent, 1.0f);
-			sliderColorPercent = doSlideToPercent(sliderColorPercent, 1 - percent);
-		}
+					MinecraftClient m = MinecraftClient.getInstance();
+					ClientPlayerEntity cp = m.player;
+					long gametick = cp.world.getTime();
+					if ((colorTick != gametick)) {
+						colorTick = gametick;
+						float percent = Math.max(clientLocalGrimDifficulty, clientLocalTimeDifficulty);
+						if ((percent > 0) && (percent < 0.1f)) {
+							percent = 0.1f;
+						}
+						percent = Math.max(percent, 0.00f);
+						percent = Math.min(percent, 1.0f);
+						sliderColorPercent = doSlideToPercent(sliderColorPercent, 1 - percent);
+					}
 
-		adjustFogColor(event, sliderColorPercent);
+					return adjustFogColor(f, g, h, i, sliderColorPercent);
+				});
 	}
 
 	// Density of Fog- not Color
-	@SubscribeEvent
-	public void onFogRender(RenderFog event) {
-//		FogMode sky = FogMode.FOG_SKY;
-		if (event.getMode() == FogType.FOG_TERRAIN) {
-			MinecraftClient m = MinecraftClient.getInstance();
-			ClientPlayerEntity cp = m.player;
-			long gametick = cp.world.getTime();
-			if ((fogTick != gametick)) {
-				fogTick = gametick;
+	public static void onFogRenderRegister(){
+		FogRenderCallback.EVENT.register(
+				(camera, fogType, viewDistance, thickFog, tickDelta) -> {
+//					FogMode sky = FogMode.FOG_SKY;
+					if (fogType == FogType.FOG_TERRAIN) {
+						MinecraftClient m = MinecraftClient.getInstance();
+						ClientPlayerEntity cp = m.player;
+						long gametick = cp.world.getTime();
+						if ((FogColorsEventHandler.fogTick != gametick)) {
+							FogColorsEventHandler.fogTick = gametick;
 
-				float percent = 1.0f;
-				if (clientLocalGrimDifficulty >= clientLocalTimeDifficulty) {
-					percent = clientLocalGrimDifficulty;
-				} else {
-					percent = clientLocalGrimDifficulty;
-				}
+							float percent = 1.0f;
+							if (clientLocalGrimDifficulty >= clientLocalTimeDifficulty) {
+								percent = clientLocalGrimDifficulty;
+							} else {
+								percent = clientLocalGrimDifficulty;
+							}
 
-				if ((percent > 0.0f) && (percent < 0.05f)) {
-					percent = 0.05f;
-				}
-				
-				if (percent > 0.75) {
-					percent -= (percent - 0.70)*2.5;
-				}
-				percent = Math.max(0, percent);
-				percent = Math.min(percent, 1.0f);
+							if ((percent > 0.0f) && (percent < 0.05f)) {
+								percent = 0.05f;
+							}
 
-				sliderStartFogDistance = doSlideToPercent(sliderStartFogDistance, 1 - percent);
-				sliderFogThickness = doSlideToPercent(sliderFogThickness, 1 - percent);
-			}
+							if (percent > 0.75) {
+								percent -= (percent - 0.70) * 2.5;
+							}
+							percent = Math.max(0, percent);
+							percent = Math.min(percent, 1.0f);
+
+							sliderStartFogDistance = doSlideToPercent(sliderStartFogDistance, 1 - percent);
+							sliderFogThickness = doSlideToPercent(sliderFogThickness, 1 - percent);
+						}
 
 
-			adjustFogDistance(event, sliderStartFogDistance, sliderFogThickness);
+						adjustFogDistance(sliderStartFogDistance, sliderFogThickness);
 
-		}
+					}
+					return ActionResult.PASS;
+				});
 
 	}
 
