@@ -19,6 +19,7 @@ import com.mactso.harderfarther.block.GrimGateBlock;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.block.properties.GrimGateType;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
@@ -27,6 +28,8 @@ import com.mactso.harderfarther.network.SyncAllGCWithClientPacket;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.Glooms;
 import com.mactso.harderfarther.utility.Utility;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -42,6 +45,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootTables;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -1219,7 +1223,16 @@ public class GrimCitadelManager {
 
 	// Used when a player logs in.
 	public static void sendAllGCPosToClient(ServerPlayerEntity sp) {
-		Network.sendToClient(new SyncAllGCWithClientPacket(realGCList), sp);
+
+		int size = realGCList.size();
+		PacketByteBuf buf = PacketByteBufs.create();
+
+		buf.writeInt(size);
+		for (BlockPos pos : realGCList) {
+			buf.writeBlockPos(pos);
+		}
+
+		ServerPlayNetworking.send((ServerPlayerEntity) sp, SyncAllGCWithClientPacket.GAME_PACKET_SYNC_GRIM_CITADEL_S2C, buf);
 	}
 
 	private static void updateGCLocationsToClients(ServerWorld level) {
@@ -1228,9 +1241,16 @@ public class GrimCitadelManager {
 		List<ServerPlayerEntity> allPlayers = level.getServer().getPlayerManager().getPlayerList();
 		Iterator<ServerPlayerEntity> apI = allPlayers.iterator();
 		// v = new SAGCP(s,gcl)
-		SyncAllGCWithClientPacket msg = new SyncAllGCWithClientPacket(gcL);
+		int size = realGCList.size();
+		PacketByteBuf buf = PacketByteBufs.create();
+
+		buf.writeInt(size);
+		for (BlockPos pos : realGCList) {
+			buf.writeBlockPos(pos);
+		}
+
 		while (apI.hasNext()) { // sends to all players online.
-			Network.sendToClient(msg, apI.next());
+			ServerPlayNetworking.send((ServerPlayerEntity) apI.next(), SyncAllGCWithClientPacket.GAME_PACKET_SYNC_GRIM_CITADEL_S2C, buf);
 		}
 	}
 

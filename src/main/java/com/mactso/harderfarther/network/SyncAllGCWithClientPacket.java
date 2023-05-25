@@ -4,52 +4,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.mactso.harderfarther.Main;
+import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public class SyncAllGCWithClientPacket {
-	
-	private List<BlockPos> GCLocations;
-	
-	public SyncAllGCWithClientPacket ( List<BlockPos> gl)
-	{
-		this.GCLocations = gl;
-	}
-	
-	public static void processPacket(SyncAllGCWithClientPacket message, Supplier<NetworkEvent.Context> ctx)
-	{
-		ctx.get().enqueueWork( () -> 
-			{
-				GrimCitadelManager.realGCList = message.GCLocations;
-			}
-		);
-		ctx.get().setPacketHandled(true);
-	}
 
-	public static SyncAllGCWithClientPacket readPacketData(PacketByteBuf buf)
-	{
-		int numGCLocations = buf.readVarInt();
-		List<BlockPos> readGCLocations = new ArrayList<>(numGCLocations);			
-		for(int i=0; i<numGCLocations;i++) {
-			readGCLocations.add(buf.readBlockPos());
-		}
-		return new SyncAllGCWithClientPacket(readGCLocations);
-	}
-
-	public static void writePacketData(SyncAllGCWithClientPacket msg, PacketByteBuf buf)
-	{
-		msg.encode(buf);
-	}
+	public static Identifier GAME_PACKET_SYNC_GRIM_CITADEL_S2C = new Identifier(Main.MODID, "gamepacketsyncgrimcitadels2c");
 	
-	public void encode(PacketByteBuf buf)
+	private static List<BlockPos> GCLocations = new ArrayList<BlockPos>(10);
+
+	
+	public static void processPacket(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender)
 	{
-			
-		buf.writeVarInt(GCLocations.size());
-		for ( BlockPos b : GCLocations) {
-			buf.writeBlockPos(b);
+
+		int size = buf.readInt();
+
+		for(int index = 0; index<size; index++) {
+			GCLocations.add(buf.readBlockPos());
+
 		}
 
+		client.execute(() ->{
+			GrimCitadelManager.realGCList = GCLocations;
+		});
+
 	}
+
 }
 

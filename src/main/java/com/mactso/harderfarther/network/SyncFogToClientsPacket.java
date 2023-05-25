@@ -1,50 +1,30 @@
 package com.mactso.harderfarther.network;
 
-import java.util.function.Supplier;
-
+import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 
 public class SyncFogToClientsPacket  {
+
+	public static Identifier GAME_PACKET_SYNC_FOG_COLOR_S2C = new Identifier(Main.MODID, "gamepacketsyncfogcolors2c");
 		private double red;
 		private double green;
 		private double blue;
-	
-		public SyncFogToClientsPacket ( double r, double g, double b)
-		{
-			this.red = r;
-			this.green = g;
-			this.blue = b;
-		}
 
-		public static void processPacket(SyncFogToClientsPacket message, Supplier<NetworkEvent.Context> ctx)
+
+		public static void processPacket(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender)
 		{
-			ctx.get().enqueueWork( () -> 
-				{
-					FogColorsEventHandler.setFogRGB(message.red, message.green, message.blue);
-				}
-			);
-			ctx.get().setPacketHandled(true);
-		}
-		
-		public static SyncFogToClientsPacket readPacketData(PacketByteBuf buf) {
 			double red = buf.readDouble();
 			double green = buf.readDouble();
 			double blue = buf.readDouble();
-			return new SyncFogToClientsPacket(red, green, blue);
-		}
-		
-		public static void writePacketData(SyncFogToClientsPacket msg, PacketByteBuf buf)
-		{
-			msg.encode(buf);
-		}
-		
-		public void encode(PacketByteBuf buf)
-		{
-				
-			buf.writeDouble(this.red);
-			buf.writeDouble(this.green);
-			buf.writeDouble(this.blue);
 
+			client.execute(() ->{
+				FogColorsEventHandler.setFogRGB(red, green, blue);
+			});
 		}
+
 }
