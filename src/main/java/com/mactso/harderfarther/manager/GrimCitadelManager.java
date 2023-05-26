@@ -19,11 +19,9 @@ import com.mactso.harderfarther.block.GrimGateBlock;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.block.properties.GrimGateType;
 import com.mactso.harderfarther.config.MyConfig;
-import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
-import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncAllGCWithClientPacket;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.Glooms;
@@ -729,7 +727,10 @@ public class GrimCitadelManager {
 		if (bs.get(GrimGateBlock.TYPE) == GrimGateType.FLOOR) {
 			GrimCitadelManager.makeSeveralHolesInFloor(serverLevel, pos);
 		} else if (bs.get(GrimGateBlock.TYPE) == GrimGateType.DOOR) {
-			Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_LABYRINTH_LOST_DREAMS), sp);
+			PacketByteBuf buf = PacketByteBufs.create();
+			buf.writeInt(ModSounds.NUM_LABYRINTH_LOST_DREAMS);
+
+			ServerPlayNetworking.send((ServerPlayerEntity) sp, GrimClientSongPacket.GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C, buf);
 		}
 	}
 

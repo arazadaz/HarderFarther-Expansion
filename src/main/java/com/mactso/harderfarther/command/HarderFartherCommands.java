@@ -2,7 +2,11 @@ package com.mactso.harderfarther.command;
 
 import java.util.Iterator;
 import java.util.List;
+
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,7 +17,6 @@ import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.manager.LootManager;
-import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
 import com.mojang.brigadier.CommandDispatcher;
@@ -323,9 +326,15 @@ public class HarderFartherCommands {
 	private static void updateGCFogToAllClients(ServerWorld level, double r , double g , double b) {
 		List<ServerPlayerEntity> allPlayers = level.getServer().getPlayerManager().getPlayerList();
 		Iterator<ServerPlayerEntity> apI = allPlayers.iterator();
-		SyncFogToClientsPacket msg = new SyncFogToClientsPacket(r,g,b);
+
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeDouble(r);
+		buf.writeDouble(g);
+		buf.writeDouble(b);
+
 		while (apI.hasNext()) { // sends to all players online.
-			Network.sendToClient(msg, apI.next());
+			ServerPlayerEntity sp = apI.next();
+			ServerPlayNetworking.send((ServerPlayerEntity) sp, SyncFogToClientsPacket.GAME_PACKET_SYNC_FOG_COLOR_S2C, buf);
 		}
 	}
 	

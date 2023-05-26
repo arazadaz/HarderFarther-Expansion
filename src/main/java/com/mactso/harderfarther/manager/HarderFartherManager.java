@@ -1,10 +1,7 @@
 package com.mactso.harderfarther.manager;
 
 import com.mactso.harderfarther.config.MyConfig;
-import com.mactso.harderfarther.config.PrimaryConfig;
-import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
-import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

@@ -7,17 +7,18 @@ import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderFartherManager;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
-import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.Boosts;
 import com.mactso.harderfarther.utility.Glooms;
 import com.mactso.harderfarther.utility.Utility;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -102,7 +103,10 @@ public class LivingEventMovementHandler {
 							Utility.debugMsg(2, entity, "Living Event " + EntityType.getId((entity.getType())).toString()
 									+ " dif: " + difficulty);
 							if ((entity instanceof ServerPlayerEntity) && (rand.nextInt(300000) == 4242) && (difficulty > Utility.Pct09)) {
-								Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
+								PacketByteBuf buf = PacketByteBufs.create();
+								buf.writeInt(ModSounds.NUM_DUSTY_MEMORIES);
+
+								ServerPlayNetworking.send((ServerPlayerEntity) sp, GrimClientSongPacket.GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C, buf);
 							}
 
 							if ((difficulty > Utility.Pct84)) {
@@ -115,7 +119,10 @@ public class LivingEventMovementHandler {
 								Glooms.doGlooms(serverLevel, gameTime, difficulty, entity, Glooms.GRIM);
 								if ((entity instanceof ServerPlayerEntity) && (rand.nextInt(144000) == 4242)
 										&& (difficulty > Utility.Pct09)) {
-									Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
+									PacketByteBuf buf = PacketByteBufs.create();
+									buf.writeInt(ModSounds.NUM_DUSTY_MEMORIES);
+
+									ServerPlayNetworking.send((ServerPlayerEntity) sp, GrimClientSongPacket.GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C, buf);
 								}
 							}
 							if (HarderTimeManager.getTimeDifficulty(serverLevel, entity) > 0) {
