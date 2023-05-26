@@ -1,10 +1,15 @@
 package com.mactso.harderfarther.manager;
 
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
+import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -78,8 +83,12 @@ public class HarderFartherManager {
 //			System.out.println("HFM sending hf:"+hfDifficulty + " gc:" + gcDifficultyPct + " tm:" + timeDifficulty);
 			Utility.debugMsg(2, "getdifficulty here network message");
 
-			SyncDifficultyToClientsPacket msg = new SyncDifficultyToClientsPacket(hfDifficulty,gcDifficultyPct,timeDifficulty);
-			Network.sendToClient(msg, sp);
+
+			PacketByteBuf buf = PacketByteBufs.create();
+			buf.writeFloat(hfDifficulty);
+			buf.writeFloat(gcDifficultyPct);
+			buf.writeFloat(timeDifficulty);
+			ServerPlayNetworking.send((ServerPlayerEntity) sp, SyncDifficultyToClientsPacket.GAME_PACKET_SYNC_DIFFICULTY_S2C, buf);
 
 		}	
 

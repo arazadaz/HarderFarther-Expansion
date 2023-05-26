@@ -24,7 +24,6 @@ import com.mactso.harderfarther.events.PlayerTeleportHandler;
 import com.mactso.harderfarther.events.WorldTickHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.network.Register;
 import com.mactso.harderfarther.RegisterHandlers.InitRH;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.LootHandler.HFLootModifier;
