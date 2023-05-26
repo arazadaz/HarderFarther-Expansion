@@ -2,12 +2,12 @@ package com.mactso.harderfarther.events;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import com.mactso.harderfarther.config.MyConfig;
+
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderFartherManager;
 import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.utility.Utility;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
@@ -95,9 +95,9 @@ public class MonsterDropEventHandler {
 					float boostDifficulty = HarderFartherManager.getDifficultyHere(serverLevel,entity);
 					if (boostDifficulty == 0)
 						return ActionResult.PASS;
-					if (boostDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+					if (boostDifficulty > PrimaryConfig.getGrimCitadelMaxBoostPercent()) {
 						if (boostDifficulty == GrimCitadelManager.getGrimDifficulty(entity)) {
-							boostDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
+							boostDifficulty = PrimaryConfig.getGrimCitadelMaxBoostPercent();
 						}
 					}
 
@@ -140,10 +140,10 @@ public class MonsterDropEventHandler {
 	
 	private static boolean isDropsSpecialLoot(LivingEntity eventEntity, DamageSource dS) {
 
-		if (!(MyConfig.isMakeMonstersHarderFarther()))
+		if (!(PrimaryConfig.isMakeMonstersHarderFarther()))
 			return false;
 
-		if (!(MyConfig.isUseLootDrops()))
+		if (!(PrimaryConfig.isUseLootDrops()))
 			return false;
 
 		if (eventEntity == null) {

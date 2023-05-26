@@ -3,6 +3,8 @@ package com.mactso.harderfarther.manager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import com.mactso.harderfarther.config.PrimaryConfig;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.AxeItem;
@@ -23,7 +25,6 @@ import net.minecraft.util.random.RandomGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
 
 public class ChestLootManager {
@@ -87,7 +88,7 @@ public class ChestLootManager {
 		if (roll < 1)
 			roll = 1;
 		
-		int enchantmentLevel = 4 + MyConfig.getBonusLootEnchantmentLevelModifier();
+		int enchantmentLevel = 4 + PrimaryConfig.getBonusLootEnchantmentLevelModifier();
 
 		int chestLootRoll = Math.min(rand.nextInt(roll) + modifier, chestLootTable.size()-1);
 		ChestLootItem ci = chestLootTable.get(chestLootRoll);

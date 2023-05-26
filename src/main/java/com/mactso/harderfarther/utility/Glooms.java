@@ -2,6 +2,8 @@ package com.mactso.harderfarther.utility;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.mactso.harderfarther.config.PrimaryConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -41,7 +43,6 @@ import net.minecraft.world.Heightmap.Type;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 
@@ -71,7 +72,7 @@ public class Glooms {
 	static long creeperTimer = 0;
 
 	public static void doGloomPigs(PigEntity pig, BlockPos pos, long gameTime, ServerWorld serverLevel) {
-		if (MyConfig.isGrimEffectPigs()) {
+		if (PrimaryConfig.isGrimEffectPigs()) {
 			
 			if (pigTimer < gameTime) {
 				pigTimer = gameTime + 1800;
@@ -99,7 +100,7 @@ public class Glooms {
 
 	public static void doGloomDeadBranches(LivingEntity le, BlockPos pos, World level) {
 		Utility.debugMsg(2, pos, "doSpreadDeadBranches");
-		if (MyConfig.isGrimEffectTrees()) {
+		if (PrimaryConfig.isGrimEffectTrees()) {
 			if (level.getLightLevel(LightType.SKY, pos) > 10) {
 				BlockPos deadBranchPos = level.getTopPosition(Type.MOTION_BLOCKING, pos);
 				Block b = level.getBlockState(deadBranchPos.down()).getBlock();
@@ -213,7 +214,7 @@ public class Glooms {
 
 	public static void doGloomAnimals(AnimalEntity ae, BlockPos pos, long gameTime, ServerWorld level) {
 
-		if (!(MyConfig.isGrimEffectAnimals()))
+		if (!(PrimaryConfig.isGrimEffectAnimals()))
 			return;
 
 		if (level.getRandom().nextInt(400) < 9) {
@@ -379,7 +380,7 @@ public class Glooms {
 	}
 
 	public static void doGloomVillagers(VillagerEntity ve, BlockPos pos, long gameTime, ServerWorld serverLevel) {
-		if (MyConfig.isGrimEffectVillagers()) {
+		if (PrimaryConfig.isGrimEffectVillagers()) {
 			if (villagerTimer < gameTime) {
 				villagerTimer = gameTime + 2400;
 				Utility.populateEntityType(EntityType.WITCH, serverLevel, pos, 1, 0);

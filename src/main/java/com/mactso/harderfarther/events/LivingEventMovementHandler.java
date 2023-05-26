@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.client.GrimSongManager;
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderFartherManager;
@@ -55,7 +55,7 @@ public class LivingEventMovementHandler {
 						boolean hasLifeHeart = sp.getInventory().contains(ModItems.LIFE_HEART_STACK);
 
 						if ((sp.getHealth() < sp.getMaxHealth()) && (hasLifeHeart)) {
-							int dice = MyConfig.getGrimLifeheartPulseSeconds() * Utility.TICKS_PER_SECOND;
+							int dice = PrimaryConfig.getGrimLifeheartPulseSeconds() * Utility.TICKS_PER_SECOND;
 							int roll = rand.nextInt(dice);
 							int duration = Utility.FOUR_SECONDS;
 							if (roll == 42) { // once per 2 minutes

@@ -3,10 +3,10 @@ package com.mactso.harderfarther.utility;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import com.mactso.harderfarther.config.PrimaryConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.HarderFartherManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -46,10 +46,10 @@ public class Boosts {
 	UUID MAX_KNOCKBACK = UUID.fromString("834d99ba-f10c-4cdf-ab86-580a08b8ac55");
 
 	private static void boostAtkDmg(LivingEntity le, String eDsc, float difficulty) {
-		if (MyConfig.isAtkDmgBoosted()) {
+		if (PrimaryConfig.isAtkDmgBoosted()) {
 			if (le.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE) != null) {
 				float baseAttackDamage = (float) le.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).getValue();
-				float damageBoost = (MyConfig.getAtkPercent() * difficulty);
+				float damageBoost = (PrimaryConfig.getAtkPercent() * difficulty);
 				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
 				le.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(newAttackDamage);
 				Utility.debugMsg(2, le,
@@ -62,11 +62,11 @@ public class Boosts {
 
 	private static void boostHealth(LivingEntity le, String eDsc, float difficulty) {
 
-		if (MyConfig.isHpMaxBoosted()) {
+		if (PrimaryConfig.isHpMaxBoosted()) {
 			if (le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH) != null) {
 
 				float startHealth = le.getHealth();
-				float healthBoost = (MyConfig.getHpMaxPercent() * difficulty);
+				float healthBoost = (PrimaryConfig.getHpMaxPercent() * difficulty);
 				healthBoost = limitHealthBoostByMob(healthBoost, le);
 				le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).addPersistentModifier(new EntityAttributeModifier(HF_HEALTH_BOOST,
 						"hf_health_boost", healthBoost, Operation.MULTIPLY_TOTAL));
@@ -88,13 +88,13 @@ public class Boosts {
 
 	// note KnockBack Resistance ranges from 0 to 100% (0.0f to 1.0f)
 	private static void boostKnockbackResistance(LivingEntity le, String eDsc, float difficulty) {
-		if (MyConfig.isKnockBackBoosted()) {
+		if (PrimaryConfig.isKnockBackBoosted()) {
 			if (le.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE) != null) {
 				float baseKnockBackResistance = (float) le.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).getValue();
 				if (baseKnockBackResistance == 0) {
 					baseKnockBackResistance = getKBRBoostByMob(le);
 				}
-				float kbrBoost = (MyConfig.getKnockBackPercent() * difficulty);
+				float kbrBoost = (PrimaryConfig.getKnockBackPercent() * difficulty);
 				float newKnockBackResistance = baseKnockBackResistance + baseKnockBackResistance * kbrBoost;
 				le.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
 
@@ -110,10 +110,10 @@ public class Boosts {
 
 	private static void boostSpeed(LivingEntity le, String eDsc, float difficulty) {
 
-		if (MyConfig.isSpeedBoosted()) {
+		if (PrimaryConfig.isSpeedBoosted()) {
 			if (le.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED) != null) {
 				float baseSpeed = (float) le.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).getValue();
-				float speedModifier = (MyConfig.getSpeedPercent() * difficulty);
+				float speedModifier = (PrimaryConfig.getSpeedPercent() * difficulty);
 				if (le instanceof ZombieEntity) {
 					ZombieEntity z = (ZombieEntity) le;
 					if (z.isBaby()) {

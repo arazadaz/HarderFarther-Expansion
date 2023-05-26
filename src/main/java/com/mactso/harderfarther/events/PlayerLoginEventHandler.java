@@ -1,6 +1,5 @@
 package com.mactso.harderfarther.events;
 
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
@@ -22,7 +21,7 @@ public class PlayerLoginEventHandler {
 					if (!(sp instanceof ServerPlayerEntity)) return;
 
 
-					if (MyConfig.isUseGrimCitadels()) {
+					if (PrimaryConfig.isUseGrimCitadels()) {
 
 						GrimCitadelManager.sendAllGCPosToClient((ServerPlayerEntity) handler.getPlayer());
 

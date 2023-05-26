@@ -3,6 +3,7 @@ package com.mactso.harderfarther.manager;
 import java.util.Arrays;
 import java.util.List;
 
+import com.mactso.harderfarther.config.PrimaryConfig;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -29,9 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.random.RandomGenerator;
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
-import com.mactso.harderfarther.utility.Utility;
 
 public class HarderTimeManager {
 
@@ -241,10 +240,10 @@ public class HarderTimeManager {
 
 	// must be server side.  chunk inhabited time is 0 on client side.
 	public static float getTimeDifficulty(ServerWorld level, LivingEntity entity) {
-		if (!MyConfig.isMakeHarderOverTime())
+		if (!PrimaryConfig.isMakeHarderOverTime())
 			return 0;
 
-		long startHarderTime = (long) (MyConfig.getMaxHarderTimeMinutes() *.66f);
+		long startHarderTime = (long) (PrimaryConfig.getMaxHarderTimeMinutes() *.66f);
 		long inhabitedMinutes = level.getChunk(entity.getBlockPos()).getInhabitedTime() / 1200; // 60 sec * 20
 
 		if (inhabitedMinutes < startHarderTime)

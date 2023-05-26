@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.sounds.ModSounds;
@@ -22,7 +22,7 @@ import net.minecraft.util.random.RandomGenerator;
 
 public class BlockEvents {
 
-	static int grimBonusDistSqr = MyConfig.getGrimCitadelBonusDistanceSq();
+	static int grimBonusDistSqr = PrimaryConfig.getGrimCitadelBonusDistanceSq();
 	static int PROTECTED_DISTANCE = 999; // (about 33 blocks in all directions from heart)
 	static int MIN_CANCEL_BLOCKPLACE_DISTANCE = 1200; // (about 33 blocks in all directions from heart)
 	static int MAX_CANCEL_BLOCKPLACE_DISTANCE = 1500; // (about 33 blocks in all directions from heart)

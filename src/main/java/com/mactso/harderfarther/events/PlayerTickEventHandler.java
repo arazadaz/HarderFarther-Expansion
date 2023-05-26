@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.events;
 
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import net.minecraft.util.ActionResult;
 
@@ -10,7 +10,7 @@ public class PlayerTickEventHandler {
 		PlayerTickCallback.EVENT.register(
 				(player) -> {
 
-					if (MyConfig.isMakeHarderOverTime()) {
+					if (PrimaryConfig.isMakeHarderOverTime()) {
 						HarderTimeManager.doScarySpookyThings(player);
 					}
 

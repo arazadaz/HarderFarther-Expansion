@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.manager;
 
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -17,16 +17,16 @@ public class HarderFartherManager {
 
 	public static float calcDistanceModifier(Vec3d eventVec, Vec3d spawnVec) {
 		double distance = eventVec.distanceTo(spawnVec);
-		distance = Math.max(0, distance - MyConfig.getBoostMinDistance());
-		Float f = (float) Math.min(1.0f, distance / MyConfig.getBoostMaxDistance());
+		distance = Math.max(0, distance - PrimaryConfig.getBoostMinDistance());
+		Float f = (float) Math.min(1.0f, distance / PrimaryConfig.getBoostMaxDistance());
 		return f;
 	}
 	
 	public static float doApplyHeightFactor(float difficulty, int y) {
 
-		if (y < MyConfig.getMinimumSafeAltitude()) {
+		if (y < PrimaryConfig.getMinimumSafeAltitude()) {
 			difficulty *= 1.06f;
-		} else if (y > MyConfig.getMaximumSafeAltitude()) {
+		} else if (y > PrimaryConfig.getMaximumSafeAltitude()) {
 			difficulty *= 1.09f;
 		}
 
