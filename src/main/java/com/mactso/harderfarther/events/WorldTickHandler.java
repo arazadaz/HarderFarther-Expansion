@@ -3,45 +3,48 @@ package com.mactso.harderfarther.events;
 import java.util.Iterator;
 import java.util.List;
 
-import com.mactso.harderfarther.Main;
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
 
-@Mod.EventBusSubscriber(bus = Bus.FORGE, modid = Main.MODID)
 public class WorldTickHandler {
 
 	// assumes this event only raised for server worlds. TODO verify.
-	@SubscribeEvent
-	public static void onWorldTickEvent(LevelTickEvent event) {
+	public static void onWorldTick(){
+		ServerWorldTickCallback.EVENT.register(
+				(world) -> {
 
-		if (event.phase == Phase.START)
-			return;
 
-		// this is always serverlevel
-		if (event.level instanceof ServerWorld level) {
+					// this is always serverlevel
+					if (world instanceof ServerWorld) {
 
-			GrimCitadelManager.checkCleanUpCitadels(level);
-			
-			long gametime = level.getTime();
+						GrimCitadelManager.checkCleanUpCitadels(world);
 
-			List<ServerPlayerEntity> allPlayers = level.getServer().getPlayerManager().getPlayerList();
-			Iterator<ServerPlayerEntity> apI = allPlayers.iterator();
-			
-			SyncFogToClientsPacket msg = new SyncFogToClientsPacket(
-					MyConfig.getGrimFogRedPercent(),
-					MyConfig.getGrimFogGreenPercent(),
-					MyConfig.getGrimFogBluePercent());
-			while (apI.hasNext()) { // sends to all players online.
-				ServerPlayerEntity sp = apI.next();
-				if (gametime % 100 == sp.getId() % 100) {
-					Network.sendToClient(msg, sp);
-				}
-			}
-		}
+						long gametime = world.getTime();
+
+						List<ServerPlayerEntity> allPlayers = world.getServer().getPlayerManager().getPlayerList();
+						Iterator<ServerPlayerEntity> apI = allPlayers.iterator();
+
+						PacketByteBuf buf = PacketByteBufs.create();
+						buf.writeDouble(PrimaryConfig.getGrimFogRedPercent());
+						buf.writeDouble(PrimaryConfig.getGrimFogGreenPercent());
+						buf.writeDouble(PrimaryConfig.getGrimFogBluePercent());
+
+						while (apI.hasNext()) { // sends to all players online.
+							ServerPlayerEntity sp = apI.next();
+							if (gametime % 100 == sp.getId() % 100) {
+								ServerPlayNetworking.send((ServerPlayerEntity) sp, SyncFogToClientsPacket.GAME_PACKET_SYNC_FOG_COLOR_S2C, buf);
+							}
+						}
+					}
+					return ActionResult.PASS;
+				});
 	}
 
 }
