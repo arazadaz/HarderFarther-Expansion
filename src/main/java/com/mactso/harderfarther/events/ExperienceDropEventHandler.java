@@ -16,7 +16,7 @@ public class ExperienceDropEventHandler {
 
 	public static long tickTimer = 0; //This might have to be redone to be per player?, for fabric anyways.
 
-	@SubscribeEvent
+	/*
 	public void onMonsterDrops(LivingExperienceDropEvent event) {
 		
 		LivingEntity le = event.getEntity();
@@ -47,7 +47,7 @@ public class ExperienceDropEventHandler {
 		}
 		tickTimer = serverLevel.getTime() + (long) 20; // no boosted XP for 1 seconds after a kill.
 
-	}
+	}*/
 
 	private boolean closeToWorldSpawn(ServerWorld serverLevel, LivingEntity le) {
 
