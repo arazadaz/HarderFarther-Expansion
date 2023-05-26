@@ -8,7 +8,7 @@ public class PlayerInteractionEventHandler {
 
 	// this wasn't being fired at all on water placement.  Not sure why not.
 	
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public static void onPlayerInteract(PlayerInteractEvent event) {
 		PlayerEntity player = event.getEntity();
 //		if (player.isCreative())
@@ -21,7 +21,7 @@ public class PlayerInteractionEventHandler {
 		if (GrimCitadelManager.isInGrimProtectedArea(event.getPos())) {
 			event.setCanceled(true);
 		}
-	}
+	}*/
 
 
 }

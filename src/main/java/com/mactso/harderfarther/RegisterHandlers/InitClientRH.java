@@ -2,6 +2,7 @@ package com.mactso.harderfarther.RegisterHandlers;
 
 
 import com.mactso.harderfarther.block.ModBlocks;
+import com.mactso.harderfarther.events.ModEvents;
 import com.mactso.harderfarther.network.ClientNetwork;
 
 public class InitClientRH {
@@ -11,6 +12,7 @@ public class InitClientRH {
 
         //ModBlocks.setRenderLayer();
         ClientNetwork.registerClient();
+        ModEvents.registerClient();
 
     }
 

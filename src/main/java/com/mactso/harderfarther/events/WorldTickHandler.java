@@ -16,7 +16,7 @@ import net.minecraft.util.ActionResult;
 public class WorldTickHandler {
 
 	// assumes this event only raised for server worlds. TODO verify.
-	public static void onWorldTick(){
+	public static void onWorldTickRegister(){
 		ServerWorldTickCallback.EVENT.register(
 				(world) -> {
 

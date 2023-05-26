@@ -152,7 +152,7 @@ public class PrimaryConfig {
 
 //		Harder Farther Control Values"."Grim Citadel Settings
 		useGrimCitadels = properties.computeIfAbsent("use_grim_citadels", (a) -> "true").equals("true");
-		grimCitadelsListString = properties.computeIfAbsent("grim_citadels_list", (a) -> "[\"3600,3500\", \"3500,-100\", \"3500,-3550\", \"0,3596\", \"128,-3500\", \"-2970,3516\", \"-3517,80\", \"-3528,-3756\"]").toString();
+		grimCitadelsListString = properties.computeIfAbsent("grim_citadels_list", (a) -> "[\"3600.3500\", \"3500.-100\", \"3500.-3550\", \"0.3596\", \"128.-3500\", \"-2970.3516\", \"-3517.80\", \"-3528.-3756\"]").toString();
 		grimCitadelsCount = Integer.parseInt(properties.computeIfAbsent("grim_citadels_count", (a) -> "5").toString());
 		grimCitadelsRadius = Integer.parseInt(properties.computeIfAbsent("grim_citadels_radius", (a) -> "5").toString());
 		grimCitadelBonusDistance = Integer.parseInt(properties.computeIfAbsent("grim_citadel_bonus_distance", (a) -> "1750").toString());
@@ -546,7 +546,9 @@ public class PrimaryConfig {
 
 		List< BlockPos> returnList = new ArrayList<>();
 		for (String pos : list) {
-			String[] posParts = pos.split(",");
+			pos = pos.substring(1);
+			pos = pos.replace("\"", "");
+			String[] posParts = pos.split("\\.", 2);
 			int x = Integer.valueOf(posParts[0]);
 			int y = -1;
 			int z = Integer.valueOf(posParts[1]);

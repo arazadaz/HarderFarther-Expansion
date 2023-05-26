@@ -6,7 +6,6 @@ import net.minecraft.client.sound.MusicTracker;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Util;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class PlayGrimSongs {
 	boolean blockmusic = false;
@@ -18,7 +17,6 @@ public class PlayGrimSongs {
 	private static long clientPsuedoTicks = 0;
 	private static long grimSongDelayTicks = 0;
 
-	@SubscribeEvent
 	public static void playSong(SoundEvent song) {
 		playSong(song, 9600, 18200);
 	}

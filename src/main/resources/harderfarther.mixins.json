@@ -1,0 +1,19 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.mactso.harderfarther.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [],
+	"client": [
+        "BackgroundRendererFogMixin",
+        "LivingEntityDropMixin",
+        "LivingEntityTickMixin",
+        "PlaceBlockMixin",
+        "PlayerTickMixin",
+        "RenderSystemFogColorMixin",
+        "ServerWorldTickMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -6,7 +6,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class PlayerTeleportHandler {
 
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void onLivingUpdate(EntityTeleportEvent event) {
 		if (event.getEntity() instanceof PlayerEntity p) {
 			if (p.isCreative()) {
@@ -17,6 +17,6 @@ public class PlayerTeleportHandler {
 			}
 			
 		}
-	}
+	}*/
 
 }

@@ -67,7 +67,7 @@ public class MonsterDropEventHandler {
 
 
 
-	public static void monsterDropEventRegister() {
+	public static void onMonsterDropEventRegister() {
 		LivingEntityDropCallback.EVENT.register(
 				(damageSource, entity)  -> {
 

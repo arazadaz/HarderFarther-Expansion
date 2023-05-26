@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
@@ -129,123 +130,126 @@ public class HarderFartherCommands {
 
 	}
 	
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
-	{
-		dispatcher.register(CommandManager.literal("harderfarther").requires((source) -> 
-			{
-				return source.hasPermissionLevel(3);
-			}
-		)
-		.then(CommandManager.literal("setDebugLevel").then(
-				CommandManager.argument("debugLevel", IntegerArgumentType.integer(0,2)).executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					return setDebugLevel(p, IntegerArgumentType.getInteger(ctx, "debugLevel"));
-				})))
-				// update or add a speed value for the block the player is standing on.
-				.then(CommandManager.literal("setBonusRange").then(
-						CommandManager.argument("bonusRange", IntegerArgumentType.integer(500, 6000)).executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							return setBonusRange(p, IntegerArgumentType.getInteger(ctx, "bonusRange"));
-						})))
-				.then(CommandManager.literal("setUseGrimCitadels").then(
-						CommandManager.argument("useGrimCitadels", BoolArgumentType.bool()).executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							return setUseGrimCitadels(p, BoolArgumentType.getBool(ctx, "useGrimCitadels"));
-						})))
-				.then(CommandManager.literal("setGrimCitadelsRadius").then(
-						CommandManager.argument("grimCitadelsRadius", IntegerArgumentType.integer(4,11)).executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							return setGrimCitadelsRadius(p, IntegerArgumentType.getInteger(ctx, "grimCitadelsRadius"));
-						})))
-				.then(CommandManager.literal("setMakeHarderOverTime").then(
-						CommandManager.argument("setMakeHarderOverTime", BoolArgumentType.bool()).executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							return setMakeHarderOverTime(p,  BoolArgumentType.getBool(ctx, "setMakeHarderOverTime"));
-						})))
-				.then(CommandManager.literal("setMaxHarderTimeMinutes").then(
-						CommandManager.argument("setMaxHarderTimeMinutes", IntegerArgumentType.integer(20, 28800)).executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							return setMaxHarderTimeMinutes(p, IntegerArgumentType.getInteger(ctx, "setMaxHarderTimeMinutes"));
-						})))
-				.then(CommandManager.literal("setXpBottleChance").then(
-						CommandManager.argument("xpBottleChance", IntegerArgumentType.integer(0, 33)).executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							return setOddsDropExperienceBottle(p, IntegerArgumentType.getInteger(ctx, "xpBottleChance"));
-						})))
-				.then(CommandManager.literal("chunkReport").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					p.world.asString();
-					Utility.sendChat(p, "\nChunk\n" + p.world.asString(), Formatting.GREEN);
-					return 1;
-				}))
-				.then(CommandManager.literal("grimReport").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					String report = "Grim Citadels at : " + GrimCitadelManager.getCitadelListAsString();
-					Utility.sendChat(p, report, Formatting.GREEN);
-					return 1;
-				})).then(CommandManager.literal("lootReport").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					String report = LootManager.report();
-					Utility.sendBoldChat(p, "\nLoot Report", Formatting.GOLD);
-					Utility.sendChat(p, report, Formatting.YELLOW);
-					reportUseLootDrop(p);
-					reportOddsXpBottleDrop(p);
-					reportGrimLifeHeartPulseSeconds(p);
-					return 1;
-				})).then(CommandManager.literal("info").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					printInfo(p);
-					return 1;
-					// return 1;
-				})).then(CommandManager.literal("grimEffectsInfo").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					printGrimEffectsInfo(p);
-					return 1;
-				})).then(CommandManager.literal("grimInfo").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					printGrimInfo(p);
-					return 1;
-				})).then(CommandManager.literal("timeInfo").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					printTimeInfo(p);
-					return 1;
-				})).then(CommandManager.literal("colorInfo").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					printColorInfo(p);
-					return 1;
-				})).then(CommandManager.literal("boostInfo").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					String chatMessage = "\nHarder Farther Maximum Monster Boosts";
-					Utility.sendBoldChat(p, chatMessage, Formatting.DARK_GREEN);
+	public static void register(){
 
-					chatMessage = "  Monster Health ..........................: " + PrimaryConfig.getHpMaxBoost() + " %."
-							+ "\n  Damage ..............................................: " + PrimaryConfig.getAtkDmgBoost()
-							+ " %." + "\n  Movement .........................................: "
-							+ PrimaryConfig.getSpeedBoost() + " %." + "\n  KnockBack Resistance .........: "
-							+ PrimaryConfig.getKnockBackMod() + " %.";
-					Utility.sendChat(p, chatMessage, Formatting.GREEN);
-					return 1;
-				}))
-				.then(CommandManager.literal("musicInfo").executes(ctx -> {
-					ServerPlayerEntity p = ctx.getSource().getPlayer();
-					printGrimMusicInfo(p);
-					return 1;
-				})).then(CommandManager.literal("setFogColors")
-						.then(CommandManager.argument("R", IntegerArgumentType.integer(0,100))
-						.then(CommandManager.argument("G", IntegerArgumentType.integer(0,100))
-						.then(CommandManager.argument("B", IntegerArgumentType.integer(0,100))
-						.executes(ctx -> {
-							ServerPlayerEntity p = ctx.getSource().getPlayer();
-							int r = IntegerArgumentType.getInteger(ctx,"R");
-							int g = IntegerArgumentType.getInteger(ctx,"G");
-							int b = IntegerArgumentType.getInteger(ctx,"B");
-							return setFogColors(p, r, g, b);
-						}))))
-				));
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+
+			dispatcher.register(CommandManager.literal("harderfarther").requires((source) ->
+							{
+								return source.hasPermissionLevel(3);
+							}
+					)
+					.then(CommandManager.literal("setDebugLevel").then(
+							CommandManager.argument("debugLevel", IntegerArgumentType.integer(0, 2)).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setDebugLevel(p, IntegerArgumentType.getInteger(ctx, "debugLevel"));
+							})))
+					// update or add a speed value for the block the player is standing on.
+					.then(CommandManager.literal("setBonusRange").then(
+							CommandManager.argument("bonusRange", IntegerArgumentType.integer(500, 6000)).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setBonusRange(p, IntegerArgumentType.getInteger(ctx, "bonusRange"));
+							})))
+					.then(CommandManager.literal("setUseGrimCitadels").then(
+							CommandManager.argument("useGrimCitadels", BoolArgumentType.bool()).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setUseGrimCitadels(p, BoolArgumentType.getBool(ctx, "useGrimCitadels"));
+							})))
+					.then(CommandManager.literal("setGrimCitadelsRadius").then(
+							CommandManager.argument("grimCitadelsRadius", IntegerArgumentType.integer(4, 11)).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setGrimCitadelsRadius(p, IntegerArgumentType.getInteger(ctx, "grimCitadelsRadius"));
+							})))
+					.then(CommandManager.literal("setMakeHarderOverTime").then(
+							CommandManager.argument("setMakeHarderOverTime", BoolArgumentType.bool()).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setMakeHarderOverTime(p, BoolArgumentType.getBool(ctx, "setMakeHarderOverTime"));
+							})))
+					.then(CommandManager.literal("setMaxHarderTimeMinutes").then(
+							CommandManager.argument("setMaxHarderTimeMinutes", IntegerArgumentType.integer(20, 28800)).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setMaxHarderTimeMinutes(p, IntegerArgumentType.getInteger(ctx, "setMaxHarderTimeMinutes"));
+							})))
+					.then(CommandManager.literal("setXpBottleChance").then(
+							CommandManager.argument("xpBottleChance", IntegerArgumentType.integer(0, 33)).executes(ctx -> {
+								ServerPlayerEntity p = ctx.getSource().getPlayer();
+								return setOddsDropExperienceBottle(p, IntegerArgumentType.getInteger(ctx, "xpBottleChance"));
+							})))
+					.then(CommandManager.literal("chunkReport").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						p.world.asString();
+						Utility.sendChat(p, "\nChunk\n" + p.world.asString(), Formatting.GREEN);
+						return 1;
+					}))
+					.then(CommandManager.literal("grimReport").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						String report = "Grim Citadels at : " + GrimCitadelManager.getCitadelListAsString();
+						Utility.sendChat(p, report, Formatting.GREEN);
+						return 1;
+					})).then(CommandManager.literal("lootReport").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						String report = LootManager.report();
+						Utility.sendBoldChat(p, "\nLoot Report", Formatting.GOLD);
+						Utility.sendChat(p, report, Formatting.YELLOW);
+						reportUseLootDrop(p);
+						reportOddsXpBottleDrop(p);
+						reportGrimLifeHeartPulseSeconds(p);
+						return 1;
+					})).then(CommandManager.literal("info").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						printInfo(p);
+						return 1;
+						// return 1;
+					})).then(CommandManager.literal("grimEffectsInfo").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						printGrimEffectsInfo(p);
+						return 1;
+					})).then(CommandManager.literal("grimInfo").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						printGrimInfo(p);
+						return 1;
+					})).then(CommandManager.literal("timeInfo").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						printTimeInfo(p);
+						return 1;
+					})).then(CommandManager.literal("colorInfo").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						printColorInfo(p);
+						return 1;
+					})).then(CommandManager.literal("boostInfo").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						String chatMessage = "\nHarder Farther Maximum Monster Boosts";
+						Utility.sendBoldChat(p, chatMessage, Formatting.DARK_GREEN);
+
+						chatMessage = "  Monster Health ..........................: " + PrimaryConfig.getHpMaxBoost() + " %."
+								+ "\n  Damage ..............................................: " + PrimaryConfig.getAtkDmgBoost()
+								+ " %." + "\n  Movement .........................................: "
+								+ PrimaryConfig.getSpeedBoost() + " %." + "\n  KnockBack Resistance .........: "
+								+ PrimaryConfig.getKnockBackMod() + " %.";
+						Utility.sendChat(p, chatMessage, Formatting.GREEN);
+						return 1;
+					}))
+					.then(CommandManager.literal("musicInfo").executes(ctx -> {
+						ServerPlayerEntity p = ctx.getSource().getPlayer();
+						printGrimMusicInfo(p);
+						return 1;
+					})).then(CommandManager.literal("setFogColors")
+							.then(CommandManager.argument("R", IntegerArgumentType.integer(0, 100))
+									.then(CommandManager.argument("G", IntegerArgumentType.integer(0, 100))
+											.then(CommandManager.argument("B", IntegerArgumentType.integer(0, 100))
+													.executes(ctx -> {
+														ServerPlayerEntity p = ctx.getSource().getPlayer();
+														int r = IntegerArgumentType.getInteger(ctx, "R");
+														int g = IntegerArgumentType.getInteger(ctx, "G");
+														int b = IntegerArgumentType.getInteger(ctx, "B");
+														return setFogColors(p, r, g, b);
+													}))))
+					));
+		});
 
 	}
 
-	
+
 	private static int setMakeHarderOverTime(ServerPlayerEntity p, boolean b) {
 		PrimaryConfig.setMakeHarderOverTime(b);
 		printTimeInfo(p);

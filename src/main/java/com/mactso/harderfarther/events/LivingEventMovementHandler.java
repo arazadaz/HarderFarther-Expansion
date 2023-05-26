@@ -29,7 +29,7 @@ import net.minecraft.util.random.RandomGenerator;
 
 public class LivingEventMovementHandler {
 
-	public static void onBreakBlockAfterRegister(){
+	public static void onEntityTickRegister(){
 		LivingEntityTickCallback.EVENT.register(
 				(entity) -> {
 
