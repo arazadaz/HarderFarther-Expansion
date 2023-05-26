@@ -3,6 +3,7 @@ package com.mactso.harderfarther.sounds;
 import com.mactso.harderfarther.Main;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class ModSounds {
 //	Attribution Tags for Ambient Music
@@ -37,11 +38,11 @@ public class ModSounds {
 //        return DEFERRED_REG.register(soundName, () -> new SoundEvent(new ResourceLocation(Main.MODID, soundName)));
 //    }
 
-	public static void register(IForgeRegistry<SoundEvent> forgeRegistry)
+	public static void register()
 	{
-		forgeRegistry.register(DUSTY_MEMORIES.getId(),DUSTY_MEMORIES);
-		forgeRegistry.register(LABYRINTH_LOST_DREAMS.getId(),LABYRINTH_LOST_DREAMS);
-		forgeRegistry.register(LAKE_DESTINY.getId(),LAKE_DESTINY);
+		Registry.register(Registry.SOUND_EVENT, new Identifier(Main.MODID, "dust"), DUSTY_MEMORIES);
+		Registry.register(Registry.SOUND_EVENT, new Identifier(Main.MODID, "lady"), LABYRINTH_LOST_DREAMS);
+		Registry.register(Registry.SOUND_EVENT, new Identifier(Main.MODID, "lake"), LAKE_DESTINY);
 	}
 
 	private static SoundEvent create(String key)
