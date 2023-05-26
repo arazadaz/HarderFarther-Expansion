@@ -186,7 +186,7 @@ public class PrimaryConfig {
 			Main.LOGGER.warn("[Harder Farther] Could not access configuration directory: " + configDir.getAbsolutePath());
 		}
 
-		return new File(configDir, "properties");
+		return new File(configDir, "HarderFarther.properties");
 	}
 
 	public static void saveConfig() {

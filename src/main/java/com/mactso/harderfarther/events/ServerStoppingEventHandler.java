@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 public class ServerStoppingEventHandler {
 
     public static void register(){
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             GrimCitadelManager.clear();
             Utility.debugMsg(0, Main.MODID + "Cleanup Successful");
         });

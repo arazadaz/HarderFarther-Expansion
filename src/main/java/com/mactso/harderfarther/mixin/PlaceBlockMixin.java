@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockItem.class)
 public class PlaceBlockMixin {
 
-    @Inject(method = "place", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/item/BlockItem;place(Lnet/minecraft/item/ItemPlacementContext;Lnet/minecraft/block/BlockState;)Z", at = @At("HEAD"), cancellable = true)
     private void onPlace(ItemPlacementContext context, BlockState state, CallbackInfoReturnable<Boolean> cir) {
         ActionResult result = PlaceBlockCallback.EVENT.invoker().interact(context, state);
         if(result == ActionResult.FAIL) {
