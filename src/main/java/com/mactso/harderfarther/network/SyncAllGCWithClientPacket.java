@@ -23,7 +23,7 @@ public class SyncAllGCWithClientPacket {
 	
 	public static void processPacket(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender)
 	{
-
+		GCLocations.clear();
 		int size = buf.readInt();
 
 		for(int index = 0; index<size; index++) {
