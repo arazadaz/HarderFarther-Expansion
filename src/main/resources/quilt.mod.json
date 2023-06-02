@@ -21,7 +21,7 @@
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
 			"init": "com.mactso.harderfarther.Main",
-			"client_init": "com.mactso.harderfarther.Main"
+			"client_init": "com.mactso.harderfarther.MainClient"
 
 		},
 		"depends": [

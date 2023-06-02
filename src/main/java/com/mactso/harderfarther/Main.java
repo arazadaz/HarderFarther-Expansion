@@ -9,10 +9,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.RegisterHandlers.InitRH;
 
-import net.fabricmc.api.ModInitializer;
+
 
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
+import org.quiltmc.loader.api.ModContainer;
+import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 
 
 public class Main implements ModInitializer {
@@ -24,7 +26,7 @@ public class Main implements ModInitializer {
 
 
 
-	public void onInitialize() {
+	public void onInitialize(ModContainer modContainer) {
 		PrimaryConfig.initConfig();
 
 		if (PrimaryConfig.getDebugLevel()> 0) {
@@ -53,6 +55,6 @@ public class Main implements ModInitializer {
 				}
 				
 		}*/
-		
+
 
 }
