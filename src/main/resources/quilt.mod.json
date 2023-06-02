@@ -1,0 +1,43 @@
+{
+	"schema_version": 1,
+	"quilt_loader": {
+		"group": "com.mactso",
+		"id": "harderfarther",
+		"version": "${version}",
+		"metadata": {
+			"name": "Harder Farther",
+			"description": "An expanded port of harderfarther by MacTso",
+			"contributors": {
+				"Arazadaz": "Owner",
+				"MacTso": "Original dev"
+			},
+			"contact": {
+				"homepage": "https://example.com/",
+				"issues": "https://github.com/QuiltMC/quilt-template-mod/issues",
+				"sources": "https://github.com/QuiltMC/quilt-template-mod"
+			},
+			"icon": "assets/harderfarther/hf.png"
+		},
+		"intermediate_mappings": "net.fabricmc:intermediary",
+		"entrypoints": {
+			"init": "com.mactso.harderfarther.Main",
+			"client_init": "com.mactso.harderfarther.Main"
+
+		},
+		"depends": [
+			{
+				"id": "quilt_loader",
+				"versions": ">=0.17.0-"
+			},
+			{
+				"id": "quilted_fabric_api",
+				"versions": ">=4.0.0-"
+			},
+			{
+				"id": "minecraft",
+				"versions": ">=1.19.2"
+			}
+		]
+	},
+	"mixin": "harderfarther.mixins.json"
+}
