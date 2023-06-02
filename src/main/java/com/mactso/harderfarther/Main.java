@@ -3,6 +3,7 @@ package com.mactso.harderfarther;
 
 import java.lang.reflect.Field;
 
+import com.mactso.harderfarther.config.BiomeConfig;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +27,7 @@ public class Main implements ModInitializer {
 
 	public void onInitialize() {
 		PrimaryConfig.initConfig();
+		BiomeConfig.initConfig();
 
 		if (PrimaryConfig.getDebugLevel()> 0) {
 			System.out.println("Harder Farther Debug Level: " + PrimaryConfig.getDebugLevel() );

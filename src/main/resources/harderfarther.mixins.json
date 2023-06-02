@@ -6,6 +6,7 @@
 	"mixins": [],
 	"client": [
         "BackgroundRendererFogMixin",
+        "BiomeGenMixin",
         "LivingEntityDropMixin",
         "LivingEntityTickMixin",
         "PlaceBlockMixin",
