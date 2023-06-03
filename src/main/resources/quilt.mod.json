@@ -39,5 +39,6 @@
 			}
 		]
 	},
-	"mixin": "harderfarther.mixins.json"
+	"mixin": "harderfarther.mixins.json",
+	"access_widener": "harderfarther.accesswidener"
 }

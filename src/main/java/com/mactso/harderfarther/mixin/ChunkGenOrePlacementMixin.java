@@ -42,14 +42,14 @@ public class ChunkGenOrePlacementMixin {
             String block = context.getConfig().targets.get(0).state.getBlock().toString().substring(6);
             block = block.substring(0, block.length()-1);
 
-            System.out.print(block);
+            //System.out.print(block);
 
             if(!block.equals("minecraft:iron_ore")){
                 //System.out.print(block);
                 cir.setReturnValue(false);
             }
 
-            System.out.println(block);
+            //System.out.println(block);
 
         }
 

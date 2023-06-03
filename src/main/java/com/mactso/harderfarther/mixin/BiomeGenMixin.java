@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.config.BiomeConfig;
+import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.Holder;
@@ -15,28 +16,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import terrablender.api.RegionType;
+import terrablender.worldgen.IExtendedParameterList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/*@Mixin(BiomeSource.class)
-public class BiomeGenMixin {
-
-    @Final
-    @Mutable
-    @Shadow
-    private Set<Holder<Biome>> biomes;
-
-    @Inject(at = @At(value = "TAIL"), method = "<init>(Ljava/util/List;)V", cancellable = false)
-    private void onGenerate(List biomesList, CallbackInfo ci) {
-        Set<Holder<Biome>> biomes = this.biomes;
-        biomes.removeIf((biome) -> !biome.isRegistryKeyId(new Identifier("minecraft", "snowy_plains")));
-        this.biomes = biomes;
-    }
-}*/
-
-@Mixin(MultiNoiseBiomeSource.class)
+@Mixin(value = MultiNoiseBiomeSource.class, priority = 995)
 public class BiomeGenMixin extends BiomeSource{
 
     @Final
@@ -44,19 +31,57 @@ public class BiomeGenMixin extends BiomeSource{
     @Shadow
     private MultiNoiseUtil.ParameterRangeList<Holder<Biome>> biomePoints;
 
-    private static ArrayList<MultiNoiseUtil.ParameterRangeList<Holder<Biome>>> difficultySections = new ArrayList<>();
+    private static ArrayList<MultiNoiseUtil.SearchTree<Holder<Biome>>> difficultySections = new ArrayList<>();
 
-    private static int x = 0;
+    private static boolean initialized = false;
+
+    private MultiNoiseUtil.SearchTree<Holder<Biome>> newSearchTree;
 
     protected BiomeGenMixin(Stream<Holder<Biome>> biomes) {
         super(biomes);
     }
 
-    @Inject(at = @At(value = "RETURN"), method = "Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/biome/source/util/MultiNoiseUtil$MultiNoiseSampler;)Lnet/minecraft/util/Holder;", cancellable = false)
+    @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/biome/source/util/MultiNoiseUtil$MultiNoiseSampler;)Lnet/minecraft/util/Holder;", cancellable = true)
     private void onGenerate(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
 
+        if(!initialized) {
 
-        if(x == 0){
+            int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTreeCount();
+            List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
+
+
+            for(int iterator = 0; iterator<regionCount; iterator++) {
+                IExtendedSearchTree<Holder<Biome>> defaultSearchTree = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTree(iterator));
+
+                List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTree.getOriginalList();
+
+                BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
+                    biomePairs.forEach(noiseHypercubeHolderPair -> {
+
+                        String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
+
+                        if(difficultySection.second.contains(biome)){
+                            modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                        }
+
+                    });
+                });
+                newSearchTree = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
+            }
+
+            initialized = true;
+        }
+
+        RegionType regionType = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getRegionType();
+
+        if(regionType == RegionType.OVERWORLD) {
+            cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+        }
+
+
+
+
+        /*if(x == 0){
 
             difficultySections.add(this.biomePoints); //Original biome list will be index 0
             List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
@@ -66,9 +91,14 @@ public class BiomeGenMixin extends BiomeSource{
 
                     String biome = noiseHypercubeHolderPair.getSecond().getKey().get().toString().substring(39);
                     biome = biome.substring(0, biome.length()-1);
+                    //System.out.println(noiseHypercubeHolderPair.getSecond().getKey().get().getValue());
 
                     if(difficultySection.second.contains(biome)){
                         modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                    }
+                    //RegistryKey.of(BuiltinRegistries.BIOME.getKey(), new Identifier("terrablender", "deferred_placeholder"));
+                    if(noiseHypercubeHolderPair.getSecond().isRegistryKey(RegistryKey.of(BuiltinRegistries.BIOME.getKey(), new Identifier("terrablender", "deferred_placeholder")))){
+                        System.out.println("Success");
                     }
                 }));
 
@@ -87,7 +117,23 @@ public class BiomeGenMixin extends BiomeSource{
         }
 
         //Still need to implement logic for which section to choose & distinguish between overworld/other dimensions.
-        this.biomePoints = difficultySections.get(1);
+        this.biomePoints = difficultySections.get(0);
+
+        biomePoints.getEntries().forEach((noiseHypercubeHolderPair -> {
+
+            //System.out.println(noiseHypercubeHolderPair.getSecond().getKey().get().getValue());
+
+            //RegistryKey.of(BuiltinRegistries.BIOME.getKey(), new Identifier("terrablender", "deferred_placeholder"));
+            if(noiseHypercubeHolderPair.getSecond().isRegistryKey(RegistryKey.of(BuiltinRegistries.BIOME.getKey(), new Identifier("terrablender", "deferred_placeholder")))){
+                System.out.println("Success");
+            }
+        }));*/
+
+        /*biomePoints.getEntries().forEach((noiseHypercubeHolderPair) -> {
+            if(noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString().equals("byg:tropical_rainforest")){
+                System.out.println(noiseHypercubeHolderPair.getSecond().getKey().get().getValue());
+            }
+        });*/
     }
 
     @Shadow
@@ -102,65 +148,3 @@ public class BiomeGenMixin extends BiomeSource{
         return null;
     }
 }
-
-/*@Mixin(PalettedContainer.class)
-public class BiomeGenMixin {
-
-    @Inject(at = @At(value = "RETURN"), method = "m_hnfmqovh", remap = false)
-    private void onGenerate(CallbackInfoReturnable<Set<Holder<Biome>>> cir) {
-        //cir.setReturnValue(this.get(15));
-
-    }
-
-    @Shadow
-    protected <T> T get(int index) {
-        return null;
-    }
-}*/
-
-/*@Mixin(Chunk.class)
-public class BiomeGenMixin {
-
-    @Final
-    @Shadow
-    protected ChunkSection[] sectionArray;
-
-    @Shadow
-    private static void fillSectionArray(HeightLimitView world, Registry<Biome> biomeRegistry, ChunkSection[] sectionArray){};
-
-    @Inject(at = @At(value = "TAIL"), method = "<init>")
-    private void onGenerate(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry biomeRegistry, long inhabitedTime, ChunkSection[] sectionArrayInitializer, BlendingData blendingData, CallbackInfo ci) {
-
-        ExtraRegistry newBiomeList = (ExtraRegistry)biomeRegistry;
-
-        Set<Identifier> biomeIds = biomeRegistry.getIds();
-
-        for (Identifier biomeId : biomeIds) {
-            if (biomeId != new Identifier("minecraft", "snowy_plains")){
-                newBiomeList.removeId(biomeId);
-            }
-        }
-
-        biomeRegistry = (Registry<Biome>)newBiomeList;
-        fillSectionArray(heightLimitView, biomeRegistry, this.sectionArray);
-
-    }
-
-}*/
-
-/*@Mixin(MultiNoiseBiomeSource.class)
-public class BiomeGenMixin {
-
-    @Final
-    @Shadow
-    private MultiNoiseUtil.ParameterRangeList<Holder<Biome>> biomePoints;
-
-    @Inject(at = @At(value = "TAIL"), method = "<init>(Lnet/minecraft/world/biome/source/util/MultiNoiseUtil$ParameterRangeList;Ljava/util/Optional;)V")
-    private void onNoiseBiomes(MultiNoiseUtil.ParameterRangeList biomePoints, Optional instance, CallbackInfo ci){
-        System.out.println(biomePoints.toString());
-        System.out.println(biomePoints.getEntries().toString());
-    }
-
-}*/
-
-

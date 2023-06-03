@@ -1,0 +1,7 @@
+accessWidener v2 named
+
+# Climate
+accessible class net/minecraft/world/biome/source/util/MultiNoiseUtil$NoiseDistanceFunction
+accessible class net/minecraft/world/biome/source/util/MultiNoiseUtil$SearchTree
+accessible class net/minecraft/world/biome/source/util/MultiNoiseUtil$SearchTree$TreeNode
+accessible method net/minecraft/world/biome/source/util/MultiNoiseUtil$SearchTree$TreeNode getSquaredDistance ([J)J
