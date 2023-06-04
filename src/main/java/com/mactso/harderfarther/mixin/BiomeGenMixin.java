@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.config.BiomeConfig;
+import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -16,7 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import terrablender.api.RegionType;
 import terrablender.worldgen.IExtendedParameterList;
 
 import java.util.ArrayList;
@@ -34,6 +34,10 @@ public class BiomeGenMixin extends BiomeSource{
     private static ArrayList<MultiNoiseUtil.SearchTree<Holder<Biome>>> difficultySections = new ArrayList<>();
 
     private static boolean initialized = false;
+
+    private boolean isDimInitialized = false;
+
+    private String dimension = "";
 
     private MultiNoiseUtil.SearchTree<Holder<Biome>> newSearchTree;
 
@@ -72,10 +76,24 @@ public class BiomeGenMixin extends BiomeSource{
             initialized = true;
         }
 
-        RegionType regionType = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getRegionType();
 
-        if(regionType == RegionType.OVERWORLD) {
-            cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+
+
+        //Make sure worlds are initialized before running main logic
+        if(((IExtendedBiomeSourceHF)this).getInit()) {
+
+            if(!isDimInitialized) {
+                dimension = ((IExtendedBiomeSourceHF) (BiomeSource) (Object) this).getDirtyWorld().getRegistryKey().getValue().toString();
+                isDimInitialized = true;
+            }
+
+            //Main Logic for choosing difficulty biome section
+
+            if(this.dimension.equals("minecraft:overworld")) {
+                cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+            }
+
+
         }
 
 
