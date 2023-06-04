@@ -33,12 +33,13 @@ public class BiomeGenMixin extends BiomeSource{
 
     private static ArrayList<MultiNoiseUtil.SearchTree<Holder<Biome>>> difficultySections = new ArrayList<>();
 
-    private static boolean initialized = false;
+    private boolean areListInitialized = false;
 
     private boolean isDimInitialized = false;
 
     private String dimension = "";
 
+    private IExtendedSearchTree<Holder<Biome>>[] defaultSearchTrees;
     private MultiNoiseUtil.SearchTree<Holder<Biome>> newSearchTree;
 
     protected BiomeGenMixin(Stream<Holder<Biome>> biomes) {
@@ -48,21 +49,23 @@ public class BiomeGenMixin extends BiomeSource{
     @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/biome/source/util/MultiNoiseUtil$MultiNoiseSampler;)Lnet/minecraft/util/Holder;", cancellable = true)
     private void onGenerate(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
 
-        if(!initialized) {
+        if(!areListInitialized) {
 
             int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTreeCount();
             List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
+            defaultSearchTrees = new IExtendedSearchTree[regionCount];
 
 
             for(int iterator = 0; iterator<regionCount; iterator++) {
-                IExtendedSearchTree<Holder<Biome>> defaultSearchTree = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTree(iterator));
+                defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTree(iterator));
 
-                List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTree.getOriginalList();
+                List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
 
                 BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
                     biomePairs.forEach(noiseHypercubeHolderPair -> {
 
                         String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
+                        System.out.println(biome);
 
                         if(difficultySection.second.contains(biome)){
                             modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
@@ -70,11 +73,14 @@ public class BiomeGenMixin extends BiomeSource{
 
                     });
                 });
-                newSearchTree = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
+                if(!modifiedBiomePoints.isEmpty()) {
+                    newSearchTree = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
+                }
             }
 
-            initialized = true;
+            areListInitialized = true;
         }
+
 
 
 
@@ -87,13 +93,22 @@ public class BiomeGenMixin extends BiomeSource{
                 isDimInitialized = true;
             }
 
+
+
             //Main Logic for choosing difficulty biome section
+            int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.biomePoints).getUniqueness(i, j, k);
 
             if(this.dimension.equals("minecraft:overworld")) {
                 cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+            }else {
+                cir.setReturnValue((Holder<Biome>) ((MultiNoiseUtil.SearchTree) (Object) defaultSearchTrees[uniqueness]).get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
             }
 
+        }
 
+        //Generates spawn - This is only needed since minecraft generates the spawn before initializing worlds for whatever reason. Spawn will always be overworld unless a mod/datapack changes it.
+        if(!((IExtendedBiomeSourceHF)this).getInit()) {
+            cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
         }
 
 
