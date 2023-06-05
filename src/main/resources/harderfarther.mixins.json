@@ -18,8 +18,8 @@
         "RenderSystemFogColorMixin",
         "SearchTreeMixin",
         "ServerCreateWorldMixin",
-        "ServerWorldTickMixin",
-        "StructureStartMixin"
+        "ServerWorldTickMixin"
+
 	],
 	"injectors": {
 		"defaultRequire": 1
