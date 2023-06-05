@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class BiomeConfig {
+public class StructureConfig {
 
     private static int size;
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class BiomeConfig {
+public class OreConfig {
 
     private static int size;
 
@@ -51,7 +51,7 @@ public class BiomeConfig {
             Main.LOGGER.warn("[Harder Farther] Could not access configuration directory: " + configDir.getAbsolutePath());
         }
 
-        return new File(configDir, "Biomes.properties");
+        return new File(configDir, "Ores.properties");
     }
 
     private static void computeConfigValues() {
