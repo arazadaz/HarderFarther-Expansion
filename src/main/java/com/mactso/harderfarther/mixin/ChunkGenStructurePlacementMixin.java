@@ -95,6 +95,8 @@ public abstract class ChunkGenStructurePlacementMixin {
 
         ((IExtendedChunkRegion)world).setBiomeSource(this.getBiomeSource());
 
+        //In the future I could rework this maybe and try using Wrap with condition to skip the next line. https://github.com/LlamaLad7/MixinExtras/wiki/WrapWithCondition
+
     }
 
 
