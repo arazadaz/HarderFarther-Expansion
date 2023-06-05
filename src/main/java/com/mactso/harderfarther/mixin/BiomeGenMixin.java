@@ -93,15 +93,24 @@ public class BiomeGenMixin extends BiomeSource{
 
                     if(regionIndex == 0) difficultySectionNumbers.add(difficultySection.first.floatValue());
 
+
+                    //Iterate through original biome List of a region
                     biomePairs.forEach(noiseHypercubeHolderPair -> {
 
                         String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
 
-                        if(difficultySection.second.contains(biome)){
+
+                        //Add All biomes if biome config list is empty. Otherwise add only if it's apart of the list in the config. - .isEmpty doesn't work as it seems initialized with empty strings.
+                        if(difficultySection.second.get(0).equals("")){
+                            modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                        }else if(difficultySection.second.contains(biome)){
                             modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
                         }
 
                     });
+
+
+
                     if(!modifiedBiomePoints.isEmpty()) {
                         newSearchTree[difficultySectionIndex[0]][regionIndex] = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
                         modifiedBiomePoints.clear();  //reset the list to ensure no duplicate values.

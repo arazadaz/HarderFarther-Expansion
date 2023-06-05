@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
+import com.mactso.harderfarther.config.OreConfig;
 import com.mactso.harderfarther.manager.HarderFartherManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Holder;
@@ -20,8 +21,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Mixin(OreFeature.class)
 public class ChunkGenOrePlacementMixin {
+
+    private boolean areListInitialized = false;
+
+    private ArrayList<Float> difficultySectionNumbers = new ArrayList<>();
+    private ArrayList<List<String>> difficultySectionOres = new ArrayList<>();
 
 
     @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/gen/feature/OreFeature;place(Lnet/minecraft/world/gen/feature/util/FeatureContext;)Z", cancellable = true)
@@ -32,24 +41,50 @@ public class ChunkGenOrePlacementMixin {
         //context contains ore to be placed among other things like world & blockpos & config
         //config is the block
 
-        ServerWorld world = context.getWorld().toServerWorld();
 
+        if(!areListInitialized){
+
+            OreConfig.getDifficultySections().forEach(section ->{
+                difficultySectionNumbers.add(section.first);
+                difficultySectionOres.add(section.second);
+            });
+
+
+            areListInitialized = true;
+        }
+        //end of listInitialization
+
+
+
+
+
+
+        ServerWorld world = context.getWorld().toServerWorld();
 
         if(world.getRegistryKey() == World.OVERWORLD){
 
             BlockPos pos = context.getOrigin();
-            HarderFartherManager.getDistanceDifficultyHere(world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()));
             String block = context.getConfig().targets.get(0).state.getBlock().toString().substring(6);
             block = block.substring(0, block.length()-1);
 
-            //System.out.print(block);
 
-            if(!block.equals("minecraft:iron_ore")){
-                //System.out.print(block);
+            float difficulty = HarderFartherManager.getDistanceDifficultyHere(world, new Vec3d(pos.getX(), pos.getY(), pos.getZ())) * 100;
+
+            int[] choosenAreaIndex = {-1};
+            difficultySectionNumbers.forEach(difficultySectionNumber -> {
+                if(difficulty >= difficultySectionNumber) choosenAreaIndex[0]++;
+            });
+
+
+            //default to alllow all ores if list is empty. - .isEmpty doesn't work as it seems initialized with empty strings.
+            if(difficultySectionOres.get(choosenAreaIndex[0]).get(0).equals("")){
+                return;
+            }
+
+            if(!difficultySectionOres.get(choosenAreaIndex[0]).contains(block)){
                 cir.setReturnValue(false);
             }
 
-            //System.out.println(block);
 
         }
 

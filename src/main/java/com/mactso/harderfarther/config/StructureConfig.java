@@ -51,7 +51,7 @@ public class StructureConfig {
             Main.LOGGER.warn("[Harder Farther] Could not access configuration directory: " + configDir.getAbsolutePath());
         }
 
-        return new File(configDir, "Biomes.properties");
+        return new File(configDir, "Structures.properties");
     }
 
     private static void computeConfigValues() {

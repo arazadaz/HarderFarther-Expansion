@@ -10,6 +10,7 @@
         "BiomeSourceMixin",
         "ChunkGenOrePlacementMixin",
         "ChunkGenStructurePlacementMixin",
+        "ChunkRegionMixin",
         "LivingEntityDropMixin",
         "LivingEntityTickMixin",
         "PlaceBlockMixin",
@@ -17,7 +18,8 @@
         "RenderSystemFogColorMixin",
         "SearchTreeMixin",
         "ServerCreateWorldMixin",
-        "ServerWorldTickMixin"
+        "ServerWorldTickMixin",
+        "StructureStartMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
