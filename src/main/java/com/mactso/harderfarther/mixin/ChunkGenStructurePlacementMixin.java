@@ -32,10 +32,10 @@ import java.util.List;
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGenStructurePlacementMixin {
 
-    private boolean areListInitialized = false;
+    //private boolean areListInitialized = false;
 
-    private ArrayList<Float> difficultySectionNumbers = new ArrayList<>();
-    private ArrayList<List<String>> difficultySectionStructureSet = new ArrayList<>();
+    //private ArrayList<Float> difficultySectionNumbers = new ArrayList<>();
+    //private ArrayList<List<String>> difficultySectionStructureSet = new ArrayList<>();
 
     /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/structure/StructureSet;placement()Lnet/minecraft/structure/StructurePlacement;"), method = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;m_mzeyuzcs(Lnet/minecraft/util/Holder;Lnet/minecraft/world/gen/RandomState;JIII)Z", cancellable = true)
     private void onGenerate(Holder<StructureSet> holder, RandomState randomState, long l, int i, int j, int k, CallbackInfoReturnable<Boolean> cir) {
