@@ -1,12 +1,17 @@
 package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.config.BiomeConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.manager.HarderFartherManager;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
+import com.mactso.harderfarther.utility.Utility;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.Holder;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil;
@@ -31,8 +36,6 @@ public class BiomeGenMixin extends BiomeSource{
     @Shadow
     private MultiNoiseUtil.ParameterRangeList<Holder<Biome>> biomePoints;
 
-    private static ArrayList<MultiNoiseUtil.SearchTree<Holder<Biome>>> difficultySections = new ArrayList<>();
-
     private boolean areListInitialized = false;
 
     private boolean isDimInitialized = false;
@@ -40,7 +43,11 @@ public class BiomeGenMixin extends BiomeSource{
     private String dimension = "";
 
     private IExtendedSearchTree<Holder<Biome>>[] defaultSearchTrees;
-    private MultiNoiseUtil.SearchTree<Holder<Biome>> newSearchTree;
+    private MultiNoiseUtil.SearchTree<Holder<Biome>>[][] newSearchTree;
+
+    private ArrayList<Float> difficultySectionNumbers = new ArrayList<>();
+    private ArrayList<Integer> emptyListsIndexes = new ArrayList<>();
+    private ArrayList<Integer> filledListsIndexes = new ArrayList<>();
 
     protected BiomeGenMixin(Stream<Holder<Biome>> biomes) {
         super(biomes);
@@ -51,9 +58,27 @@ public class BiomeGenMixin extends BiomeSource{
 
         if(!areListInitialized) {
 
+            if(PrimaryConfig.getDebugLevel() > 0) {
+                Utility.debugMsg(1, "New Biome Source");
+            }
+
+            //Return default value if terrablender biomesource is not initialized
+            if(!((IExtendedParameterList<Holder<Biome>>) this.biomePoints).isInitialized()){
+
+                if (PrimaryConfig.getDebugLevel() > 1) {
+                    Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
+                }
+                areListInitialized = true;
+                cir.setReturnValue(this.biomePoints.findValue(multiNoiseSampler.sample(i,j,k)));
+                return;
+
+            }
+
+
             int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTreeCount();
             List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
             defaultSearchTrees = new IExtendedSearchTree[regionCount];
+            newSearchTree = new MultiNoiseUtil.SearchTree[BiomeConfig.getDifficultySections().size()][regionCount];
 
 
             for(int iterator = 0; iterator<regionCount; iterator++) {
@@ -61,29 +86,82 @@ public class BiomeGenMixin extends BiomeSource{
 
                 List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
 
+
+                final int[] difficultySectionIndex = {0};
+                int regionIndex = iterator;
                 BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
+
+                    if(regionIndex == 0) difficultySectionNumbers.add(difficultySection.first.floatValue());
+
                     biomePairs.forEach(noiseHypercubeHolderPair -> {
 
                         String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
-                        System.out.println(biome);
 
                         if(difficultySection.second.contains(biome)){
                             modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
                         }
 
                     });
+                    if(!modifiedBiomePoints.isEmpty()) {
+                        newSearchTree[difficultySectionIndex[0]][regionIndex] = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
+                        modifiedBiomePoints.clear();  //reset the list to ensure no duplicate values.
+                        filledListsIndexes.add(regionIndex);
+                    }else{
+                        emptyListsIndexes.add(regionIndex);
+                    }
+
+                    //Fill empty lists with alternating filled lists
+                    if(regionIndex == regionCount-1){
+                        final int[] filledListIndexesIndex = {0};
+                        emptyListsIndexes.forEach(emptyIndex ->{
+
+                            newSearchTree[difficultySectionIndex[0]][emptyIndex] = newSearchTree[difficultySectionIndex[0]][filledListsIndexes.get(filledListIndexesIndex[0])];
+
+                            filledListIndexesIndex[0]++;
+                            if(filledListIndexesIndex[0] == filledListsIndexes.size() -1){
+                                filledListIndexesIndex[0] = 0;
+                            }
+                        });
+                    }
+
+                    difficultySectionIndex[0]++;
                 });
-                if(!modifiedBiomePoints.isEmpty()) {
-                    newSearchTree = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
-                }
+
             }
 
             areListInitialized = true;
         }
+        //end of listInitialization
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+        //Start of primary logic
+
+        // Fallback on findValue if we are uninitialized (may be the case for non-TerraBlender dimensions) - Also nether is bugged & not initialized in 1.19.2 fabric terrablender
+        if(!((IExtendedParameterList<Holder<Biome>>) this.biomePoints).isInitialized()) {
+
+            if (PrimaryConfig.getDebugLevel() > 1) {
+                Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
+            }
+            cir.setReturnValue(this.biomePoints.findValue(multiNoiseSampler.sample(i,j,k)));
+            return;
+
+        }
+
+
+
+        int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.biomePoints).getUniqueness(i, j, k);
 
         //Make sure worlds are initialized before running main logic
         if(((IExtendedBiomeSourceHF)this).getInit()) {
@@ -95,20 +173,35 @@ public class BiomeGenMixin extends BiomeSource{
 
 
 
-            //Main Logic for choosing difficulty biome section
-            int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.biomePoints).getUniqueness(i, j, k);
 
+            //Main Logic for choosing difficulty biome section
+            int x = BiomeCoords.fromChunk(i);
+            int z = BiomeCoords.fromChunk(k);
+            Vec3d location = new Vec3d(x, 0, z);
+            float difficulty = HarderFartherManager.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getDirtyWorld(), location) * 100;
+
+            //System.out.println(difficulty);
+
+            int[] choosenAreaIndex = {-1};
+            difficultySectionNumbers.forEach(difficultySectionNumber -> {
+                if(difficulty >= difficultySectionNumber) choosenAreaIndex[0]++;
+            });
+
+
+
+
+            //Support for overworld only as of now. I want to get a release out :)
             if(this.dimension.equals("minecraft:overworld")) {
-                cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+                cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
             }else {
-                cir.setReturnValue((Holder<Biome>) ((MultiNoiseUtil.SearchTree) (Object) defaultSearchTrees[uniqueness]).get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+                cir.setReturnValue((Holder<Biome>) ((MultiNoiseUtil.SearchTree) (Object) defaultSearchTrees[0]).get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
             }
 
         }
 
         //Generates spawn - This is only needed since minecraft generates the spawn before initializing worlds for whatever reason. Spawn will always be overworld unless a mod/datapack changes it.
         if(!((IExtendedBiomeSourceHF)this).getInit()) {
-            cir.setReturnValue((Holder<Biome>) newSearchTree.get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+            cir.setReturnValue((Holder<Biome>) newSearchTree[0][uniqueness].get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
         }
 
 

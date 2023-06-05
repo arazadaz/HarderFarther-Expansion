@@ -14,6 +14,10 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+    maven {
+        name = 'Forge'
+        url = 'https://maven.minecraftforge.net'
+    }
 }
 
 // All the dependencies are declared at gradle/libs.version.toml and referenced with "libs.<id>"
@@ -33,7 +37,8 @@ dependencies {
 	// QSL is not a complete API; You will need Quilted Fabric API to fill in the gaps.
 	// Quilted Fabric API will automatically pull in the correct QSL version.
 	modImplementation libs.quilted.fabric.api
-	modImplementation files("/home/chazzy/Desktop/Dev/java/minecraft/TerraBlender/Fabric/build/libs/TerraBlender-fabric-1.19.2-2.0.1.null.jar")
+	modImplementation ("com.github.glitchfiend:TerraBlender-fabric:${terrablender_version}")
+	//modImplementation files("path") - use for local dependencies
 	// modImplementation libs.bundles.quilted.fabric.api // If you wish to use Fabric API's deprecated modules, you can replace the above line with this one
 	include implementation("com.electronwill.night-config:toml:${nightconfig_version}")
     include implementation("com.electronwill.night-config:core:${nightconfig_version}")

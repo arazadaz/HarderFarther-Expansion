@@ -15,7 +15,7 @@ public class BiomeConfig {
     private static ArrayList<String> biomes = new ArrayList<>();
 
     private static ArrayList<String> difficultySectionAsString = new ArrayList<>();
-    private static ArrayList<Pair<Integer, List<String>>> difficultySections = new ArrayList<>();
+    private static ArrayList<Pair<Float, List<String>>> difficultySections = new ArrayList<>();
 
     public static void initConfig() {
         final File configFile = getConfigFile();
@@ -34,7 +34,7 @@ public class BiomeConfig {
 
         if(size > 1){
             for(int x = 1; x < size; x++){
-                difficultySectionAsString.add(properties.getProperty("Section_" + x).toString());
+                difficultySectionAsString.add(properties.getProperty("Section_" + (x+1)).toString());
             }
         }
 
@@ -56,7 +56,7 @@ public class BiomeConfig {
     private static void computeConfigValues() {
 
         for(int x=0; x<size; x++) {
-            int section = Integer.parseInt(difficultySectionAsString.get(x).substring(1, 2));
+            float section = Float.parseFloat(difficultySectionAsString.get(x).substring(1).split(":",2)[0]);
             List<String> biomes = List.of(difficultySectionAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
             difficultySections.add(Pair.of(section, biomes));
         }
@@ -69,6 +69,14 @@ public class BiomeConfig {
         final Properties properties = new Properties();
 
         properties.put("Section_1", difficultySectionAsString.get(0));
+
+        int x = 1;
+        if(difficultySectionAsString.size() > 1){
+            while(x<difficultySectionAsString.size()){
+                properties.put("Section_" + (x+1), difficultySectionAsString.get(x));
+                x++;
+            }
+        }
 
         try (FileOutputStream stream = new FileOutputStream(configFile)) {
             properties.store(stream, "A list of biomes allowed in every difficulty section, empty meaning all");
@@ -83,7 +91,7 @@ public class BiomeConfig {
         return size;
     }
 
-    public static ArrayList<Pair<Integer, List<String>>> getDifficultySections(){
+    public static ArrayList<Pair<Float, List<String>>> getDifficultySections(){
         return difficultySections;
     }
 

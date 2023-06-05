@@ -1,6 +1,8 @@
 package com.mactso.harderfarther.mixin;
 
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
+import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ServerWorld;
@@ -19,7 +21,9 @@ public class ServerCreateWorldMixin {
         for(ServerWorld serverWorld : this.getWorlds()) {
             ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setDirtyWorld(serverWorld);
             ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setInit(true);
-            System.out.println("hi");
+            if(PrimaryConfig.getDebugLevel() > 0) {
+                Utility.debugMsg(1, "World " + serverWorld.getRegistryKey().getValue() + " initialized");
+            }
         }
 
     }
