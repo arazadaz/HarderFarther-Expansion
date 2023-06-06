@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.mixin;
 
 
-import com.mactso.harderfarther.events.FogRenderCallback;
+import com.mactso.harderfarther.api.FogRenderCallback;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.util.ActionResult;

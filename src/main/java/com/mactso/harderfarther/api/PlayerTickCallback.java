@@ -1,15 +1,15 @@
-package com.mactso.harderfarther.events;
+package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 
-public interface ServerWorldTickCallback {
+public interface PlayerTickCallback {
 
-    Event<ServerWorldTickCallback> EVENT = EventFactory.createArrayBacked(ServerWorldTickCallback.class,
+    Event<PlayerTickCallback> EVENT = EventFactory.createArrayBacked(PlayerTickCallback.class,
             (listeners) -> (player) -> {
-                for (ServerWorldTickCallback listener : listeners) {
+                for (PlayerTickCallback listener : listeners) {
                     ActionResult result = listener.interact(player);
 
                     if(result != ActionResult.PASS) {
@@ -20,6 +20,6 @@ public interface ServerWorldTickCallback {
                 return ActionResult.PASS;
             });
 
-    ActionResult interact(ServerWorld world);
+    ActionResult interact(PlayerEntity player);
 
 }

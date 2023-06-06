@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.mixin;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.config.StructureConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
@@ -24,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static com.mactso.harderfarther.api.DifficultyCalculator.getNearestOutpost;
 
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGenStructurePlacementMixin {
@@ -164,21 +167,36 @@ public abstract class ChunkGenStructurePlacementMixin {
         //repeat logic for spawn before worlds are initialized.
         if(!((IExtendedBiomeSourceHF) this.getBiomeSource()).getInit()){
 
-            ChunkPos chunkPos = chunk.getPos();
-            int x = BiomeCoords.fromChunk(chunkPos.getCenterX());
-            int z = BiomeCoords.fromChunk(chunkPos.getCenterZ());
-
             String structure = ((IExtendedChunkRegion) world).getGeneratingStructureResourceKey();
             structure = structure.substring(0, structure.length() - 1);
             structure = structure.split("/")[2].substring(1);
 
 
+            Vec3d spawnVec = ((IExtendedBiomeSourceHF) this.getBiomeSource()).getOverworldSpawn();
+            Vec3d location = new Vec3d(0, 0, 0);
 
-            if (difficultySectionStructure.get(0).get(0).equals("")) {
+            //Add spawn to outpost list if enabled & get nearest outpost
+            Vec3d[] outposts = PrimaryConfig.getOutpostPositions().clone();
+            if(PrimaryConfig.isSpawnAnOutpost()){
+                outposts[0] = spawnVec;
+            }
+
+            Vec3d nearestOutpost = getNearestOutpost(outposts, location);
+
+            float difficulty = DifficultyCalculator.calcDistanceModifier(location, nearestOutpost) * 100;
+
+            int[] choosenAreaIndex = {-1};
+            difficultySectionNumbers.forEach(difficultySectionNumber -> {
+                if(difficulty >= difficultySectionNumber) choosenAreaIndex[0]++;
+            });
+
+
+
+            if (difficultySectionStructure.get(choosenAreaIndex[0]).get(0).equals("")) {
                 return;
             }
 
-            if (!difficultySectionStructure.get(0).contains(structure)) {
+            if (!difficultySectionStructure.get(choosenAreaIndex[0]).contains(structure)) {
                 //System.out.println("cancled:" + structure);
                 this.shouldgen = false;
             }

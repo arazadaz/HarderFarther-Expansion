@@ -13,15 +13,14 @@ import java.util.Properties;
 import com.mactso.harderfarther.Main;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-
-import com.mactso.harderfarther.manager.LootManager;
-
+import net.minecraft.util.math.Vec3d;
 
 
 public class PrimaryConfig {
 	
 	//Intermediary - Gets delimited into actual list
 	private static String dimensionOmitListString;
+	private static String outpostListAsString;
 	private static String lootItemsListString;
 	private static String grimCitadelsListString;
 	
@@ -37,6 +36,9 @@ public class PrimaryConfig {
 	private static boolean onlyOverworld;
 	private static boolean makeMonstersHarderFarther;
 	private static List<? extends String> dimensionOmitList;
+	private static List<BlockPos> outpostBlockPosList;
+	private static Vec3d[] outpostVec3dArray;
+	private static boolean useSpawnAsOutpost;
 	private static int boostMaxDistance;
 	private static int boostMinDistance;
 	private static int safeDistance;
@@ -123,6 +125,8 @@ public class PrimaryConfig {
 //		Harder Farther Control Values"."HarderFarther Settings
 		onlyOverworld = properties.computeIfAbsent("only_overworld", (a) -> "false").equals("true");
 		dimensionOmitListString = properties.computeIfAbsent("dimension_omit_list", (a) -> "[\"minecraft:the_nether\", \"minecraft:the_end\"]").toString();
+		outpostListAsString = properties.computeIfAbsent("outpost_list", (a) -> "[]").toString();
+		useSpawnAsOutpost = properties.computeIfAbsent("is_spawn_an_outpost", (a) -> "true").equals("true");
 		makeMonstersHarderFarther = properties.computeIfAbsent("make_monsters_harder_farther", (a) -> "true").equals("true");
 		boostMaxDistance = Integer.parseInt(properties.computeIfAbsent("boost_max_distance", (a) -> "30000").toString());
 		boostMinDistance = Integer.parseInt(properties.computeIfAbsent("boost_min_distance", (a) -> "1000").toString());
@@ -205,6 +209,8 @@ public class PrimaryConfig {
 //		Harder Farther Control Values"."HarderFarther Settings
 		properties.put("only_overworld", Boolean.toString(onlyOverworld));
 		properties.put("dimension_omit_list", dimensionOmitList.toString());
+		properties.put("outpost_list", outpostListAsString);
+		properties.put("is_spawn_an_outpost", Boolean.toString(useSpawnAsOutpost));
 		properties.put("make_monsters_harder_farther", Boolean.toString(makeMonstersHarderFarther));
 		properties.put("boost_max_distance", Integer.toString(boostMaxDistance));
 		properties.put("boost_min_distance", Integer.toString(boostMinDistance));
@@ -214,6 +220,7 @@ public class PrimaryConfig {
 //		Harder Farther Control Values"."Loot Settings
 		properties.put("use_loot_drops", Boolean.toString(useLootDrops));
 		properties.put("odds_drop_experience_bottle", Integer.toString(boostMaxDistance));
+		properties.put("loot_items_list", lootItemsList.toString());
 
 
 //		Harder Farther Control Values"."Boost Settings
@@ -230,7 +237,7 @@ public class PrimaryConfig {
 
 //		Harder Farther Control Values"."Grim Citadel Settings
 		properties.put("use_grim_citadels", Boolean.toString(useGrimCitadels));
-		properties.put("grim_citadels_list", PrimaryConfig.grimCitadelsListString);
+		properties.put("grim_citadels_list", grimCitadelsListString);
 		properties.put("grim_citadels_count", Integer.toString(grimCitadelsCount));
 		properties.put("grim_citadels_radius", Integer.toString(grimCitadelsRadius));
 		properties.put("grim_citadel_bonus_distance", Integer.toString(grimCitadelBonusDistance));
@@ -245,6 +252,9 @@ public class PrimaryConfig {
 		properties.put("grim_effect_villagers", Boolean.toString(grimEffectVillagers));
 		properties.put("grim_life_heart_pulse_seconds", Integer.toString(grimLifeheartPulseSeconds));
 //			Grim Fog Color Settings
+		properties.put("grim_fog_red_percent", Double.toString(grimFogRedPercent));
+		properties.put("grim_fog_blue_percent", Double.toString(grimFogBluePercent));
+		properties.put("grim_fog_green_percent", Double.toString(grimFogGreenPercent));
 
 
 		try (FileOutputStream stream = new FileOutputStream(configFile)) {
@@ -263,6 +273,9 @@ public class PrimaryConfig {
 		dimensionOmitList = List.of(PrimaryConfig.dimensionOmitListString.substring(1, PrimaryConfig.dimensionOmitListString.length() - 1).split(", "));
 		lootItemsList = List.of(PrimaryConfig.lootItemsListString.substring(1, PrimaryConfig.lootItemsListString.length() - 1).split(", "));
 		grimCitadelsBlockPosList = getBlockPositions(List.of(PrimaryConfig.grimCitadelsListString.substring(1, PrimaryConfig.grimCitadelsListString.length() - 1).split(", ")));
+		outpostBlockPosList = getBlockPositions(List.of(PrimaryConfig.outpostListAsString.substring(1, PrimaryConfig.outpostListAsString.length() - 1).split(", ")));
+		outpostVec3dArray = convertOutpostBlockPos(outpostBlockPosList);
+
 
 	}
 
@@ -511,6 +524,14 @@ public class PrimaryConfig {
 	public static double getGrimFogGreenPercent() {
 		return grimFogGreenPercent;
 	}
+
+	public static Vec3d[] getOutpostPositions(){
+		return outpostVec3dArray;
+	}
+
+	public static boolean isSpawnAnOutpost(){
+		return useSpawnAsOutpost;
+	}
 	
 	public static void setGrimFogRedPercent(double grimFogRedPercent) {
 		PrimaryConfig.grimFogRedPercent = grimFogRedPercent/100;
@@ -546,17 +567,34 @@ public class PrimaryConfig {
 
 		List< BlockPos> returnList = new ArrayList<>();
 		for (String pos : list) {
-			pos = pos.substring(1);
-			pos = pos.replace("\"", "");
-			String[] posParts = pos.split("\\.", 2);
-			int x = Integer.valueOf(posParts[0]);
-			int y = -1;
-			int z = Integer.valueOf(posParts[1]);
-			returnList.add(new BlockPos(x,y,z));
+			if (pos.length() > 0) {
+				pos = pos.substring(1);
+				pos = pos.replace("\"", "");
+				String[] posParts = pos.split("\\.", 2);
+				int x = Integer.valueOf(posParts[0]);
+				int y = -1;
+				int z = Integer.valueOf(posParts[1]);
+				returnList.add(new BlockPos(x, y, z));
+			}
 		}
 		return returnList;
 	}
 
-	
+	private static Vec3d[] convertOutpostBlockPos(List<BlockPos> list){
+
+		Vec3d[] returnArray = new Vec3d[list.size() +1];
+		int iterator = 1;
+		for (BlockPos pos : list) {
+
+			int x = pos.getX();
+			int y = -1;
+			int z = pos.getZ();
+			returnArray[iterator] = (new Vec3d(x, y, z));
+
+			iterator++;
+		}
+		return returnArray;
+	}
+
 }
 

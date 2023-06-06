@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.events.ServerWorldTickCallback;
+import com.mactso.harderfarther.api.ServerWorldTickCallback;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import org.spongepowered.asm.mixin.Mixin;

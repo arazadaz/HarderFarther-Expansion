@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.events;
 
+import com.mactso.harderfarther.api.LivingEntityTickCallback;
 import com.mactso.harderfarther.client.GrimSongManager;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.item.ModItems;

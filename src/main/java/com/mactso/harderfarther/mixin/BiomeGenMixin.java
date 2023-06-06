@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.mactso.harderfarther.api.DifficultyCalculator.getNearestOutpost;
+
 @Mixin(value = MultiNoiseBiomeSource.class, priority = 995)
 public class BiomeGenMixin extends BiomeSource{
 
@@ -54,7 +56,7 @@ public class BiomeGenMixin extends BiomeSource{
     }
 
     @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/biome/source/util/MultiNoiseUtil$MultiNoiseSampler;)Lnet/minecraft/util/Holder;", cancellable = true)
-    private void onGenerate(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
+    private void harderfarther$onGenerateDifficultyBiome(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
 
         if(!areListInitialized) {
 
@@ -210,7 +212,26 @@ public class BiomeGenMixin extends BiomeSource{
 
         //Generates spawn - This is only needed since minecraft generates the spawn before initializing worlds for whatever reason. Spawn will always be overworld unless a mod/datapack changes it.
         if(!((IExtendedBiomeSourceHF)this).getInit()) {
-            cir.setReturnValue((Holder<Biome>) newSearchTree[0][uniqueness].get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+
+            Vec3d spawnVec = ((IExtendedBiomeSourceHF) this).getOverworldSpawn();
+            Vec3d location = new Vec3d(0, 0, 0);
+
+            //Add spawn to outpost list if enabled & get nearest outpost
+            Vec3d[] outposts = PrimaryConfig.getOutpostPositions();
+            if(PrimaryConfig.isSpawnAnOutpost()){
+                outposts[0] = spawnVec;
+            }
+
+            Vec3d nearestOutpost = getNearestOutpost(outposts, location);
+
+            float difficulty = DifficultyCalculator.calcDistanceModifier(location, nearestOutpost) * 100;
+
+            int[] choosenAreaIndex = {-1};
+            difficultySectionNumbers.forEach(difficultySectionNumber -> {
+                if(difficulty >= difficultySectionNumber) choosenAreaIndex[0]++;
+            });
+
+            cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
         }
 
 

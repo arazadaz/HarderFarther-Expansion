@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.events.LivingEntityTickCallback;
+import com.mactso.harderfarther.api.LivingEntityTickCallback;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ActionResult;
 import org.spongepowered.asm.mixin.Mixin;
