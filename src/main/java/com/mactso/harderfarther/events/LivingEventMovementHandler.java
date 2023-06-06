@@ -4,7 +4,7 @@ import com.mactso.harderfarther.client.GrimSongManager;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.sounds.ModSounds;
@@ -91,7 +91,7 @@ public class LivingEventMovementHandler {
 
 						long gameTime = serverLevel.getTime();
 
-						float difficulty = HarderFartherManager.getDifficultyHere(serverLevel, entity);
+						float difficulty = DifficultyCalculator.getDifficultyHere(serverLevel, entity);
 
 						if (difficulty > 0) {
 							if (GrimCitadelManager.isGCNear(difficulty)) {

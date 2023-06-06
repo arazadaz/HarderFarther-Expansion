@@ -7,7 +7,7 @@ import com.mactso.harderfarther.config.PrimaryConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -198,7 +198,7 @@ public class Boosts {
 		if (!isBoostable(le))  
 			return;
 
-		float difficulty = HarderFartherManager.getDifficultyHere((ServerWorld)le.getWorld(), le );
+		float difficulty = DifficultyCalculator.getDifficultyHere((ServerWorld)le.getWorld(), le );
 		
 		if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed
 			// this field.

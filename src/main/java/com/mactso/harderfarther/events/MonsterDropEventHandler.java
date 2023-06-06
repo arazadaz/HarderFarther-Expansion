@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.entity.LivingEntity;
@@ -92,7 +92,7 @@ public class MonsterDropEventHandler {
 
 					LootManager.doXPBottleDrop(entity, eventItems, rand);
 
-					float boostDifficulty = HarderFartherManager.getDifficultyHere(serverLevel,entity);
+					float boostDifficulty = DifficultyCalculator.getDifficultyHere(serverLevel,entity);
 					if (boostDifficulty == 0)
 						return ActionResult.PASS;
 					if (boostDifficulty > PrimaryConfig.getGrimCitadelMaxBoostPercent()) {

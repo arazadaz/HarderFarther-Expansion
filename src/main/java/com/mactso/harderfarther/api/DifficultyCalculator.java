@@ -1,6 +1,8 @@
-package com.mactso.harderfarther.manager;
+package com.mactso.harderfarther.api;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
+import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -13,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldProperties;
 
-public class HarderFartherManager {
+public class DifficultyCalculator {
 
 	public static float calcDistanceModifier(Vec3d eventVec, Vec3d spawnVec) {
 		double distance = eventVec.distanceTo(spawnVec);
@@ -43,7 +45,7 @@ public class HarderFartherManager {
 		}
 		WorldProperties winfo = serverLevel.getLevelProperties();
 		Vec3d spawnVec = new Vec3d(winfo.getSpawnX() / xzf, winfo.getSpawnY(), winfo.getSpawnZ() / xzf);
-		float difficulty = HarderFartherManager.calcDistanceModifier(eventVec, spawnVec);
+		float difficulty = DifficultyCalculator.calcDistanceModifier(eventVec, spawnVec);
 		return difficulty;
 	}
 	
@@ -71,7 +73,7 @@ public class HarderFartherManager {
 		gcDifficultyPct = GrimCitadelManager.getGrimDifficulty(le);
 
 		Utility.debugMsg(2, "getCalcDistanceModifier top");
-		float hfDifficulty = HarderFartherManager.calcDistanceModifier(eventVec, spawnVec);
+		float hfDifficulty = DifficultyCalculator.calcDistanceModifier(eventVec, spawnVec);
 		
 		float highDifficulty = Math.max(timeDifficulty, hfDifficulty);
 		highDifficulty = Math.max(gcDifficultyPct, highDifficulty);

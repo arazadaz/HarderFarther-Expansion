@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ArmorItem;
@@ -74,7 +75,7 @@ public class ChestLootManager {
 	public static ItemStack doGetLootStack(ServerWorld level, Vec3d origin) {
 
 		RandomGenerator rand = level.getRandom();
-		float difficulty = HarderFartherManager.getDistanceDifficultyHere(level, origin);
+		float difficulty = DifficultyCalculator.getDistanceDifficultyHere(level, origin);
 
 		int rawroll = (int) (100 * difficulty);
 		int roll = rawroll;

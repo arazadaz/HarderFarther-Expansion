@@ -2,7 +2,7 @@ package com.mactso.harderfarther.mixin;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.mactso.harderfarther.config.StructureConfig;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedChunkRegion;
 import net.minecraft.server.world.ServerWorld;
@@ -139,7 +139,7 @@ public abstract class ChunkGenStructurePlacementMixin {
             if (worldReal.getRegistryKey() == World.OVERWORLD) {
 
 
-                float difficulty = HarderFartherManager.getDistanceDifficultyHere(worldReal, new Vec3d(x, 0, z)) * 100;
+                float difficulty = DifficultyCalculator.getDistanceDifficultyHere(worldReal, new Vec3d(x, 0, z)) * 100;
 
                 int[] choosenAreaIndex = {-1};
                 difficultySectionNumbers.forEach(difficultySectionNumber -> {

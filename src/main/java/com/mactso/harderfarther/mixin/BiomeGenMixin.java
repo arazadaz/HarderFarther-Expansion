@@ -2,7 +2,7 @@ package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.config.BiomeConfig;
 import com.mactso.harderfarther.config.PrimaryConfig;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
 import com.mactso.harderfarther.utility.Utility;
@@ -187,7 +187,7 @@ public class BiomeGenMixin extends BiomeSource{
             int x = BiomeCoords.fromChunk(i);
             int z = BiomeCoords.fromChunk(k);
             Vec3d location = new Vec3d(x, 0, z);
-            float difficulty = HarderFartherManager.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getDirtyWorld(), location) * 100;
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getDirtyWorld(), location) * 100;
 
             //System.out.println(difficulty);
 
