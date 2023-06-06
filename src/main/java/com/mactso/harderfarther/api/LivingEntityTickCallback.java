@@ -1,9 +1,8 @@
-package com.mactso.harderfarther.events;
+package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.ActionResult;
 
 public interface LivingEntityTickCallback {

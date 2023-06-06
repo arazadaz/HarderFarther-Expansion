@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.events.PlaceBlockCallback;
+import com.mactso.harderfarther.api.PlaceBlockCallback;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;

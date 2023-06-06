@@ -1,4 +1,4 @@
-package com.mactso.harderfarther.events;
+package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

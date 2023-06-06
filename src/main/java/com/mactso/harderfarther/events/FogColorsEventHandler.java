@@ -1,5 +1,7 @@
 package com.mactso.harderfarther.events;
 
+import com.mactso.harderfarther.api.FogColorCallback;
+import com.mactso.harderfarther.api.FogRenderCallback;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;

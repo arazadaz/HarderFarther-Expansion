@@ -3,6 +3,7 @@ package com.mactso.harderfarther.events;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.mactso.harderfarther.api.LivingEntityDropCallback;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.api.DifficultyCalculator;
