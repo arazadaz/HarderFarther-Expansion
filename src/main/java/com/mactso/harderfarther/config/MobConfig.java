@@ -58,8 +58,8 @@ public class MobConfig {
 
         for(int x=0; x<size; x++) {
             float section = Float.parseFloat(difficultySectionAsString.get(x).substring(1).split(":",2)[0]);
-            List<String> biomes = List.of(difficultySectionAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
-            difficultySections.add(Pair.of(section, biomes));
+            List<String> mobs = List.of(difficultySectionAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
+            difficultySections.add(Pair.of(section, mobs));
         }
 
 

@@ -18,7 +18,8 @@
         "RenderSystemFogColorMixin",
         "SearchTreeMixin",
         "ServerCreateWorldMixin",
-        "ServerWorldTickMixin"
+        "ServerWorldTickMixin",
+        "SpawnHelperMixin"
 
 	],
 	"injectors": {
