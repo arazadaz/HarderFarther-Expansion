@@ -15,8 +15,9 @@ public abstract class RenderSystemFogColorMixin {
     static void _setShaderFogColor(float f, float g, float h, float i){};
 
     @Inject(method = "setShaderFogColor", at = @At("TAIL"), remap = false)
-    private static void onFog(float f, float g, float h, float i, CallbackInfo info) {
-        float[] newColor = FogColorCallback.EVENT.invoker().interact(f, g, h, i);
+    private static void harderfarther$computeFogEvent(float f, float g, float h, float i, CallbackInfo info) {
+        float[] newColor = new float[]{f, g, h, i};
+        FogColorCallback.EVENT.invoker().interact(newColor);
 
         f = newColor[0];
         g = newColor[1];

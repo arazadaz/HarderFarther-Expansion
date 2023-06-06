@@ -70,7 +70,7 @@ public class FogColorsEventHandler {
 
 	private int antiSpam = 0;
 
-	private static float[] adjustFogColor(float f, float g, float h, float i, float slider) {
+	private static void adjustFogColor(float[] fog, float slider) {
 
 		double redSlider = Math.max(RedFromServer, slider);
 		double greenSlider = Math.max(GreenFromserver, slider);
@@ -78,12 +78,12 @@ public class FogColorsEventHandler {
 //		if (++antiSpam%100 == 0)
 //		System.out.println("fog color slider:" + slider);
 		if (slider != 0) {
-			f*=redSlider;
-			g*=greenSlider;
-			h*=blueSlider;
-			return new float[]{f, g, h, i};
+			fog[0]*=redSlider;
+			fog[1]*=greenSlider;
+			fog[2]*=blueSlider;
 		}
-		return new float[]{f, g, h, i};
+
+		//Do nothing if slider is 0
 	}
 
 	private static void adjustFogDistance(float closeFogPercent, float farFogPercent) {
@@ -120,7 +120,7 @@ public class FogColorsEventHandler {
 	// clientside gui event
 	public static void onFogColorRegister(){
 		FogColorCallback.EVENT.register(
-				(f, g, h, i) -> {
+				(fog) -> {
 
 					MinecraftClient m = MinecraftClient.getInstance();
 					ClientPlayerEntity cp = m.player;
@@ -136,7 +136,7 @@ public class FogColorsEventHandler {
 						sliderColorPercent = doSlideToPercent(sliderColorPercent, 1 - percent);
 					}
 
-					return adjustFogColor(f, g, h, i, sliderColorPercent);
+					adjustFogColor(fog, sliderColorPercent);
 				});
 	}
 
