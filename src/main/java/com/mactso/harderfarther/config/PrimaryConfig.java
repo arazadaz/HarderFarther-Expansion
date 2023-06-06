@@ -526,7 +526,7 @@ public class PrimaryConfig {
 	}
 
 	public static Vec3d[] getOutpostPositions(){
-		return outpostVec3dArray;
+		return outpostVec3dArray.clone();
 	}
 
 	public static boolean isSpawnAnOutpost(){

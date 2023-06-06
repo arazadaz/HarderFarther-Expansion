@@ -49,7 +49,7 @@ public class DifficultyCalculator {
 		Vec3d spawnVec = new Vec3d(winfo.getSpawnX() / xzf, winfo.getSpawnY(), winfo.getSpawnZ() / xzf);
 
 		//Add spawn to outpost list if enabled & get nearest outpost
-		Vec3d[] outposts = PrimaryConfig.getOutpostPositions().clone();
+		Vec3d[] outposts = PrimaryConfig.getOutpostPositions();
 		if(PrimaryConfig.isSpawnAnOutpost()){
 			outposts[0] = spawnVec;
 		}
@@ -76,7 +76,7 @@ public class DifficultyCalculator {
 		Vec3d eventVec = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
 
 		//Add spawn to outpost list if enabled & get nearest outpost
-		Vec3d[] outposts = PrimaryConfig.getOutpostPositions().clone();
+		Vec3d[] outposts = PrimaryConfig.getOutpostPositions();
 		if(PrimaryConfig.isSpawnAnOutpost()){
 			outposts[0] = spawnVec;
 		}
