@@ -128,6 +128,7 @@ public class DifficultyCalculator {
 
 		int nearestOutpostDistance = Integer.MAX_VALUE;
 		Vec3d nearestOutpost = outposts[iterator];
+		iterator ++;
 		for(;iterator<outposts.length; iterator++){
 			if(outposts[iterator].distanceTo(eventVec)<nearestOutpostDistance){
 				nearestOutpost = outposts[iterator];
