@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "harderfarther",
+	"version": "${version}",
+	"name": "harderfarther",
+	"description": "An expanded port of harderfarther by MacTso!",
+	"authors": [
+		"Arazadaz",
+		"MacTso - Original Mod"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/arazadaz/HarderFarther-Fabric"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/harderfarther/hf.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.mactso.harderfarther.Main"
+		],
+		"client": [
+			"com.mactso.harderfarther.MainClient"
+		]
+	},
+	"mixins": [
+		"harderfarther.mixins.json"
+	],
+	"access_widener": "harderfarther.accesswidener",
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.19.2",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
