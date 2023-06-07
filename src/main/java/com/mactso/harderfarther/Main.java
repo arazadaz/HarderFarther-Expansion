@@ -4,6 +4,7 @@ package com.mactso.harderfarther;
 import java.lang.reflect.Field;
 
 import com.mactso.harderfarther.config.*;
+import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,8 +14,6 @@ import com.mactso.harderfarther.RegisterHandlers.InitRH;
 
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 
 
 public class Main implements ModInitializer {
@@ -26,7 +25,7 @@ public class Main implements ModInitializer {
 
 
 
-	public void onInitialize(ModContainer modContainer) {
+	public void onInitialize() {
 		PrimaryConfig.initConfig();
 		BiomeConfig.initConfig();
 		OreConfig.initConfig();
