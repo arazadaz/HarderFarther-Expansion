@@ -35,15 +35,19 @@ public class ChunkGenOrePlacementMixin {
         //config is the block
 
 
-        if(!areListInitialized){
+        if(!areListInitialized) {
+            synchronized (this) {
+                if (!areListInitialized) {
 
-            OreConfig.getDifficultySections().forEach(section ->{
-                difficultySectionNumbers.add(section.first);
-                difficultySectionOres.add(section.second);
-            });
+                    OreConfig.getDifficultySections().forEach(section -> {
+                        difficultySectionNumbers.add(section.first);
+                        difficultySectionOres.add(section.second);
+                    });
 
 
-            areListInitialized = true;
+                    areListInitialized = true;
+                }
+            }
         }
         //end of listInitialization
 

@@ -59,88 +59,91 @@ public class BiomeGenMixin extends BiomeSource{
     private void harderfarther$onGenerateDifficultyBiome(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
 
         if(!areListInitialized) {
+            synchronized (this) {
+                if (!areListInitialized) {
 
-            if(PrimaryConfig.getDebugLevel() > 0) {
-                Utility.debugMsg(1, "New Biome Source");
-            }
+                    if (PrimaryConfig.getDebugLevel() > 0) {
+                        Utility.debugMsg(1, "New Biome Source");
+                    }
 
-            //Return default value if terrablender biomesource is not initialized
-            if(!((IExtendedParameterList<Holder<Biome>>) this.biomePoints).isInitialized()){
+                    //Return default value if terrablender biomesource is not initialized
+                    if (!((IExtendedParameterList<Holder<Biome>>) this.biomePoints).isInitialized()) {
 
-                if (PrimaryConfig.getDebugLevel() > 1) {
-                    Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
-                }
-                areListInitialized = true;
-                cir.setReturnValue(this.biomePoints.findValue(multiNoiseSampler.sample(i,j,k)));
-                return;
-
-            }
-
-
-            int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTreeCount();
-            List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
-            defaultSearchTrees = new IExtendedSearchTree[regionCount];
-            newSearchTree = new MultiNoiseUtil.SearchTree[BiomeConfig.getDifficultySections().size()][regionCount];
-
-
-            for(int iterator = 0; iterator<regionCount; iterator++) {
-                defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTree(iterator));
-
-                List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
-
-
-                final int[] difficultySectionIndex = {0};
-                int regionIndex = iterator;
-                BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
-
-                    if(regionIndex == 0) difficultySectionNumbers.add(difficultySection.first.floatValue());
-
-
-                    //Iterate through original biome List of a region
-                    biomePairs.forEach(noiseHypercubeHolderPair -> {
-
-                        String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
-
-
-                        //Add All biomes if biome config list is empty. Otherwise add only if it's apart of the list in the config. - .isEmpty doesn't work as it seems initialized with empty strings.
-                        if(difficultySection.second.get(0).equals("")){
-                            modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
-                        }else if(difficultySection.second.contains(biome)){
-                            modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                        if (PrimaryConfig.getDebugLevel() > 1) {
+                            Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
                         }
+                        areListInitialized = true;
+                        cir.setReturnValue(this.biomePoints.findValue(multiNoiseSampler.sample(i, j, k)));
+                        return;
 
-                    });
-
-
-
-                    if(!modifiedBiomePoints.isEmpty()) {
-                        newSearchTree[difficultySectionIndex[0]][regionIndex] = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
-                        modifiedBiomePoints.clear();  //reset the list to ensure no duplicate values.
-                        filledListsIndexes.add(regionIndex);
-                    }else{
-                        emptyListsIndexes.add(regionIndex);
                     }
 
-                    //Fill empty lists with alternating filled lists
-                    if(regionIndex == regionCount-1){
-                        final int[] filledListIndexesIndex = {0};
-                        emptyListsIndexes.forEach(emptyIndex ->{
 
-                            newSearchTree[difficultySectionIndex[0]][emptyIndex] = newSearchTree[difficultySectionIndex[0]][filledListsIndexes.get(filledListIndexesIndex[0])];
+                    int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTreeCount();
+                    List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
+                    defaultSearchTrees = new IExtendedSearchTree[regionCount];
+                    newSearchTree = new MultiNoiseUtil.SearchTree[BiomeConfig.getDifficultySections().size()][regionCount];
 
-                            filledListIndexesIndex[0]++;
-                            if(filledListIndexesIndex[0] == filledListsIndexes.size() -1){
-                                filledListIndexesIndex[0] = 0;
+
+                    for (int iterator = 0; iterator < regionCount; iterator++) {
+                        defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTree(iterator));
+
+                        List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
+
+
+                        final int[] difficultySectionIndex = {0};
+                        int regionIndex = iterator;
+                        BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
+
+                            if (regionIndex == 0) difficultySectionNumbers.add(difficultySection.first.floatValue());
+
+
+                            //Iterate through original biome List of a region
+                            biomePairs.forEach(noiseHypercubeHolderPair -> {
+
+                                String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
+
+
+                                //Add All biomes if biome config list is empty. Otherwise add only if it's apart of the list in the config. - .isEmpty doesn't work as it seems initialized with empty strings.
+                                if (difficultySection.second.get(0).equals("")) {
+                                    modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                                } else if (difficultySection.second.contains(biome)) {
+                                    modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                                }
+
+                            });
+
+
+                            if (!modifiedBiomePoints.isEmpty()) {
+                                newSearchTree[difficultySectionIndex[0]][regionIndex] = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
+                                modifiedBiomePoints.clear();  //reset the list to ensure no duplicate values.
+                                filledListsIndexes.add(regionIndex);
+                            } else {
+                                emptyListsIndexes.add(regionIndex);
                             }
+
+                            //Fill empty lists with alternating filled lists
+                            if (regionIndex == regionCount - 1) {
+                                final int[] filledListIndexesIndex = {0};
+                                emptyListsIndexes.forEach(emptyIndex -> {
+
+                                    newSearchTree[difficultySectionIndex[0]][emptyIndex] = newSearchTree[difficultySectionIndex[0]][filledListsIndexes.get(filledListIndexesIndex[0])];
+
+                                    filledListIndexesIndex[0]++;
+                                    if (filledListIndexesIndex[0] == filledListsIndexes.size() - 1) {
+                                        filledListIndexesIndex[0] = 0;
+                                    }
+                                });
+                            }
+
+                            difficultySectionIndex[0]++;
                         });
+
                     }
 
-                    difficultySectionIndex[0]++;
-                });
-
+                    areListInitialized = true;
+                }
             }
-
-            areListInitialized = true;
         }
         //end of listInitialization
 

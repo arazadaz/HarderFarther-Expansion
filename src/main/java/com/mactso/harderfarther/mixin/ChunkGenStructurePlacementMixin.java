@@ -101,15 +101,19 @@ public abstract class ChunkGenStructurePlacementMixin {
 
         //((IExtendedChunkRegion)world).setBiomeSource(this.getBiomeSource());
 
-        if (!areListInitialized) {
+        if(!areListInitialized) {
+            synchronized (this) {
+                if (!areListInitialized) {
 
-            StructureConfig.getDifficultySections().forEach(section -> {
-                difficultySectionNumbers.add(section.first);
-                difficultySectionStructure.add(section.second);
-            });
+                    StructureConfig.getDifficultySections().forEach(section -> {
+                        difficultySectionNumbers.add(section.first);
+                        difficultySectionStructure.add(section.second);
+                    });
 
 
-            areListInitialized = true;
+                    areListInitialized = true;
+                }
+            }
         }
         //end of listInitialization
 
