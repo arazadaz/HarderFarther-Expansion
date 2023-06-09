@@ -31,6 +31,7 @@ public class Main implements ModInitializer {
 		OreConfig.initConfig();
 		StructureConfig.initConfig();
 		MobConfig.initConfig();
+		DimensionDifficultyOverrides.initConfig();
 
 		if (PrimaryConfig.getDebugLevel()> 0) {
 			System.out.println("Harder Farther Debug Level: " + PrimaryConfig.getDebugLevel() );

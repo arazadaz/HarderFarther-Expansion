@@ -18,6 +18,8 @@ public class ModEvents {
         registerPlayerTickEvents();
         registerWorldTickEvents();
 
+        registerDimensionOverrides();
+
     }
 
     public static void registerClient(){
@@ -62,6 +64,10 @@ public class ModEvents {
 
     private static void registerWorldTickEvents(){
         WorldTickHandler.onWorldTickRegister();
+    }
+
+    private static void registerDimensionOverrides(){
+        DifficultyOverrideEvents.onDifficultyOverrideEventRegister();
     }
 
 }
