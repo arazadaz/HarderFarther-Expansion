@@ -17,10 +17,12 @@ public class DimensionDifficultyOverrides {
     private static ArrayList<String> dimensionOverridesAsString = new ArrayList<>();
     private static ArrayList<Pair<Boolean, Float>> dimensionOverrides = new ArrayList<>();
 
-    private static boolean isTheNetherOverriden;
+    private static boolean isTheOverworldOverridden;
+    private static boolean isTheNetherOverridden;
 
-    private static boolean isTheEndOverriden;
+    private static boolean isTheEndOverridden;
 
+    private static float overworldDifficulty;
     private static float netherDifficulty;
 
     private static float endDifficulty;
@@ -37,6 +39,7 @@ public class DimensionDifficultyOverrides {
             }
         }
 
+        dimensionOverridesAsString.add(properties.computeIfAbsent("the_overworld", (a) -> "false:20").toString());
         dimensionOverridesAsString.add(properties.computeIfAbsent("the_nether", (a) -> "false:60").toString());
         dimensionOverridesAsString.add(properties.computeIfAbsent("the_end", (a) -> "false:100").toString());
 
@@ -64,11 +67,13 @@ public class DimensionDifficultyOverrides {
             dimensionOverrides.add(Pair.of(isDimensionOverriden, difficulty));
         }
 
-        isTheNetherOverriden = dimensionOverrides.get(0).first.booleanValue();
-        isTheEndOverriden = dimensionOverrides.get(1).first.booleanValue();
+        isTheOverworldOverridden = dimensionOverrides.get(0).first.booleanValue();
+        isTheNetherOverridden = dimensionOverrides.get(1).first.booleanValue();
+        isTheEndOverridden = dimensionOverrides.get(2).first.booleanValue();
 
-        netherDifficulty = dimensionOverrides.get(0).second;
-        endDifficulty = dimensionOverrides.get(1).second;
+        overworldDifficulty = dimensionOverrides.get(0).second;
+        netherDifficulty = dimensionOverrides.get(1).second;
+        endDifficulty = dimensionOverrides.get(2).second;
 
 
     }
@@ -77,13 +82,14 @@ public class DimensionDifficultyOverrides {
         final File configFile = getConfigFile();
         final Properties properties = new Properties();
 
-        properties.put("the_nether", dimensionOverridesAsString.get(0));
-        properties.put("the_end", dimensionOverridesAsString.get(1));
+        properties.put("the_overworld", dimensionOverridesAsString.get(0));
+        properties.put("the_nether", dimensionOverridesAsString.get(1));
+        properties.put("the_end", dimensionOverridesAsString.get(2));
 
 
 
         try (FileOutputStream stream = new FileOutputStream(configFile)) {
-            properties.store(stream, "Override the difficulty calculation for a dimension with a constant. (Doesn't work in Overworld due to spawn-chunk currently");
+            properties.store(stream, "Override the difficulty calculation for a dimension with a constant.");
         } catch (final IOException e) {
             Main.LOGGER.warn("[HarderFarther] Could not store property file '" + configFile.getAbsolutePath() + "'", e);
         }
@@ -95,14 +101,20 @@ public class DimensionDifficultyOverrides {
         return size;
     }
 
-    public static boolean isTheNetherOverriden(){
-        return isTheNetherOverriden;
+    public static boolean isTheOverworldOverridden(){
+        return isTheOverworldOverridden;
+    }
+    public static boolean isTheNetherOverridden(){
+        return isTheNetherOverridden;
     }
 
-    public static boolean isTheEndOverriden(){
-        return isTheEndOverriden;
+    public static boolean isTheEndOverridden(){
+        return isTheEndOverridden;
     }
 
+    public static float getOverworldDifficulty(){
+        return overworldDifficulty;
+    }
     public static float getNetherDifficulty(){
         return netherDifficulty;
     }
