@@ -34,13 +34,7 @@ public class ServerCreateWorldMixin {
     private void harderfarther$onServerCreateOverworld(WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci) {
 
         for(ServerWorld serverWorld : this.getWorlds()) {
-            double xzf = serverWorld.getDimension().coordinateScale();
-            if (xzf == 0.0) {
-                xzf = 1.0d;
-            }
-            WorldProperties winfo = serverWorld.getLevelProperties();
-            Vec3d spawnVec = new Vec3d(winfo.getSpawnX() / xzf, winfo.getSpawnY(), winfo.getSpawnZ() / xzf);
-            ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setOverworldSpawn(spawnVec);
+            ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setDirtyWorld(serverWorld);
         }
 
     }

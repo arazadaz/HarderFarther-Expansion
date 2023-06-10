@@ -176,18 +176,8 @@ public abstract class ChunkGenStructurePlacementMixin {
             structure = structure.split("/")[2].substring(1);
 
 
-            Vec3d spawnVec = ((IExtendedBiomeSourceHF) this.getBiomeSource()).getOverworldSpawn();
-            Vec3d location = new Vec3d(0, 0, 0);
-
-            //Add spawn to outpost list if enabled & get nearest outpost
-            Vec3d[] outposts = PrimaryConfig.getOutpostPositions().clone();
-            if(PrimaryConfig.isSpawnAnOutpost()){
-                outposts[0] = spawnVec;
-            }
-
-            Vec3d nearestOutpost = getNearestOutpost(outposts, location);
-
-            float difficulty = DifficultyCalculator.calcDistanceModifier(location, nearestOutpost) * 100;
+            //Calculate distance difficulty
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF)this.getBiomeSource()).getDirtyWorld(), new Vec3d(0, 0, 0));
 
             int[] choosenAreaIndex = {-1};
             difficultySectionNumbers.forEach(difficultySectionNumber -> {

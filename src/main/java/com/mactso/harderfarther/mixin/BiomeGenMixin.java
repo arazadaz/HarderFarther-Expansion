@@ -216,18 +216,9 @@ public class BiomeGenMixin extends BiomeSource{
         //Generates spawn - This is only needed since minecraft generates the spawn before initializing worlds for whatever reason. Spawn will always be overworld unless a mod/datapack changes it.
         if(!((IExtendedBiomeSourceHF)this).getInit()) {
 
-            Vec3d spawnVec = ((IExtendedBiomeSourceHF) this).getOverworldSpawn();
-            Vec3d location = new Vec3d(0, 0, 0);
 
-            //Add spawn to outpost list if enabled & get nearest outpost
-            Vec3d[] outposts = PrimaryConfig.getOutpostPositions();
-            if(PrimaryConfig.isSpawnAnOutpost()){
-                outposts[0] = spawnVec;
-            }
-
-            Vec3d nearestOutpost = getNearestOutpost(outposts, location);
-
-            float difficulty = DifficultyCalculator.calcDistanceModifier(location, nearestOutpost) * 100;
+            //Calculate distance difficulty
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF)this).getDirtyWorld(), new Vec3d(0, 0, 0));
 
             int[] choosenAreaIndex = {-1};
             difficultySectionNumbers.forEach(difficultySectionNumber -> {
