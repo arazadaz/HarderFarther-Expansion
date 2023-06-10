@@ -219,6 +219,7 @@ public class BiomeGenMixin extends BiomeSource{
         //Generates spawn - This is only needed since minecraft generates the spawn before initializing worlds for whatever reason. Spawn should always be overworld unless a mod/datapack changes it. There's one exception, sometimes this will run outside of the overworld once before spawn. I'm not sure why yet..
         if(!((IExtendedBiomeSourceHF)this).getInit()) {
 
+            //This is only true if the biomesource isn't the overworld, since that's the only one initialized at this point.
             if (((IExtendedBiomeSourceHF) this).getDirtyWorld() == null) {
                 if(PrimaryConfig.getDebugLevel() > 0) {
                     Utility.debugMsg(1, "Structure Feature thing during spawn generation that isn't in the overworld???");  //I really don't know why this happens sometimes(rarely and only once) before spawn generates nor do I know what it does.
