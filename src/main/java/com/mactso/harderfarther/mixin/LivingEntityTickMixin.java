@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(LivingEntity.class)
+@Mixin(value = LivingEntity.class, priority = 1200)
 public class LivingEntityTickMixin {
 
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
-    private void onTick(CallbackInfo info) {
+    @Inject(method = "tick", at = @At("TAIL"), cancellable = true)
+    private void harderfarther$onEntityTick(CallbackInfo info) {
         ActionResult result = LivingEntityTickCallback.EVENT.invoker().interact((LivingEntity) (Object) this);
 
         if(result == ActionResult.FAIL) {

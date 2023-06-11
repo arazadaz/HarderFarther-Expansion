@@ -219,7 +219,7 @@ public class PrimaryConfig {
 
 //		Harder Farther Control Values"."Loot Settings
 		properties.put("use_loot_drops", Boolean.toString(useLootDrops));
-		properties.put("odds_drop_experience_bottle", Integer.toString(boostMaxDistance));
+		properties.put("odds_drop_experience_bottle", Integer.toString(oddsDropExperienceBottle));
 		properties.put("loot_items_list", lootItemsList.toString());
 
 

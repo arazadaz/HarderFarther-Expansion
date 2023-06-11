@@ -18,7 +18,6 @@
         "RenderSystemFogColorMixin",
         "SearchTreeMixin",
         "ServerCreateWorldMixin",
-        "ServerWorldTickMixin",
         "SpawnHelperMixin"
 
 	],

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LivingEntityDropMixin {
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropLoot(Lnet/minecraft/entity/damage/DamageSource;Z)V"), method = "drop", cancellable = true)
-    private void onDrop(final DamageSource source, final CallbackInfo info) {
+    private void harderfarther$onEntityDrop(final DamageSource source, final CallbackInfo info) {
         ActionResult result = LivingEntityDropCallback.EVENT.invoker().interact(source, (LivingEntity) (Object) this);
 
         if(result == ActionResult.FAIL) {

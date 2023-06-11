@@ -7,6 +7,7 @@ import com.mactso.harderfarther.api.ServerWorldTickCallback;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
@@ -18,7 +19,7 @@ public class WorldTickHandler {
 
 	// assumes this event only raised for server worlds. TODO verify.
 	public static void onWorldTickRegister(){
-		ServerWorldTickCallback.EVENT.register(
+		ServerTickEvents.END_WORLD_TICK.register(
 				(world) -> {
 
 
@@ -44,7 +45,6 @@ public class WorldTickHandler {
 							}
 						}
 					}
-					return ActionResult.PASS;
 				});
 	}
 

@@ -6,6 +6,7 @@ import com.mactso.harderfarther.config.StructureConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedChunkRegion;
+import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.util.math.ChunkPos;
@@ -159,7 +160,9 @@ public abstract class ChunkGenStructurePlacementMixin {
                 }
 
                 if (!difficultySectionStructure.get(choosenAreaIndex[0]).contains(structure)) {
-                    //System.out.println("cancled:" + structure);
+                    if(PrimaryConfig.getDebugLevel() > 0){
+                        Utility.debugMsg(1, "Cancled structure: " + structure);
+                    }
                     this.shouldgen = false;
                 }
             }
@@ -191,7 +194,9 @@ public abstract class ChunkGenStructurePlacementMixin {
             }
 
             if (!difficultySectionStructure.get(choosenAreaIndex[0]).contains(structure)) {
-                //System.out.println("cancled:" + structure);
+                if(PrimaryConfig.getDebugLevel() > 0){
+                    Utility.debugMsg(1, "Harder Farther cancled structure: " + structure);
+                }
                 this.shouldgen = false;
             }
 

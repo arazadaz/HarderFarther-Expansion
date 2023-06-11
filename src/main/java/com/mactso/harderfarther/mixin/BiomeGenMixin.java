@@ -95,6 +95,7 @@ public class BiomeGenMixin extends BiomeSource{
                         int regionIndex = iterator;
                         BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
 
+                            //Only adds each difficulty section to the difficulty sections once since each region loops through the difficulty sections.
                             if (regionIndex == 0) difficultySectionNumbers.add(difficultySection.first.floatValue());
 
 
