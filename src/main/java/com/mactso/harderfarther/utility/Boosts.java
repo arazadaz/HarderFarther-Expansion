@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.UUID;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.MappingResolver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,7 +36,9 @@ public class Boosts {
 		try {
 			//String name = ASMAPI.mapField("f_21364_");
 			//fieldXpReward = MobEntity.class.getDeclaredField(name);
-			fieldXpReward = MobEntity.class.getDeclaredField("experiencePoints");
+			MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
+			String name = resolver.mapFieldName("intermediary", resolver.unmapClassName("intermediary", MobEntity.class.getName()), "field_6194", "I");
+			fieldXpReward = MobEntity.class.getDeclaredField(name);
 			fieldXpReward.setAccessible(true);
 		} catch (Exception e) {
 			LOGGER.error("XXX Unexpected Reflection Failure xpReward in Mob");
