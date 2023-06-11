@@ -225,7 +225,7 @@ public class PrimaryConfig {
 
 //		Harder Farther Control Values"."Boost Settings
 		properties.put("hp_max_boost", Integer.toString(hpMaxBoost));
-		properties.put("speed_boost", Integer.toString(hpMaxBoost));
+		properties.put("speed_boost", Integer.toString(speedBoost));
 		properties.put("atk_dmg_boost", Integer.toString(atkDmgBoost));
 		properties.put("knockback_boost", Integer.toString(knockbackBoost));
 
