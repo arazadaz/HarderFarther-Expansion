@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.api.DifficultyOverrideCallback;
-import com.mactso.harderfarther.config.DimensionDifficultyOverrides;
+import com.mactso.harderfarther.config.DimensionDifficultyOverridesConfig;
 import net.minecraft.world.World;
 
 public class DifficultyOverrideEvents {
@@ -10,22 +10,22 @@ public class DifficultyOverrideEvents {
         DifficultyOverrideCallback.EVENT.register(
                 (currentDifficulty, world, outposts, minBoostDistance, maxBoostDistance) -> {
 
-                    if(DimensionDifficultyOverrides.isTheOverworldOverridden()) {
+                    if(DimensionDifficultyOverridesConfig.isTheOverworldOverridden()) {
                         if (world.getRegistryKey() == World.OVERWORLD) {
-                            currentDifficulty[0] = DimensionDifficultyOverrides.getOverworldDifficulty()/100;
+                            currentDifficulty[0] = DimensionDifficultyOverridesConfig.getOverworldDifficulty()/100;
                         }
                     }
 
-                    if(DimensionDifficultyOverrides.isTheNetherOverridden()) {
+                    if(DimensionDifficultyOverridesConfig.isTheNetherOverridden()) {
                         if (world.getRegistryKey() == World.NETHER) {
-                            currentDifficulty[0] = DimensionDifficultyOverrides.getNetherDifficulty()/100;
+                            currentDifficulty[0] = DimensionDifficultyOverridesConfig.getNetherDifficulty()/100;
                         }
                     }
 
 
-                    if(DimensionDifficultyOverrides.isTheEndOverridden()) {
+                    if(DimensionDifficultyOverridesConfig.isTheEndOverridden()) {
                         if (world.getRegistryKey() == World.END) {
-                            currentDifficulty[0] = DimensionDifficultyOverrides.getEndDifficulty()/100;
+                            currentDifficulty[0] = DimensionDifficultyOverridesConfig.getEndDifficulty()/100;
                         }
                     }
 

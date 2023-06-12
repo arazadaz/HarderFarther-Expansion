@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
+import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -208,14 +209,15 @@ public class Boosts {
 			// this field.
 			return;
 		}
+		float difficultyClamped = MathHelper.clamp(difficulty, 0, 1);
 		Utility.debugMsg(2, "doHealth");
 		boostHealth(le, eDsc, difficulty);
 		Utility.debugMsg(2, "doSpeed");
-		boostSpeed(le, eDsc, difficulty);
+		boostSpeed(le, eDsc, difficultyClamped);
 		Utility.debugMsg(2, "doAtk");
 		boostAtkDmg(le, eDsc, difficulty);
 		Utility.debugMsg(2, "doKB");
-		boostKnockbackResistance(le, eDsc, difficulty);
+		boostKnockbackResistance(le, eDsc, difficultyClamped);
 		Utility.debugMsg(2, "doXp");
 		boostXp(le, eDsc, difficulty);
 	}

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public class DimensionDifficultyOverrides {
+public class DimensionDifficultyOverridesConfig {
 
     private static int size;
 
@@ -62,7 +62,7 @@ public class DimensionDifficultyOverrides {
     private static void computeConfigValues() {
 
         for(int x = 0; x< dimensionOverridesAsString.size(); x++) {
-            boolean isDimensionOverriden = Boolean.parseBoolean(dimensionOverridesAsString.get(x).substring(1).split(":",2)[0]);
+            boolean isDimensionOverriden = Boolean.parseBoolean(dimensionOverridesAsString.get(x).split(":",2)[0]);
             float difficulty = Float.parseFloat(dimensionOverridesAsString.get(x).split(":", 2)[1]);
             dimensionOverrides.add(Pair.of(isDimensionOverriden, difficulty));
         }
@@ -89,7 +89,7 @@ public class DimensionDifficultyOverrides {
 
 
         try (FileOutputStream stream = new FileOutputStream(configFile)) {
-            properties.store(stream, "Override the difficulty calculation for a dimension with a constant.");
+            properties.store(stream, "Override the difficulty calculation for a dimension with a constant. It can also go beyond the 100 limit for boosting health and damage. speed and knockback Resistance maintain the 100 limit.");
         } catch (final IOException e) {
             Main.LOGGER.warn("[HarderFarther] Could not store property file '" + configFile.getAbsolutePath() + "'", e);
         }
