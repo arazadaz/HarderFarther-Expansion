@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.Main;
+import com.mactso.harderfarther.config.BiomeConfig;
 import com.mactso.harderfarther.config.Platform;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -71,6 +72,8 @@ public class ServerStartingEventHandler {
             });
 
             saveConfig();
+
+            BiomeConfig.setDynamicBiomeRegistry(biomes);
 
         });
     }

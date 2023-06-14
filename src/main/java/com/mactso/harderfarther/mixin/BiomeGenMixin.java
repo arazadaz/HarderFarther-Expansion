@@ -9,7 +9,10 @@ import com.mactso.harderfarther.utility.Utility;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.Holder;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.BuiltinRegistries;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -103,6 +106,7 @@ public class BiomeGenMixin extends BiomeSource{
                             biomePairs.forEach(noiseHypercubeHolderPair -> {
 
                                 String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
+                                String replacementBiome = BiomeConfig.getDifficultySectionBiomeReplacements().get(difficultySectionIndex[0]).get(biome);
 
 
                                 //Add All biomes if biome config list is empty. Otherwise add only if it's apart of the list in the config. - .isEmpty doesn't work as it seems initialized with empty strings.
@@ -110,6 +114,13 @@ public class BiomeGenMixin extends BiomeSource{
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
                                 } else if (difficultySection.second.contains(biome)) {
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
+                                } else if (replacementBiome != null){
+                                    //replaces an original biome point with another specified biome and adds it to the list
+                                    RegistryKey<Biome> key = RegistryKey.of(BuiltinRegistries.BIOME.getKey(), new Identifier(replacementBiome.split(":")[0], replacementBiome.split(":")[1]));
+                                    modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), BiomeConfig.getDynamicBiomeRegistry().getHolderOrThrow(key)));
+                                    if(PrimaryConfig.getDebugLevel() > 0) {
+                                        Utility.debugMsg(1, ("replaced " + biome + " > " + replacementBiome));
+                                    }
                                 }
 
                             });

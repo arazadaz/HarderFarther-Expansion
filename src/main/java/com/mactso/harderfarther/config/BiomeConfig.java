@@ -2,21 +2,26 @@ package com.mactso.harderfarther.config;
 
 import com.ibm.icu.impl.Pair;
 import com.mactso.harderfarther.Main;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class BiomeConfig {
 
     private static int size;
 
-    private static ArrayList<String> difficultySectionAsString = new ArrayList<>();
+    private static ArrayList<String> difficultySectionsAsString = new ArrayList<>();
     private static ArrayList<Pair<Float, List<String>>> difficultySections = new ArrayList<>();
+
+    private static ArrayList<String> difficultySectionBiomeReplacementsAsString = new ArrayList<>();
+    private static ArrayList<Map<String, String>> difficultySectionBiomeReplacements = new ArrayList<>();
+
+    private static Registry<Biome> biomeRegistry;
 
     public static void initConfig() {
         final File configFile = getConfigFile();
@@ -31,11 +36,13 @@ public class BiomeConfig {
         }
         size = properties.size();
 
-        difficultySectionAsString.add(properties.computeIfAbsent("Section_1", (a) -> ">0:\"\"").toString());
+        difficultySectionsAsString.add(properties.computeIfAbsent("Section_1", (a) -> ">0:\"\"").toString());
+        difficultySectionBiomeReplacementsAsString.add(properties.computeIfAbsent("Section_1_replacements", (a) -> "\"\"").toString());
 
-        if(size > 1){
-            for(int x = 1; x < size; x++){
-                difficultySectionAsString.add(properties.getProperty("Section_" + (x+1)).toString());
+        if(size > 2){
+            for(int x = 1; x < size/2; x++){
+                difficultySectionsAsString.add(properties.getProperty("Section_" + (x+1)).toString());
+                difficultySectionBiomeReplacementsAsString.add(properties.getProperty("Section_" + (x+1) + "_replacements").toString());
             }
         }
 
@@ -56,10 +63,20 @@ public class BiomeConfig {
 
     private static void computeConfigValues() {
 
-        for(int x=0; x<size; x++) {
-            float section = Float.parseFloat(difficultySectionAsString.get(x).substring(1).split(":",2)[0]);
-            List<String> biomes = List.of(difficultySectionAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
+        for(int x=0; x<size/2; x++) {
+            float section = Float.parseFloat(difficultySectionsAsString.get(x).substring(1).split(":",2)[0]);
+            List<String> biomes = List.of(difficultySectionsAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
             difficultySections.add(Pair.of(section, biomes));
+
+            Map map = new HashMap<>();
+            String[] replacements = difficultySectionBiomeReplacementsAsString.get(x).replace("\"", "").split(",");
+            for (String replacement:replacements) {
+                //Make sure entry isn't empty
+                if(!replacement.equals("")) {
+                    map.put(replacement.split(">")[0], replacement.split(">")[1]);
+                }
+            }
+            difficultySectionBiomeReplacements.add(map);
         }
 
 
@@ -69,12 +86,14 @@ public class BiomeConfig {
         final File configFile = getConfigFile();
         final Properties properties = new Properties();
 
-        properties.put("Section_1", difficultySectionAsString.get(0));
+        properties.put("Section_1", difficultySectionsAsString.get(0));
+        properties.put("Section_1_replacements", difficultySectionBiomeReplacementsAsString.get(0));
 
         int x = 1;
-        if(difficultySectionAsString.size() > 1){
-            while(x<difficultySectionAsString.size()){
-                properties.put("Section_" + (x+1), difficultySectionAsString.get(x));
+        if(difficultySectionsAsString.size() > 1){
+            while(x< difficultySectionsAsString.size()){
+                properties.put("Section_" + (x+1), difficultySectionsAsString.get(x));
+                properties.put("Section_" + (x+1) + "_replacements", difficultySectionBiomeReplacementsAsString.get(x));
                 x++;
             }
         }
@@ -94,6 +113,17 @@ public class BiomeConfig {
 
     public static ArrayList<Pair<Float, List<String>>> getDifficultySections(){
         return difficultySections;
+    }
+    public static ArrayList<Map<String, String>> getDifficultySectionBiomeReplacements(){
+        return difficultySectionBiomeReplacements;
+    }
+
+    public static void setDynamicBiomeRegistry(Registry biomes){
+        biomeRegistry = biomes;
+    }
+
+    public static Registry<Biome> getDynamicBiomeRegistry(){
+        return biomeRegistry;
     }
 
 }
