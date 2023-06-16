@@ -3,22 +3,23 @@
 	"minVersion": "0.8",
 	"package": "com.mactso.harderfarther.mixin",
 	"compatibilityLevel": "JAVA_17",
-	"mixins": [],
+	"mixins": [
+      "BiomeGenMixin",
+      "BiomeSourceMixin",
+      "ChunkGenOrePlacementMixin",
+      "ChunkGenStructurePlacementMixin",
+      "ChunkRegionMixin",
+      "LivingEntityDropMixin",
+      "LivingEntityTickMixin",
+      "PlaceBlockMixin",
+      "PlayerTickMixin",
+      "SearchTreeMixin",
+      "ServerCreateWorldMixin",
+      "SpawnHelperMixin"
+    ],
 	"client": [
         "BackgroundRendererFogMixin",
-        "BiomeGenMixin",
-        "BiomeSourceMixin",
-        "ChunkGenOrePlacementMixin",
-        "ChunkGenStructurePlacementMixin",
-        "ChunkRegionMixin",
-        "LivingEntityDropMixin",
-        "LivingEntityTickMixin",
-        "PlaceBlockMixin",
-        "PlayerTickMixin",
-        "RenderSystemFogColorMixin",
-        "SearchTreeMixin",
-        "ServerCreateWorldMixin",
-        "SpawnHelperMixin"
+        "RenderSystemFogColorMixin"
 
 	],
 	"injectors": {
