@@ -107,8 +107,8 @@ public abstract class ChunkGenStructurePlacementMixin {
                 if (!areListInitialized) {
 
                     StructureConfig.getDifficultySections().forEach(section -> {
-                        difficultySectionNumbers.add(section.first);
-                        difficultySectionStructure.add(section.second);
+                        difficultySectionNumbers.add(section.getLeft());
+                        difficultySectionStructure.add(section.getRight());
                     });
 
 

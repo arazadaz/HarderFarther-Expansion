@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.config;
 
-import com.ibm.icu.impl.Pair;
+import net.minecraft.util.Pair;
 import com.mactso.harderfarther.Main;
 
 import java.io.File;
@@ -59,7 +59,7 @@ public class StructureConfig {
         for(int x=0; x<size; x++) {
             float section = Float.parseFloat(difficultySectionAsString.get(x).substring(1).split(":",2)[0]);
             List<String> biomes = List.of(difficultySectionAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
-            difficultySections.add(Pair.of(section, biomes));
+            difficultySections.add(new Pair<>(section, biomes));
         }
 
 

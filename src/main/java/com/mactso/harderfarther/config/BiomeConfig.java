@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.config;
 
-import com.ibm.icu.impl.Pair;
 import com.mactso.harderfarther.Main;
+import net.minecraft.util.Pair;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
@@ -66,7 +66,7 @@ public class BiomeConfig {
         for(int x=0; x<size/2; x++) {
             float section = Float.parseFloat(difficultySectionsAsString.get(x).substring(1).split(":",2)[0]);
             List<String> biomes = List.of(difficultySectionsAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
-            difficultySections.add(Pair.of(section, biomes));
+            difficultySections.add(new Pair<>(section, biomes));
 
             Map map = new HashMap<>();
             String[] replacements = difficultySectionBiomeReplacementsAsString.get(x).replace("\"", "").split(",");

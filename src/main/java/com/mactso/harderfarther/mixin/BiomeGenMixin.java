@@ -99,7 +99,7 @@ public class BiomeGenMixin extends BiomeSource{
                         BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
 
                             //Only adds each difficulty section to the difficulty sections once since each region loops through the difficulty sections.
-                            if (regionIndex == 0) difficultySectionNumbers.add(difficultySection.first.floatValue());
+                            if (regionIndex == 0) difficultySectionNumbers.add(difficultySection.getLeft().floatValue());
 
 
                             //Iterate through original biome List of a region
@@ -110,9 +110,9 @@ public class BiomeGenMixin extends BiomeSource{
 
 
                                 //Add All biomes if biome config list is empty. Otherwise add only if it's apart of the list in the config. - .isEmpty doesn't work as it seems initialized with empty strings.
-                                if (difficultySection.second.get(0).equals("")) {
+                                if (difficultySection.getRight().get(0).equals("")) {
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
-                                } else if (difficultySection.second.contains(biome)) {
+                                } else if (difficultySection.getRight().contains(biome)) {
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
                                 } else if (replacementBiome != null){
                                     //replaces an original biome point with another specified biome and adds it to the list

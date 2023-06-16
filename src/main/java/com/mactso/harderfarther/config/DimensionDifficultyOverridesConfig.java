@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.config;
 
-import com.ibm.icu.impl.Pair;
+import net.minecraft.util.Pair;
 import com.mactso.harderfarther.Main;
 
 import java.io.File;
@@ -64,16 +64,16 @@ public class DimensionDifficultyOverridesConfig {
         for(int x = 0; x< dimensionOverridesAsString.size(); x++) {
             boolean isDimensionOverriden = Boolean.parseBoolean(dimensionOverridesAsString.get(x).split(":",2)[0]);
             float difficulty = Float.parseFloat(dimensionOverridesAsString.get(x).split(":", 2)[1]);
-            dimensionOverrides.add(Pair.of(isDimensionOverriden, difficulty));
+            dimensionOverrides.add(new Pair<>(isDimensionOverriden, difficulty));
         }
 
-        isTheOverworldOverridden = dimensionOverrides.get(0).first.booleanValue();
-        isTheNetherOverridden = dimensionOverrides.get(1).first.booleanValue();
-        isTheEndOverridden = dimensionOverrides.get(2).first.booleanValue();
+        isTheOverworldOverridden = dimensionOverrides.get(0).getLeft().booleanValue();
+        isTheNetherOverridden = dimensionOverrides.get(1).getLeft().booleanValue();
+        isTheEndOverridden = dimensionOverrides.get(2).getLeft().booleanValue();
 
-        overworldDifficulty = dimensionOverrides.get(0).second;
-        netherDifficulty = dimensionOverrides.get(1).second;
-        endDifficulty = dimensionOverrides.get(2).second;
+        overworldDifficulty = dimensionOverrides.get(0).getRight();
+        netherDifficulty = dimensionOverrides.get(1).getRight();
+        endDifficulty = dimensionOverrides.get(2).getRight();
 
 
     }

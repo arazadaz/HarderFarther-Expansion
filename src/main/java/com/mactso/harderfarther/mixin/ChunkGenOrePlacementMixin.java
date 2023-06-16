@@ -42,8 +42,8 @@ public class ChunkGenOrePlacementMixin {
                 if (!areListInitialized) {
 
                     OreConfig.getDifficultySections().forEach(section -> {
-                        difficultySectionNumbers.add(section.first);
-                        difficultySectionOres.add(section.second);
+                        difficultySectionNumbers.add(section.getLeft());
+                        difficultySectionOres.add(section.getRight());
                     });
 
 

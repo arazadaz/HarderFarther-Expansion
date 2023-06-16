@@ -30,8 +30,8 @@ public class SpawnHelperMixin {
         if (!areListInitialized) {
 
             MobConfig.getDifficultySections().forEach(section -> {
-                difficultySectionNumbers.add(section.first);
-                difficultySectionMobs.add(section.second);
+                difficultySectionNumbers.add(section.getLeft());
+                difficultySectionMobs.add(section.getRight());
             });
 
 
