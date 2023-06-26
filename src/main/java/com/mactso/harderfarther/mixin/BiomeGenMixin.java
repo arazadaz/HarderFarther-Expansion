@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.mactso.harderfarther.api.DifficultyCalculator.getNearestOutpost;
-
 @Mixin(value = MultiNoiseBiomeSource.class, priority = 995)
 public class BiomeGenMixin extends BiomeSource{
 
@@ -193,7 +191,7 @@ public class BiomeGenMixin extends BiomeSource{
         if(((IExtendedBiomeSourceHF)this).getInit()) {
 
             if(!isDimInitialized) {
-                dimension = ((IExtendedBiomeSourceHF) (BiomeSource) (Object) this).getDirtyWorld().getRegistryKey().getValue().toString();
+                dimension = ((IExtendedBiomeSourceHF) (BiomeSource) (Object) this).getWorld().getRegistryKey().getValue().toString();
                 isDimInitialized = true;
             }
 
@@ -204,7 +202,7 @@ public class BiomeGenMixin extends BiomeSource{
             int x = BiomeCoords.fromChunk(i);
             int z = BiomeCoords.fromChunk(k);
             Vec3d location = new Vec3d(x, 0, z);
-            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getDirtyWorld(), location) * 100;
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getWorld(), location) * 100;
 
             //System.out.println(difficulty);
 
@@ -232,14 +230,14 @@ public class BiomeGenMixin extends BiomeSource{
         if(!((IExtendedBiomeSourceHF)this).getInit()) {
 
             //This is only true if the biomesource isn't the overworld, since that's the only one initialized at this point.
-            if (((IExtendedBiomeSourceHF) this).getDirtyWorld() == null) {
+            if (((IExtendedBiomeSourceHF) this).getWorld() == null) {
                 if(PrimaryConfig.getDebugLevel() > 0) {
                     Utility.debugMsg(1, "Structure Feature thing during spawn generation that isn't in the overworld???");  //I really don't know why this happens sometimes(rarely and only once) before spawn generates nor do I know what it does.
                 }
             } else {
 
                 //Calculate distance difficulty
-                float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getDirtyWorld(), new Vec3d(0, 0, 0));
+                float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getWorld(), new Vec3d(0, 0, 0));
 
                 int[] choosenAreaIndex = {-1};
                 difficultySectionNumbers.forEach(difficultySectionNumber -> {

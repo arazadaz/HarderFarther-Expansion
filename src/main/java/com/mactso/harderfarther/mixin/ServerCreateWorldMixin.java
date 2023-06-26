@@ -6,8 +6,6 @@ import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +19,7 @@ public class ServerCreateWorldMixin {
     private void harderfarther$onServerCreateWorlds(WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci) {
 
         for(ServerWorld serverWorld : this.getWorlds()) {
-            ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setDirtyWorld(serverWorld);
+            ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setWorld(serverWorld);
             ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setInit(true);
             if(PrimaryConfig.getDebugLevel() > 0) {
                 Utility.debugMsg(1, "World " + serverWorld.getRegistryKey().getValue() + " initialized");
@@ -34,7 +32,7 @@ public class ServerCreateWorldMixin {
     private void harderfarther$onServerCreateOverworld(WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci) {
 
         for(ServerWorld serverWorld : this.getWorlds()) {
-            ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setDirtyWorld(serverWorld);
+            ((IExtendedBiomeSourceHF)serverWorld.getChunkManager().getChunkGenerator().getBiomeSource()).setWorld(serverWorld);
         }
 
     }

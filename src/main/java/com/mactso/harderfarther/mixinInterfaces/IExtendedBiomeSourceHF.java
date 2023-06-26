@@ -5,16 +5,13 @@ import net.minecraft.util.math.Vec3d;
 
 public interface IExtendedBiomeSourceHF {
 
-    void setDirtyWorld(ServerWorld dirtyWorld);
+    void setWorld(ServerWorld dirtyWorld);
 
-    ServerWorld getDirtyWorld();
+    ServerWorld getWorld();
 
     void setInit(boolean i);
 
     boolean getInit();
 
-    public void setOverworldSpawn(Vec3d spawn);
-
-    public Vec3d getOverworldSpawn();
 
 }

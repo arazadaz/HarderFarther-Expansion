@@ -9,19 +9,19 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(BiomeSource.class)
 public class BiomeSourceMixin implements IExtendedBiomeSourceHF {
 
-    private ServerWorld dirtyWorld; //Dirty because it isn't synced with the original world. Works just fine for all biome intent & purposes.
+    private ServerWorld serverWorld; //Dirty because it isn't synced with the original world. Works just fine for all biome intent & purposes.
     private boolean init;
 
     private Vec3d overworldSpawn;
 
     @Override
-    public void setDirtyWorld(ServerWorld dirtyWorld) {
-        this.dirtyWorld = dirtyWorld;
+    public void setWorld(ServerWorld dirtyWorld) {
+        this.serverWorld = dirtyWorld;
     }
 
     @Override
-    public ServerWorld getDirtyWorld() {
-        return this.dirtyWorld;
+    public ServerWorld getWorld() {
+        return this.serverWorld;
     }
 
     public void setInit(boolean i){
@@ -34,12 +34,5 @@ public class BiomeSourceMixin implements IExtendedBiomeSourceHF {
         return this.init;
     }
 
-    public void setOverworldSpawn(Vec3d spawn){
-        this.overworldSpawn = spawn;
-    }
-
-    public Vec3d getOverworldSpawn(){
-        return this.overworldSpawn;
-    }
 
 }

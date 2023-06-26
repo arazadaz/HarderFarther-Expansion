@@ -9,7 +9,6 @@ import com.mactso.harderfarther.mixinInterfaces.IExtendedChunkRegion;
 import com.mactso.harderfarther.utility.Utility;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.ConcentricRingsStructurePlacement;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructurePlacement;
 import net.minecraft.util.Holder;
@@ -23,10 +22,8 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.RandomState;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.gen.structure.StructureSet;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,11 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-
-import static com.mactso.harderfarther.api.DifficultyCalculator.getNearestOutpost;
 
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGenStructurePlacementMixin {
@@ -245,7 +238,7 @@ public abstract class ChunkGenStructurePlacementMixin {
         this.shouldgen = true;
         if (((IExtendedBiomeSourceHF) this.getBiomeSource()).getInit()) {
 
-            ServerWorld worldReal = ((IExtendedBiomeSourceHF) this.getBiomeSource()).getDirtyWorld();
+            ServerWorld worldReal = ((IExtendedBiomeSourceHF) this.getBiomeSource()).getWorld();
 
             ChunkPos chunkPos = chunk.getPos();
             int x = BiomeCoords.fromChunk(chunkPos.getCenterX());
@@ -294,7 +287,7 @@ public abstract class ChunkGenStructurePlacementMixin {
 
 
             //Calculate distance difficulty
-            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF)this.getBiomeSource()).getDirtyWorld(), new Vec3d(0, 0, 0));
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF)this.getBiomeSource()).getWorld(), new Vec3d(0, 0, 0));
 
             int[] choosenAreaIndex = {-1};
             difficultySectionNumbers.forEach(difficultySectionNumber -> {
