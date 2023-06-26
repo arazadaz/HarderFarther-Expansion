@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(BiomeSource.class)
 public class BiomeSourceMixin implements IExtendedBiomeSourceHF {
 
-    private ServerWorld serverWorld; //Dirty because it isn't synced with the original world. Works just fine for all biome intent & purposes.
+    private ServerWorld serverWorld; //Not dirty; Be careful with this. It can cause major issues if used incorrectly.
     private boolean init;
 
     private Vec3d overworldSpawn;
