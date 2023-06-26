@@ -9,13 +9,15 @@
       "ChunkGenOrePlacementMixin",
       "ChunkGenStructurePlacementMixin",
       "ChunkRegionMixin",
+      "InitializeMobSpawnMixin",
       "LivingEntityDropMixin",
       "LivingEntityTickMixin",
       "PlaceBlockMixin",
       "PlayerTickMixin",
       "SearchTreeMixin",
       "ServerCreateWorldMixin",
-      "SpawnHelperMixin"
+      "ServerWorldMixin",
+      "SpawnEntityMixin"
     ],
 	"client": [
         "BackgroundRendererFogMixin",
