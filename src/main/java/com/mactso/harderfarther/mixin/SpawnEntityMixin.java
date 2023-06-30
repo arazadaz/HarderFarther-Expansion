@@ -104,8 +104,8 @@ public interface SpawnEntityMixin {
 
             SpawnReason spawnReason = ((IExtendedMobEntity)entity).getSpawnReason();
 
-            //Catches natural properly, but chunk spawning still happens. Not sure why, but not my biggest priority. Null catches some weirdness with modded entity spawns not being implemented correctly by devs
-            if( (spawnReason == SpawnReason.NATURAL || spawnReason == SpawnReason.CHUNK_GENERATION || spawnReason == null)){
+            //Catches natural properly, but chunk spawning still happens. Not sure why, but not my biggest priority.
+            if( (spawnReason == SpawnReason.NATURAL || spawnReason == SpawnReason.CHUNK_GENERATION )){
 
 
 
