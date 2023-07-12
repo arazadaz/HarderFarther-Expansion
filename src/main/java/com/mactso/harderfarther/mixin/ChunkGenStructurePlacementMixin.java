@@ -231,8 +231,8 @@ public abstract class ChunkGenStructurePlacementMixin {
         ServerWorld worldReal = ((IExtendedBiomeSourceHF)this.getBiomeSource()).getWorld();
 
 
-        int x = BiomeCoords.fromChunk(chunkPos.getCenterX());
-        int z = BiomeCoords.fromChunk(chunkPos.getCenterZ());
+        int x = chunkPos.getCenterX();
+        int z = chunkPos.getCenterZ();
 
 
         String structure = "";
@@ -259,13 +259,14 @@ public abstract class ChunkGenStructurePlacementMixin {
             //System.out.println(choosenAreaIndex[0] + " is Chosen index");
 
 
+            //Allows all structures if section is empty.
             if (difficultySectionStructure.get(choosenAreaIndex[0]).get(0).equals("")) {
                 return;
             }
 
             if (!difficultySectionStructure.get(choosenAreaIndex[0]).contains(structure)) {
                 if(PrimaryConfig.getDebugLevel() > 0){
-                    Utility.debugMsg(1, "Canceled structure: " + structure);
+                    Utility.debugMsg(1, "Canceled structure: " + structure + " located near x:" + x + ", z:" + z + " at difficulty: " + difficulty);
                 }
                 cir.setReturnValue(false);
             }
