@@ -28,7 +28,7 @@ public abstract class ItemStackMixin {
     @Shadow
     public abstract int getMaxDamage();
 
-    //Sets a max value of 6 to durability damage on armor so that armor doesn't get absolutely destroyed by higher damaging entities. Zombies in normal minecraft on normal difficulty do 3 damage for reference. Wither skeletons do 15 for reference.
+    //Sets a max value of 6 to durability damage on armor so that armor doesn't get absolutely destroyed by higher damaging entities. Zombies in normal minecraft on normal difficulty do 3 damage for reference. Wither skeletons do 8 for reference.
     @Inject(at = @At(value = "RETURN"), method = "Lnet/minecraft/item/ItemStack;damage(ILnet/minecraft/util/random/RandomGenerator;Lnet/minecraft/server/network/ServerPlayerEntity;)Z", cancellable = true)
     private void harderfarther$SetItemMaxDamage(int amount, RandomGenerator random, ServerPlayerEntity player, CallbackInfoReturnable<Boolean> cir){
 
