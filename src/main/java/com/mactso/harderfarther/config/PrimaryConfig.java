@@ -45,6 +45,7 @@ public class PrimaryConfig {
 	private static int minimumSafeAltitude;
 	private static int maximumSafeAltitude;
 	private static int bonusLootEnchantmentLevelModifier;
+	private static int maximumArmorDamage;
 
 
 	//	Harder Farther Control Values"."Loot Settings
@@ -133,6 +134,7 @@ public class PrimaryConfig {
 		safeDistance = Integer.parseInt(properties.computeIfAbsent("safe_distance", (a) -> "64").toString());
 		minimumSafeAltitude = Integer.parseInt(properties.computeIfAbsent("minimal_safe_altitude", (a) -> "32").toString());
 		maximumSafeAltitude = Integer.parseInt(properties.computeIfAbsent("maximum_safe_altitude", (a) -> "99").toString());
+		maximumArmorDamage = Integer.parseInt(properties.computeIfAbsent("maximum_armor_damage", (a) -> "6").toString());
 
 
 //		Harder Farther Control Values"."Loot Settings
@@ -215,6 +217,7 @@ public class PrimaryConfig {
 		properties.put("boost_max_distance", Integer.toString(boostMaxDistance));
 		properties.put("boost_min_distance", Integer.toString(boostMinDistance));
 		properties.put("safe_distance", Integer.toString(safeDistance));
+		properties.put("maximum_armor_damage", Integer.toString(maximumArmorDamage));
 
 
 //		Harder Farther Control Values"."Loot Settings
@@ -339,6 +342,10 @@ public class PrimaryConfig {
 
 	public static void setSafeDistance(int safeDistance) {
 		PrimaryConfig.safeDistance = safeDistance;
+	}
+
+	public static int getMaximumArmorDamage(){
+		return maximumArmorDamage;
 	}
 
 	public static boolean isHpMaxBoosted() {
