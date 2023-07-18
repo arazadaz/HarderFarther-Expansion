@@ -37,7 +37,7 @@ public abstract class ItemStackMixin {
 
         if(this.getItem() instanceof ArmorItem) {
             if(PrimaryConfig.getDebugLevel() > 0) {
-                Utility.debugMsg(1, "Armor piece " + this.getItem().getTranslationKey() + " took " + amount + " damage!");
+                Utility.debugMsg(1, "Armor piece " + this.getItem().getTranslationKey() + " took " + amount + " damage(before possible reduction)!");
             }
             if(amount >= PrimaryConfig.getMaximumArmorDamage()) {
                 int i = this.getDamage() - amount + PrimaryConfig.getMaximumArmorDamage();
