@@ -41,7 +41,11 @@ dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	//mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	mappings variantOf(libs.quilt.mappings) { classifier 'intermediary-v2' }
+	//mappings variantOf(libs.quilt.mappings) { classifier 'intermediary-v2' }
+	mappings loom.layered {
+		mappings "org.quiltmc:quilt-mappings:${libs.versions.quilt.mappings.get()}:intermediary-v2"
+		officialMojangMappings()
+	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.

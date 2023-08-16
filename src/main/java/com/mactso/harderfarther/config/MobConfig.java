@@ -1,6 +1,5 @@
 package com.mactso.harderfarther.config;
 
-import net.minecraft.util.Pair;
 import com.mactso.harderfarther.Main;
 
 import java.io.File;
@@ -10,13 +9,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import net.minecraft.util.Tuple;
 
 public class MobConfig {
 
     private static int size;
 
     private static ArrayList<String> difficultySectionAsString = new ArrayList<>();
-    private static ArrayList<Pair<Float, List<String>>> difficultySections = new ArrayList<>();
+    private static ArrayList<Tuple<Float, List<String>>> difficultySections = new ArrayList<>();
 
     public static void initConfig() {
         final File configFile = getConfigFile();
@@ -59,7 +59,7 @@ public class MobConfig {
         for(int x=0; x<size; x++) {
             float section = Float.parseFloat(difficultySectionAsString.get(x).substring(1).split(":",2)[0]);
             List<String> mobs = List.of(difficultySectionAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
-            difficultySections.add(new Pair<>(section, mobs));
+            difficultySections.add(new Tuple<>(section, mobs));
         }
 
 
@@ -92,7 +92,7 @@ public class MobConfig {
         return size;
     }
 
-    public static ArrayList<Pair<Float, List<String>>> getDifficultySections(){
+    public static ArrayList<Tuple<Float, List<String>>> getDifficultySections(){
         return difficultySections;
     }
 

@@ -1,13 +1,12 @@
 package com.mactso.harderfarther.mixinInterfaces;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
 
 public interface IExtendedBiomeSourceHF {
 
-    void setWorld(ServerWorld dirtyWorld);
+    void setWorld(ServerLevel dirtyWorld);
 
-    ServerWorld getWorld();
+    ServerLevel getWorld();
 
     void setInit(boolean i);
 

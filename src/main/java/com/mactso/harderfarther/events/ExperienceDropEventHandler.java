@@ -1,10 +1,10 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 
 // this method only *limits* xp drops that happen to fast.  it is part of the farm limiter.
@@ -46,13 +46,13 @@ public class ExperienceDropEventHandler {
 
 	}*/
 
-	private boolean closeToWorldSpawn(ServerWorld serverLevel, LivingEntity le) {
+	private boolean closeToWorldSpawn(ServerLevel serverLevel, LivingEntity le) {
 
-		Vec3d spawnVec = new Vec3d(serverLevel.getLevelProperties().getSpawnX(), serverLevel.getLevelProperties().getSpawnY(),
-				serverLevel.getLevelProperties().getSpawnZ());
+		Vec3 spawnVec = new Vec3(serverLevel.getLevelData().getXSpawn(), serverLevel.getLevelData().getYSpawn(),
+				serverLevel.getLevelData().getZSpawn());
 
-		BlockPos pos = le.getBlockPos();
-		Vec3d eventVec = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+		BlockPos pos = le.blockPosition();
+		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
 		
 		if (eventVec.distanceTo(spawnVec) < PrimaryConfig.getSafeDistance()*8)
 			return true;

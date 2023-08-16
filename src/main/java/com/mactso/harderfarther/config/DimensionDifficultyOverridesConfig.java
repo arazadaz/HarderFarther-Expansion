@@ -1,6 +1,5 @@
 package com.mactso.harderfarther.config;
 
-import net.minecraft.util.Pair;
 import com.mactso.harderfarther.Main;
 
 import java.io.File;
@@ -9,13 +8,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+import net.minecraft.util.Tuple;
 
 public class DimensionDifficultyOverridesConfig {
 
     private static int size;
 
     private static ArrayList<String> dimensionOverridesAsString = new ArrayList<>();
-    private static ArrayList<Pair<Boolean, Float>> dimensionOverrides = new ArrayList<>();
+    private static ArrayList<Tuple<Boolean, Float>> dimensionOverrides = new ArrayList<>();
 
     private static boolean isTheOverworldOverridden;
     private static boolean isTheNetherOverridden;
@@ -64,16 +64,16 @@ public class DimensionDifficultyOverridesConfig {
         for(int x = 0; x< dimensionOverridesAsString.size(); x++) {
             boolean isDimensionOverriden = Boolean.parseBoolean(dimensionOverridesAsString.get(x).split(":",2)[0]);
             float difficulty = Float.parseFloat(dimensionOverridesAsString.get(x).split(":", 2)[1]);
-            dimensionOverrides.add(new Pair<>(isDimensionOverriden, difficulty));
+            dimensionOverrides.add(new Tuple<>(isDimensionOverriden, difficulty));
         }
 
-        isTheOverworldOverridden = dimensionOverrides.get(0).getLeft().booleanValue();
-        isTheNetherOverridden = dimensionOverrides.get(1).getLeft().booleanValue();
-        isTheEndOverridden = dimensionOverrides.get(2).getLeft().booleanValue();
+        isTheOverworldOverridden = dimensionOverrides.get(0).getA().booleanValue();
+        isTheNetherOverridden = dimensionOverrides.get(1).getA().booleanValue();
+        isTheEndOverridden = dimensionOverrides.get(2).getA().booleanValue();
 
-        overworldDifficulty = dimensionOverrides.get(0).getRight();
-        netherDifficulty = dimensionOverrides.get(1).getRight();
-        endDifficulty = dimensionOverrides.get(2).getRight();
+        overworldDifficulty = dimensionOverrides.get(0).getB();
+        netherDifficulty = dimensionOverrides.get(1).getB();
+        endDifficulty = dimensionOverrides.get(2).getB();
 
 
     }

@@ -2,25 +2,25 @@ package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface LivingEntityTickCallback {
 
     Event<LivingEntityTickCallback> EVENT = EventFactory.createArrayBacked(LivingEntityTickCallback.class,
             (listeners) -> (entity) -> {
                 for (LivingEntityTickCallback listener : listeners) {
-                    ActionResult result = listener.interact(entity);
+                    InteractionResult result = listener.interact(entity);
 
-                    if(result != ActionResult.PASS) {
+                    if(result != InteractionResult.PASS) {
                         return result;
                     }
                 }
 
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             });
 
-    ActionResult interact(LivingEntity entity);
+    InteractionResult interact(LivingEntity entity);
 
 
 }

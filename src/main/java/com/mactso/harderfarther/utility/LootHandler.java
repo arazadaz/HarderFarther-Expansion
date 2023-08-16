@@ -10,17 +10,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.condition.LootConditionType;
-import net.minecraft.loot.condition.LootConditionTypes;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
+import net.minecraft.world.phys.Vec3;
 
 public class LootHandler
 {
@@ -54,16 +49,16 @@ public class LootHandler
 }
 
 //Possible solution? Requires a fair amount of rework & I don't know if it would actually work the way I want it.
-class ChestLocationLootCondition implements LootCondition {
+class ChestLocationLootCondition implements LootItemCondition {
 
     @Override
-    public LootConditionType getType() {
-        return LootConditionTypes.VALUE_CHECK;
+    public LootItemConditionType getType() {
+        return LootItemConditions.VALUE_CHECK;
     }
 
     @Override
     public boolean test(LootContext lootContext) {
-        Vec3d origin = lootContext.get(LootContextParameters.ORIGIN);
+        Vec3 origin = lootContext.getParamOrNull(LootContextParams.ORIGIN);
         return true;
         //return blockState != null && blockState.isOf(this.block) && this.properties.test(blockState); //not at all related, just keeping as an example.
     }

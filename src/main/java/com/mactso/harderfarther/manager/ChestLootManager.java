@@ -3,26 +3,25 @@ package com.mactso.harderfarther.manager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.SignItem;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.phys.Vec3;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.config.PrimaryConfig;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.PickaxeItem;
-import net.minecraft.item.PotionItem;
-import net.minecraft.item.ShovelItem;
-import net.minecraft.item.SignItem;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.WallStandingBlockItem;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.random.RandomGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -66,15 +65,15 @@ public class ChestLootManager {
 	}
 
 	public static String asString(ChestLootItem ci) {
-		return ("(" + ci.lootpct + ") " + ci.lootItem.getName().getString().toString() + ", " + ci.lootMin
+		return ("(" + ci.lootpct + ") " + ci.lootItem.getDescription().getString().toString() + ", " + ci.lootMin
 				+ " to " + ci.lootMax);
 	}
 
 	
 	
-	public static ItemStack doGetLootStack(ServerWorld level, Vec3d origin) {
+	public static ItemStack doGetLootStack(ServerLevel level, Vec3 origin) {
 
-		RandomGenerator rand = level.getRandom();
+		RandomSource rand = level.getRandom();
 		float difficulty = DifficultyCalculator.getDistanceDifficultyHere(level, origin);
 
 		int rawroll = (int) (100 * difficulty);
@@ -101,55 +100,55 @@ public class ChestLootManager {
 
 		ItemStack stack = new ItemStack(ci.lootItem,amt);
 		if (ci.lootItem instanceof ArmorItem) {
-			  stack.addEnchantment(Enchantments.PROTECTION, enchantmentLevel);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_armor.name"));
+			  stack.enchant(Enchantments.ALL_DAMAGE_PROTECTION, enchantmentLevel);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_armor.name"));
 		}
 		else
-		if ((ci.lootItem instanceof WallStandingBlockItem) && !(ci.lootItem instanceof SignItem) && !(ci.lootItem instanceof BannerItem)) {
-			  stack.addEnchantment(Enchantments.PROTECTION, enchantmentLevel);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_armor.name"));
+		if ((ci.lootItem instanceof StandingAndWallBlockItem) && !(ci.lootItem instanceof SignItem) && !(ci.lootItem instanceof BannerItem)) {
+			  stack.enchant(Enchantments.ALL_DAMAGE_PROTECTION, enchantmentLevel);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_armor.name"));
 		}
 		else
 		if (ci.lootItem instanceof BowItem) {
-			  stack.addEnchantment(Enchantments.POWER, 6);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_bow.name"));
+			  stack.enchant(Enchantments.POWER_ARROWS, 6);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_bow.name"));
 				Utility.setLore(stack,
-						Text.Serializer.toJson(Text.translatable("item.harderfarther.ancient_bow.lore")));
+						Component.Serializer.toJson(Component.translatable("item.harderfarther.ancient_bow.lore")));
 		}
 		else
 		if (ci.lootItem instanceof SwordItem) {
 			int swordroll = level.getRandom().nextInt(30);
 			if (swordroll < 15) {
-				stack.addEnchantment(Enchantments.SHARPNESS, 7);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_sword.name"));
+				stack.enchant(Enchantments.SHARPNESS, 7);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_sword.name"));
 				Utility.setLore(stack,
-						Text.Serializer.toJson(Text.translatable("item.harderfarther.ancient_sword.lore")));
+						Component.Serializer.toJson(Component.translatable("item.harderfarther.ancient_sword.lore")));
 			} else if (swordroll < 25) {
-				stack.addEnchantment(Enchantments.SMITE, 6);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_sword.name"));
+				stack.enchant(Enchantments.SMITE, 6);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_sword.name"));
 				Utility.setLore(stack,
-				Text.Serializer.toJson(Text.translatable("item.harderfarther.ancient_smite_sword.lore")));
+				Component.Serializer.toJson(Component.translatable("item.harderfarther.ancient_smite_sword.lore")));
 			} else {
-				stack.addEnchantment(Enchantments.BANE_OF_ARTHROPODS, 6);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_sword.name"));
+				stack.enchant(Enchantments.BANE_OF_ARTHROPODS, 6);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_sword.name"));
 				Utility.setLore(stack,
-				Text.Serializer.toJson(Text.translatable("item.harderfarther.ancient_bane_sword.lore")));
+				Component.Serializer.toJson(Component.translatable("item.harderfarther.ancient_bane_sword.lore")));
 			}
 		}
 		else
 		if (ci.lootItem instanceof PickaxeItem) {
-			  stack.addEnchantment(Enchantments.EFFICIENCY, 6);
-			  stack.setCustomName(Text.translatable("item.harderfarther.ancient_pickaxe.name"));
+			  stack.enchant(Enchantments.BLOCK_EFFICIENCY, 6);
+			  stack.setHoverName(Component.translatable("item.harderfarther.ancient_pickaxe.name"));
 		}
 		else
 		if (ci.lootItem instanceof AxeItem) {
-			  stack.addEnchantment(Enchantments.EFFICIENCY, 6);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_axe.name"));
+			  stack.enchant(Enchantments.BLOCK_EFFICIENCY, 6);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_axe.name"));
 		}
 		else
 		if (ci.lootItem instanceof ShovelItem) {
-			  stack.addEnchantment(Enchantments.EFFICIENCY, 6);
-				stack.setCustomName(Text.translatable("item.harderfarther.ancient_shovel.name"));
+			  stack.enchant(Enchantments.BLOCK_EFFICIENCY, 6);
+				stack.setHoverName(Component.translatable("item.harderfarther.ancient_shovel.name"));
 		}
 		else
 		if (ci.lootItem instanceof PotionItem) {

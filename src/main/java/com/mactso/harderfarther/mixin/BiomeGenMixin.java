@@ -8,16 +8,6 @@ import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
 import com.mactso.harderfarther.utility.Utility;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import net.minecraft.util.Holder;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeCoords;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
-import net.minecraft.world.biome.source.util.MultiNoiseUtil;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -30,6 +20,16 @@ import terrablender.worldgen.IExtendedParameterList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = MultiNoiseBiomeSource.class, priority = 995)
 public class BiomeGenMixin extends BiomeSource{
@@ -37,7 +37,7 @@ public class BiomeGenMixin extends BiomeSource{
     @Final
     @Mutable
     @Shadow
-    private MultiNoiseUtil.ParameterRangeList<Holder<Biome>> biomePoints;
+    private Climate.ParameterList<Holder<Biome>> parameters; //biomePoints in quilt mappings
 
     private boolean areListInitialized = false;
 
@@ -46,7 +46,7 @@ public class BiomeGenMixin extends BiomeSource{
     private String dimension = "";
 
     private IExtendedSearchTree<Holder<Biome>>[] defaultSearchTrees;
-    private MultiNoiseUtil.SearchTree<Holder<Biome>>[][] newSearchTree;
+    private Climate.RTree<Holder<Biome>>[][] newSearchTree;
 
     private ArrayList<Float> difficultySectionNumbers = new ArrayList<>();
     private ArrayList<Integer> emptyListsIndexes = new ArrayList<>();
@@ -56,8 +56,8 @@ public class BiomeGenMixin extends BiomeSource{
         super(biomes);
     }
 
-    @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/biome/source/util/MultiNoiseUtil$MultiNoiseSampler;)Lnet/minecraft/util/Holder;", cancellable = true)
-    private void harderfarther$onGenerateDifficultyBiome(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
+    @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/level/biome/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;", cancellable = true)
+    private void harderfarther$onGenerateDifficultyBiome(int i, int j, int k, Climate.Sampler multiNoiseSampler, CallbackInfoReturnable<Holder<Biome>> cir) {
 
         if(!areListInitialized) {
             synchronized (this) {
@@ -68,28 +68,28 @@ public class BiomeGenMixin extends BiomeSource{
                     }
 
                     //Return default value if terrablender biomesource is not initialized
-                    if (!((IExtendedParameterList<Holder<Biome>>) this.biomePoints).isInitialized()) {
+                    if (!((IExtendedParameterList<Holder<Biome>>) this.parameters).isInitialized()) {
 
                         if (PrimaryConfig.getDebugLevel() > 1) {
                             Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
                         }
                         areListInitialized = true;
-                        cir.setReturnValue(this.biomePoints.findValue(multiNoiseSampler.sample(i, j, k)));
+                        cir.setReturnValue(this.parameters.findValue(multiNoiseSampler.sample(i, j, k)));
                         return;
 
                     }
 
 
-                    int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTreeCount();
-                    List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
+                    int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.parameters).getTreeCount();
+                    List<Pair<Climate.ParameterPoint, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
                     defaultSearchTrees = new IExtendedSearchTree[regionCount];
-                    newSearchTree = new MultiNoiseUtil.SearchTree[BiomeConfig.getDifficultySections().size()][regionCount];
+                    newSearchTree = new Climate.RTree[BiomeConfig.getDifficultySections().size()][regionCount];
 
 
                     for (int iterator = 0; iterator < regionCount; iterator++) {
-                        defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.biomePoints).getTree(iterator));
+                        defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.parameters).getTree(iterator));
 
-                        List<Pair<MultiNoiseUtil.NoiseHypercube, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
+                        List<Pair<Climate.ParameterPoint, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
 
 
                         final int[] difficultySectionIndex = {0};
@@ -97,24 +97,24 @@ public class BiomeGenMixin extends BiomeSource{
                         BiomeConfig.getDifficultySections().forEach((difficultySection) -> {
 
                             //Only adds each difficulty section to the difficulty sections once since each region loops through the difficulty sections.
-                            if (regionIndex == 0) difficultySectionNumbers.add(difficultySection.getLeft().floatValue());
+                            if (regionIndex == 0) difficultySectionNumbers.add(difficultySection.getA().floatValue());
 
 
                             //Iterate through original biome List of a region
                             biomePairs.forEach(noiseHypercubeHolderPair -> {
 
-                                String biome = noiseHypercubeHolderPair.getSecond().getKey().get().getValue().toString();
+                                String biome = noiseHypercubeHolderPair.getSecond().unwrapKey().get().location().toString();
                                 String replacementBiome = BiomeConfig.getDifficultySectionBiomeReplacements().get(difficultySectionIndex[0]).get(biome);
 
 
                                 //Add All biomes if biome config list is empty. Otherwise add only if it's apart of the list in the config. - .isEmpty doesn't work as it seems initialized with empty strings.
-                                if (difficultySection.getRight().get(0).equals("")) {
+                                if (difficultySection.getB().get(0).equals("")) {
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
-                                } else if (difficultySection.getRight().contains(biome)) {
+                                } else if (difficultySection.getB().contains(biome)) {
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
                                 } else if (replacementBiome != null){
                                     //replaces an original biome point with another specified biome and adds it to the list
-                                    RegistryKey<Biome> key = RegistryKey.of(BuiltinRegistries.BIOME.getKey(), new Identifier(replacementBiome.split(":")[0], replacementBiome.split(":")[1]));
+                                    ResourceKey<Biome> key = ResourceKey.create(BuiltinRegistries.BIOME.key(), new ResourceLocation(replacementBiome.split(":")[0], replacementBiome.split(":")[1]));
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), BiomeConfig.getDynamicBiomeRegistry().getHolderOrThrow(key)));
                                     if(PrimaryConfig.getDebugLevel() > 0) {
                                         Utility.debugMsg(1, ("replaced " + biome + " > " + replacementBiome));
@@ -125,7 +125,7 @@ public class BiomeGenMixin extends BiomeSource{
 
 
                             if (!modifiedBiomePoints.isEmpty()) {
-                                newSearchTree[difficultySectionIndex[0]][regionIndex] = MultiNoiseUtil.SearchTree.create(modifiedBiomePoints);
+                                newSearchTree[difficultySectionIndex[0]][regionIndex] = Climate.RTree.create(modifiedBiomePoints);
                                 modifiedBiomePoints.clear();  //reset the list to ensure no duplicate values.
                                 filledListsIndexes.add(regionIndex);
                             } else {
@@ -173,25 +173,25 @@ public class BiomeGenMixin extends BiomeSource{
         //Start of primary logic
 
         // Fallback on findValue if we are uninitialized (may be the case for non-TerraBlender dimensions) - Also nether is bugged & not initialized in 1.19.2 fabric terrablender
-        if(!((IExtendedParameterList<Holder<Biome>>) this.biomePoints).isInitialized()) {
+        if(!((IExtendedParameterList<Holder<Biome>>) this.parameters).isInitialized()) {
 
             if (PrimaryConfig.getDebugLevel() > 1) {
                 Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
             }
-            cir.setReturnValue(this.biomePoints.findValue(multiNoiseSampler.sample(i,j,k)));
+            cir.setReturnValue(this.parameters.findValue(multiNoiseSampler.sample(i,j,k)));
             return;
 
         }
 
 
 
-        int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.biomePoints).getUniqueness(i, j, k);
+        int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.parameters).getUniqueness(i, j, k);
 
         //Make sure worlds are initialized before running main logic
         if(((IExtendedBiomeSourceHF)this).getInit()) {
 
             if(!isDimInitialized) {
-                dimension = ((IExtendedBiomeSourceHF) (BiomeSource) (Object) this).getWorld().getRegistryKey().getValue().toString();
+                dimension = ((IExtendedBiomeSourceHF) (BiomeSource) (Object) this).getWorld().dimension().location().toString();
                 isDimInitialized = true;
             }
 
@@ -199,9 +199,9 @@ public class BiomeGenMixin extends BiomeSource{
 
 
             //Main Logic for choosing difficulty biome section
-            int x = BiomeCoords.fromChunk(i);
-            int z = BiomeCoords.fromChunk(k);
-            Vec3d location = new Vec3d(x, 0, z);
+            int x = QuartPos.fromSection(i);
+            int z = QuartPos.fromSection(k);
+            Vec3 location = new Vec3(x, 0, z);
             float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getWorld(), location) * 100;
 
             //System.out.println(difficulty);
@@ -216,9 +216,9 @@ public class BiomeGenMixin extends BiomeSource{
 
             //Support for overworld only as of now. I want to get a release out :)
             if(this.dimension.equals("minecraft:overworld")) {
-                cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+                cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].search(multiNoiseSampler.sample(i, j, k), Climate.RTree.Node::distance));
             }else {
-                cir.setReturnValue((Holder<Biome>) ((MultiNoiseUtil.SearchTree) (Object) defaultSearchTrees[0]).get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+                cir.setReturnValue((Holder<Biome>) ((Climate.RTree) (Object) defaultSearchTrees[0]).search(multiNoiseSampler.sample(i, j, k), Climate.RTree.Node::distance));
             }
 
         }
@@ -237,14 +237,14 @@ public class BiomeGenMixin extends BiomeSource{
             } else {
 
                 //Calculate distance difficulty
-                float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getWorld(), new Vec3d(0, 0, 0));
+                float difficulty = DifficultyCalculator.getDistanceDifficultyHere(((IExtendedBiomeSourceHF) this).getWorld(), new Vec3(0, 0, 0));
 
                 int[] choosenAreaIndex = {-1};
                 difficultySectionNumbers.forEach(difficultySectionNumber -> {
                     if (difficulty >= difficultySectionNumber) choosenAreaIndex[0]++;
                 });
 
-                cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].get(multiNoiseSampler.sample(i, j, k), MultiNoiseUtil.SearchTree.TreeNode::getSquaredDistance));
+                cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].search(multiNoiseSampler.sample(i, j, k), Climate.RTree.Node::distance));
             }
         }
 
@@ -308,13 +308,13 @@ public class BiomeGenMixin extends BiomeSource{
 
     @Shadow
     @Override
-    public Codec<? extends BiomeSource> getCodec() {
+    public Codec<? extends BiomeSource> codec() {
         return null;
     }
 
     @Shadow
     @Override
-    public Holder<Biome> getNoiseBiome(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler) {
+    public Holder<Biome> getNoiseBiome(int i, int j, int k, Climate.Sampler multiNoiseSampler) {
         return null;
     }
 }

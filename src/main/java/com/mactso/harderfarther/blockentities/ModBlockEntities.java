@@ -2,17 +2,17 @@ package com.mactso.harderfarther.blockentities;
 
 import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.block.ModBlocks;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class ModBlockEntities
 {
 
-	public static final BlockEntityType<GrimHeartBlockEntity> GRIM_HEART = BlockEntityType.Builder.create(GrimHeartBlockEntity::new, ModBlocks.GRIM_HEART).build(null);
+	public static final BlockEntityType<GrimHeartBlockEntity> GRIM_HEART = BlockEntityType.Builder.of(GrimHeartBlockEntity::new, ModBlocks.GRIM_HEART).build(null);
 
 	public static void register()
 	{
-		Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(Main.MODID, "grim_heart"), GRIM_HEART);
+		Registry.register(Registry.BLOCK_ENTITY_TYPE, new ResourceLocation(Main.MODID, "grim_heart"), GRIM_HEART);
 	}
 }

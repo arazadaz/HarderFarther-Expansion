@@ -1,15 +1,14 @@
 package com.mactso.harderfarther.mixinInterfaces;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.biome.source.util.MultiNoiseUtil;
-
 import java.util.List;
+import net.minecraft.world.level.biome.Climate;
 
 public interface IExtendedSearchTree<T> {
 
-    List<Pair<MultiNoiseUtil.NoiseHypercube, T>> getOriginalList();
+    List<Pair<Climate.ParameterPoint, T>> getOriginalList();
 
-    void setOriginalList(List<Pair<MultiNoiseUtil.NoiseHypercube, T>> entries);
+    void setOriginalList(List<Pair<Climate.ParameterPoint, T>> entries);
 
 
 }

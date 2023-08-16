@@ -1,8 +1,8 @@
 package com.mactso.harderfarther.block.properties;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum GrimGateType implements StringIdentifiable{
+public enum GrimGateType implements StringRepresentable{
 	
 	   FLOOR("floor"),
 	   DOOR("door");
@@ -14,10 +14,10 @@ public enum GrimGateType implements StringIdentifiable{
 	   }
 
 	   public String toString() {
-	      return this.asString();
+	      return this.getSerializedName();
 	   }
 
-	   public String asString() {
+	   public String getSerializedName() {
 	      return this.name;
 	   }
 }

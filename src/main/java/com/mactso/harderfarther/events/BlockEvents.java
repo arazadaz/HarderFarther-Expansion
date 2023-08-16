@@ -7,18 +7,18 @@ import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.sounds.ModSounds;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
 
 
 public class BlockEvents {
@@ -35,12 +35,12 @@ public class BlockEvents {
 		PlayerBlockBreakEvents.BEFORE.register(
 				(world, player, pos, state, blockEntity) -> {
 
-					Vec3d rfv = player.getRotationVecClient().negate().multiply(0.6);
-					long gameTime = world.getTime();
-					RandomGenerator rand = world.getRandom();
+					Vec3 rfv = player.getForward().reverse().scale(0.6);
+					long gameTime = world.getGameTime();
+					RandomSource rand = world.getRandom();
 
 					float adjustY = 0;
-					if (player.getBlockPos().getY() < pos.getY()) {
+					if (player.blockPosition().getY() < pos.getY()) {
 						adjustY = -0.5f;
 					}
 
@@ -49,10 +49,10 @@ public class BlockEvents {
 							//event.setNewSpeed(event.getOriginalSpeed() / 20);    Might re-add in the future, but not for initial port.
 							return false;
 						}
-						if(world.isClient()){
+						if(world.isClientSide()){
 							if(cGameTime < gameTime){
 								cGameTime = gameTime + 20 + rand.nextInt(40);
-								world.playSound(player, pos, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.AMBIENT, 0.11f, 0.06f);
+								world.playSound(player, pos, SoundEvents.VILLAGER_NO, SoundSource.AMBIENT, 0.11f, 0.06f);
 								for (int j = 0; j < 21; ++j) {
 									double x = (double) pos.getX() + rand.nextDouble() * (double) 0.1F;
 									double y = (double) pos.getY() + rand.nextDouble() + adjustY;
@@ -79,7 +79,7 @@ public class BlockEvents {
 					Block block = state.getBlock();
 
 					if(block == ModBlocks.GRIM_GATE) {
-						GrimCitadelManager.doBrokenGrimGate((ServerPlayerEntity)player, (ServerWorld)world, pos, state);
+						GrimCitadelManager.doBrokenGrimGate((ServerPlayer)player, (ServerLevel)world, pos, state);
 					}else if(block == ModBlocks.GRIM_HEART){
 						new GrimClientSongPacket(ModSounds.NUM_LAKE_DESTINY).send(player);
 					}
@@ -92,11 +92,11 @@ public class BlockEvents {
 	public static void onBlockPlacementRegister(){
 		PlaceBlockCallback.EVENT.register(
 				(context, state) -> {
-					if(GrimCitadelManager.isInGrimProtectedArea(context.getBlockPos())){
-						updateHands((ServerPlayerEntity) context.getPlayer());
-						return ActionResult.FAIL;
+					if(GrimCitadelManager.isInGrimProtectedArea(context.getClickedPos())){
+						updateHands((ServerPlayer) context.getPlayer());
+						return InteractionResult.FAIL;
 					}
-					return ActionResult.PASS;
+					return InteractionResult.PASS;
 				});
 	}
 
@@ -104,21 +104,21 @@ public class BlockEvents {
 	 * fix client side view of the hotbar for non creative This makes it so items
 	 * don't look like they poofed.
 	 */
-	public static void updateHands(ServerPlayerEntity player) {
-		if (player.networkHandler == null)
+	public static void updateHands(ServerPlayer player) {
+		if (player.connection == null)
 			return;
-		ItemStack itemstack = player.getInventory().getMainHandStack();
+		ItemStack itemstack = player.getInventory().getSelected();
 		if (!itemstack.isEmpty())
-			slotChanged(player, 36 + player.getInventory().selectedSlot, itemstack);
-		itemstack = player.getInventory().offHand.get(0);
+			slotChanged(player, 36 + player.getInventory().selected, itemstack);
+		itemstack = player.getInventory().offhand.get(0);
 		if (!itemstack.isEmpty())
 			slotChanged(player, 45, itemstack);
 	}
 
-	public static void slotChanged(ServerPlayerEntity player, int index, ItemStack itemstack) {
-		PlayerScreenHandler menu = player.playerScreenHandler;
-		player.networkHandler.sendPacket(
-				new ScreenHandlerSlotUpdateS2CPacket(menu.syncId, menu.nextRevision(), index, itemstack));
+	public static void slotChanged(ServerPlayer player, int index, ItemStack itemstack) {
+		InventoryMenu menu = player.inventoryMenu;
+		player.connection.send(
+				new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), index, itemstack));
 	}
 
 	//Not included in initial port

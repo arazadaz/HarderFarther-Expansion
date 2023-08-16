@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 //16.2 - 1.0.0.0 HarderFarther
 
 import com.mactso.harderfarther.Main;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 
 
 public class PrimaryConfig {
@@ -37,7 +37,7 @@ public class PrimaryConfig {
 	private static boolean makeMonstersHarderFarther;
 	private static List<? extends String> dimensionOmitList;
 	private static List<BlockPos> outpostBlockPosList;
-	private static Vec3d[] outpostVec3dArray;
+	private static Vec3[] outpostVec3dArray;
 	private static boolean useSpawnAsOutpost;
 	private static int boostMaxDistance;
 	private static int boostMinDistance;
@@ -269,7 +269,7 @@ public class PrimaryConfig {
 
 	private static void computeConfigValues() {
 
-		debugLevel = MathHelper.clamp(debugLevel, 0, 2);
+		debugLevel = Mth.clamp(debugLevel, 0, 2);
 		boostMaxDistance = boostMaxDistance > 0 ? boostMaxDistance : 0;
 		boostMaxDistance = boostMaxDistance > 0 ? boostMaxDistance : 0;
 
@@ -532,7 +532,7 @@ public class PrimaryConfig {
 		return grimFogGreenPercent;
 	}
 
-	public static Vec3d[] getOutpostPositions(){
+	public static Vec3[] getOutpostPositions(){
 		return outpostVec3dArray.clone();
 	}
 
@@ -587,16 +587,16 @@ public class PrimaryConfig {
 		return returnList;
 	}
 
-	private static Vec3d[] convertOutpostBlockPos(List<BlockPos> list){
+	private static Vec3[] convertOutpostBlockPos(List<BlockPos> list){
 
-		Vec3d[] returnArray = new Vec3d[list.size() +1];
+		Vec3[] returnArray = new Vec3[list.size() +1];
 		int iterator = 1;
 		for (BlockPos pos : list) {
 
 			int x = pos.getX();
 			int y = -1;
 			int z = pos.getZ();
-			returnArray[iterator] = (new Vec3d(x, y, z));
+			returnArray[iterator] = (new Vec3(x, y, z));
 
 			iterator++;
 		}

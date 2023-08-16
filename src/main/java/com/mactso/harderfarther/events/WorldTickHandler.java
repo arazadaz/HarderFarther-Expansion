@@ -10,10 +10,9 @@ import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public class WorldTickHandler {
 
@@ -24,24 +23,24 @@ public class WorldTickHandler {
 
 
 					// this is always serverlevel
-					if (world instanceof ServerWorld) {
+					if (world instanceof ServerLevel) {
 
 						GrimCitadelManager.checkCleanUpCitadels(world);
 
-						long gametime = world.getTime();
+						long gametime = world.getGameTime();
 
-						List<ServerPlayerEntity> allPlayers = world.getServer().getPlayerManager().getPlayerList();
-						Iterator<ServerPlayerEntity> apI = allPlayers.iterator();
+						List<ServerPlayer> allPlayers = world.getServer().getPlayerList().getPlayers();
+						Iterator<ServerPlayer> apI = allPlayers.iterator();
 
-						PacketByteBuf buf = PacketByteBufs.create();
+						FriendlyByteBuf buf = PacketByteBufs.create();
 						buf.writeDouble(PrimaryConfig.getGrimFogRedPercent());
 						buf.writeDouble(PrimaryConfig.getGrimFogGreenPercent());
 						buf.writeDouble(PrimaryConfig.getGrimFogBluePercent());
 
 						while (apI.hasNext()) { // sends to all players online.
-							ServerPlayerEntity sp = apI.next();
+							ServerPlayer sp = apI.next();
 							if (gametime % 100 == sp.getId() % 100) {
-								ServerPlayNetworking.send((ServerPlayerEntity) sp, SyncFogToClientsPacket.GAME_PACKET_SYNC_FOG_COLOR_S2C, buf);
+								ServerPlayNetworking.send((ServerPlayer) sp, SyncFogToClientsPacket.GAME_PACKET_SYNC_FOG_COLOR_S2C, buf);
 							}
 						}
 					}

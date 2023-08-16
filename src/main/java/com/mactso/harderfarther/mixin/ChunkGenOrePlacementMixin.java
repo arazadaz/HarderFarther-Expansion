@@ -4,13 +4,6 @@ import com.mactso.harderfarther.config.OreConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.utility.Utility;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.OreFeature;
-import net.minecraft.world.gen.feature.OreFeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,6 +11,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.OreFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(OreFeature.class)
 public class ChunkGenOrePlacementMixin {
@@ -28,8 +28,8 @@ public class ChunkGenOrePlacementMixin {
     private ArrayList<List<String>> difficultySectionOres = new ArrayList<>();
 
 
-    @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/gen/feature/OreFeature;place(Lnet/minecraft/world/gen/feature/util/FeatureContext;)Z", cancellable = true)
-    private void onGenerate(FeatureContext<OreFeatureConfig> context, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(at = @At(value = "HEAD"), method = "place", cancellable = true)
+    private void onGenerate(FeaturePlaceContext<OreConfiguration> context, CallbackInfoReturnable<Boolean> cir) {
 
         //return false if generation is not allowed.
         //return true if generation is allowed
@@ -42,8 +42,8 @@ public class ChunkGenOrePlacementMixin {
                 if (!areListInitialized) {
 
                     OreConfig.getDifficultySections().forEach(section -> {
-                        difficultySectionNumbers.add(section.getLeft());
-                        difficultySectionOres.add(section.getRight());
+                        difficultySectionNumbers.add(section.getA());
+                        difficultySectionOres.add(section.getB());
                     });
 
 
@@ -58,16 +58,16 @@ public class ChunkGenOrePlacementMixin {
 
 
 
-        ServerWorld world = context.getWorld().toServerWorld();
+        ServerLevel world = context.level().getLevel();
 
-        if(world.getRegistryKey() == World.OVERWORLD){
+        if(world.dimension() == Level.OVERWORLD){
 
-            BlockPos pos = context.getOrigin();
-            String block = context.getConfig().targets.get(0).state.getBlock().toString().substring(6);
+            BlockPos pos = context.origin();
+            String block = context.config().targetStates.get(0).state.getBlock().toString().substring(6);
             block = block.substring(0, block.length()-1);
 
 
-            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(world, new Vec3d(pos.getX(), pos.getY(), pos.getZ())) * 100;
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(world, new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 100;
 
             int[] choosenAreaIndex = {-1};
             difficultySectionNumbers.forEach(difficultySectionNumber -> {

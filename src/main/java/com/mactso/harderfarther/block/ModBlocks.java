@@ -1,49 +1,48 @@
 package com.mactso.harderfarther.block;
 
 import com.mactso.harderfarther.Main;
-
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.Material;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 
 
 public class ModBlocks
 {
 	public static final Block GRIM_HEART = 
-			new GrimHeartBlock(AbstractBlock
-					.Settings.of(Material.ORGANIC_PRODUCT).luminance((state) -> { return 7;}).sounds(BlockSoundGroup.METAL), ParticleTypes.FLAME
+			new GrimHeartBlock(BlockBehaviour
+					.Properties.of(Material.CLAY).lightLevel((state) -> { return 7;}).sound(SoundType.METAL), ParticleTypes.FLAME
 					);
 	
 	public static final Block GRIM_GATE = 
-			new GrimGateBlock(AbstractBlock
-					.Settings.of(Material.GLASS).breakInstantly().nonOpaque().luminance((state) -> { return 3;}).sounds(BlockSoundGroup.GLASS)
+			new GrimGateBlock(BlockBehaviour
+					.Properties.of(Material.GLASS).instabreak().noOcclusion().lightLevel((state) -> { return 3;}).sound(SoundType.GLASS)
 					);
 	
 //	   public static final Block WALL_TORCH = register("wall_torch", new WallTorchBlock(BlockBehaviour
 //			   .Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_152607_) -> {
 //		      return 14;   }).sound(SoundType.WOOD).dropsLike(TORCH), ParticleTypes.FLAME));
-	public static final Block DEAD_BRANCHES = new LeavesBlock(AbstractBlock.Settings.of(Material.LEAVES).strength(0.2F).ticksRandomly().sounds(BlockSoundGroup.GRASS).nonOpaque().suffocates(ModBlocks::never).blockVision(ModBlocks::never));
+	public static final Block DEAD_BRANCHES = new LeavesBlock(BlockBehaviour.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
 
 	
 	public static void register()
 	{
 
-		Registry.register(Registry.BLOCK, new Identifier(Main.MODID, "grim_heart"), GRIM_HEART);
-		Registry.register(Registry.BLOCK, new Identifier(Main.MODID, "grim_gate"), GRIM_GATE);
-		Registry.register(Registry.BLOCK, new Identifier(Main.MODID, "dead_branches"), DEAD_BRANCHES);
+		Registry.register(Registry.BLOCK, new ResourceLocation(Main.MODID, "grim_heart"), GRIM_HEART);
+		Registry.register(Registry.BLOCK, new ResourceLocation(Main.MODID, "grim_gate"), GRIM_GATE);
+		Registry.register(Registry.BLOCK, new ResourceLocation(Main.MODID, "dead_branches"), DEAD_BRANCHES);
 
 	}
 
 
-   private static Boolean never(BlockState p_50779_, BlockView p_50780_, BlockPos p_50781_) {
+   private static Boolean never(BlockState p_50779_, BlockGetter p_50780_, BlockPos p_50781_) {
       return (boolean)false;
    }
 

@@ -1,42 +1,42 @@
 package com.mactso.harderfarther.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class BurnishingStone extends Item {
 
-	public BurnishingStone(Settings prop) {
+	public BurnishingStone(Properties prop) {
 		super(prop);
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> use(World level, PlayerEntity player, Hand iHand) {
-		if (!level.isClient()) {
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand iHand) {
+		if (!level.isClientSide()) {
 			ItemStack bstack;
 			ItemStack stack;
 
-			if (iHand == Hand.MAIN_HAND) {
-				bstack = player.getMainHandStack();
-				stack = player.getOffHandStack();
+			if (iHand == InteractionHand.MAIN_HAND) {
+				bstack = player.getMainHandItem();
+				stack = player.getOffhandItem();
 			} else {
-				bstack = player.getOffHandStack();
-				stack = player.getMainHandStack();
+				bstack = player.getOffhandItem();
+				stack = player.getMainHandItem();
 			}
-			if ((stack.isDamageable()) && (stack.isDamaged())) {
+			if ((stack.isDamageableItem()) && (stack.isDamaged())) {
 				int repairAmount = level.getRandom().nextInt(stack.getMaxDamage() / 20) + stack.getMaxDamage() / 20;
-				int newDamageValue = Math.max(0, stack.getDamage() - repairAmount);
-				stack.setDamage(newDamageValue);
+				int newDamageValue = Math.max(0, stack.getDamageValue() - repairAmount);
+				stack.setDamageValue(newDamageValue);
 				bstack.setCount(bstack.getCount() - 1);
-				level.playSound((PlayerEntity) null, player.getX(), player.getY(), player.getZ(), SoundEvents.BLOCK_GRINDSTONE_USE,
-						SoundCategory.PLAYERS, 1.0F, 1.0F);
-				player.playSound(SoundEvents.BLOCK_GRINDSTONE_USE, 1.0F, 1.0F);
-				player.getItemCooldownManager().set(this, 60);
+				level.playSound((Player) null, player.getX(), player.getY(), player.getZ(), SoundEvents.GRINDSTONE_USE,
+						SoundSource.PLAYERS, 1.0F, 1.0F);
+				player.playSound(SoundEvents.GRINDSTONE_USE, 1.0F, 1.0F);
+				player.getCooldowns().addCooldown(this, 60);
 			}
 		}
 		return super.use(level, player, iHand);

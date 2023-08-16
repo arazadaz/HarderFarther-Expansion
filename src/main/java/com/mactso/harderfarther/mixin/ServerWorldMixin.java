@@ -1,13 +1,13 @@
 package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.mixinInterfaces.IExtendedServerWorld;
-import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.server.level.ServerLevel;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public class ServerWorldMixin implements IExtendedServerWorld {
 
     private boolean areListInitialized = false;

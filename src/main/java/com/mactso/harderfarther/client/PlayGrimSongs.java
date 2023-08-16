@@ -1,16 +1,16 @@
 package com.mactso.harderfarther.client;
 
 import java.util.Random;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.MusicTracker;
-import net.minecraft.sound.MusicSound;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.sounds.MusicManager;
+import net.minecraft.sounds.Music;
+import net.minecraft.sounds.SoundEvent;
 
 public class PlayGrimSongs {
 	boolean blockmusic = false;
-	private static MinecraftClient mc = null;
-	private static MusicTracker musicTicker = null;
+	private static Minecraft mc = null;
+	private static MusicManager musicTicker = null;
 	private static final Random rand = new Random();
 	// this is kludgy since I'm hard stopping any currently playing song.
 	// there *is* an official way of doing this.
@@ -25,24 +25,24 @@ public class PlayGrimSongs {
 
 		doInit();
 
-		clientPsuedoTicks = Util.getMeasuringTimeMs() / 50;
+		clientPsuedoTicks = Util.getMillis() / 50;
 		if (grimSongDelayTicks < clientPsuedoTicks) {
 			grimSongDelayTicks = clientPsuedoTicks + (1200); // ignore calls within 60 seconds.  
 			// TODO: need forcestart=true/false parm
 		}
-		musicTicker.stop();
+		musicTicker.stopPlaying();
 		boolean replaceCurrentMusic = true;
-		MusicSound m = new MusicSound(song, minDelay, maxDelay, replaceCurrentMusic);
-		musicTicker.play(m);
+		Music m = new Music(song, minDelay, maxDelay, replaceCurrentMusic);
+		musicTicker.startPlaying(m);
 	}
 
 	private static void doInit() {
 		if (mc == null) {
-			rand.setSeed(Util.getMeasuringTimeMs()); 
-			mc = MinecraftClient.getInstance(); 
+			rand.setSeed(Util.getMillis()); 
+			mc = Minecraft.getInstance(); 
 		}
 		if (musicTicker == null) {
-			musicTicker = mc.getMusicTracker();
+			musicTicker = mc.getMusicManager();
 		}
 	}
 }

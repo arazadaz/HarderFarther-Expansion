@@ -2,46 +2,45 @@ package com.mactso.harderfarther.utility;
 
 import java.util.Arrays;
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.minecraft.world.entity.monster.Zoglin;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.TallGrassBlock;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import com.mactso.harderfarther.config.PrimaryConfig;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FernBlock;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.Material;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.block.WallBlock;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.mob.GuardianEntity;
-import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.mob.PhantomEntity;
-import net.minecraft.entity.mob.SpiderEntity;
-import net.minecraft.entity.mob.WaterCreatureEntity;
-import net.minecraft.entity.mob.WitherSkeletonEntity;
-import net.minecraft.entity.mob.ZoglinEntity;
-import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.entity.mob.ZombifiedPiglinEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.Heightmap.Type;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
@@ -71,7 +70,7 @@ public class Glooms {
 	static long witherSkeletonTimer = 0;
 	static long creeperTimer = 0;
 
-	public static void doGloomPigs(PigEntity pig, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomPigs(Pig pig, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (PrimaryConfig.isGrimEffectPigs()) {
 			
 			if (pigTimer < gameTime) {
@@ -79,17 +78,17 @@ public class Glooms {
 				float pitch = 0.8f;
 				int roll = serverLevel.getRandom().nextInt(100);
 				if (roll < 10) {
-					Utility.updateEffect(pig, 3, StatusEffects.WITHER, 120);
-					serverLevel.playSound(null, pos, SoundEvents.ENTITY_PIGLIN_ADMIRING_ITEM, SoundCategory.AMBIENT, 2.20f,
+					Utility.updateEffect(pig, 3, MobEffects.WITHER, 120);
+					serverLevel.playSound(null, pos, SoundEvents.PIGLIN_ADMIRING_ITEM, SoundSource.AMBIENT, 2.20f,
 							pitch);
 					Utility.populateEntityType(EntityType.PIGLIN, serverLevel, pos, 1, 0, pig.isBaby());
 				} else if (roll < 80) {
-					Utility.updateEffect(pig, 3, StatusEffects.WITHER, 120);
-					serverLevel.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, SoundCategory.AMBIENT, 2.20f,
+					Utility.updateEffect(pig, 3, MobEffects.WITHER, 120);
+					serverLevel.playSound(null, pos, SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.AMBIENT, 2.20f,
 							pitch);
 					Utility.populateEntityType(EntityType.HOGLIN, serverLevel, pos, 1, 0, pig.isBaby());
 				} else {
-					serverLevel.playSound(null, pos, SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.AMBIENT, 4.20f,
+					serverLevel.playSound(null, pos, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.AMBIENT, 4.20f,
 							pitch);
 					Utility.populateEntityType(EntityType.ZOMBIFIED_PIGLIN, serverLevel, pos, 1, 0, true, pig.isBaby()); 
 																															
@@ -98,12 +97,12 @@ public class Glooms {
 		}
 	}
 
-	public static void doGloomDeadBranches(LivingEntity le, BlockPos pos, World level) {
+	public static void doGloomDeadBranches(LivingEntity le, BlockPos pos, Level level) {
 		Utility.debugMsg(2, pos, "doSpreadDeadBranches");
 		if (PrimaryConfig.isGrimEffectTrees()) {
-			if (level.getLightLevel(LightType.SKY, pos) > 10) {
-				BlockPos deadBranchPos = level.getTopPosition(Type.MOTION_BLOCKING, pos);
-				Block b = level.getBlockState(deadBranchPos.down()).getBlock();
+			if (level.getBrightness(LightLayer.SKY, pos) > 10) {
+				BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
+				Block b = level.getBlockState(deadBranchPos.below()).getBlock();
 				if (b instanceof LeavesBlock || b == Blocks.NETHER_WART_BLOCK) {
 					if (b == ModBlocks.DEAD_BRANCHES || b == Blocks.NETHER_WART_BLOCK) {
 						for (int i = 0; i <= 3; i++) {
@@ -111,9 +110,9 @@ public class Glooms {
 						}
 					} else {
 						if (level.getRandom().nextInt(100) == 42) {
-							level.setBlockState(deadBranchPos, Blocks.NETHER_WART_BLOCK.getDefaultState(), 3);
+							level.setBlock(deadBranchPos, Blocks.NETHER_WART_BLOCK.defaultBlockState(), 3);
 						} else {
-							level.setBlockState(deadBranchPos, ModBlocks.DEAD_BRANCHES.getDefaultState(), 3);
+							level.setBlock(deadBranchPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
 						}
 					}
 				}
@@ -121,7 +120,7 @@ public class Glooms {
 		}
 	}
 
-	private static BlockPos doSpreadOneDeadBranch(World level, BlockPos pos) {
+	private static BlockPos doSpreadOneDeadBranch(Level level, BlockPos pos) {
 		Block b;
 		BlockPos workPos = pos;
 		int i = level.getRandom().nextInt(7);
@@ -140,29 +139,29 @@ public class Glooms {
 			break;
 		default:
 			int r = 1 + level.getRandom().nextInt(2);
-			workPos = pos.down(r);
+			workPos = pos.below(r);
 		}
 		b = level.getBlockState(workPos).getBlock();
 		if ((b instanceof LeavesBlock) && (b != ModBlocks.DEAD_BRANCHES)) {
-			level.setBlockState(workPos, ModBlocks.DEAD_BRANCHES.getDefaultState(), 3);
+			level.setBlock(workPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
 		}
 		return workPos;
 	}
 
-	public static void doGloomWaterAnimals(WaterCreatureEntity we, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomWaterAnimals(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		// May later break this into different kinds of water animals or fish.
 		doGloomWaterAnimal(we, pos, gameTime, serverLevel);
 	}
 
-	private static void doGloomWaterAnimal(WaterCreatureEntity we, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	private static void doGloomWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 
 		if (fishTimer < gameTime) {
 			if (!isDeepWaterUnderSky(we))
 				return;
 
 			fishTimer = gameTime + 600;
-			List<GuardianEntity> listG = serverLevel.getNonSpectatingEntities(GuardianEntity.class,
-					new Box(pos.north(32).west(32).up(8), pos.south(32).east(32).down(8)));
+			List<Guardian> listG = serverLevel.getEntitiesOfClass(Guardian.class,
+					new AABB(pos.north(32).west(32).above(8), pos.south(32).east(32).below(8)));
 			if (listG.size() > 5)
 				return;
 			float pitch = 0.7f;
@@ -170,13 +169,13 @@ public class Glooms {
 		}
 	}
 
-	private static boolean isDeepWaterUnderSky(WaterCreatureEntity we) {
-		BlockPos pos = we.getBlockPos();
+	private static boolean isDeepWaterUnderSky(WaterAnimal we) {
+		BlockPos pos = we.blockPosition();
 
-		if (!we.getWorld().isSkyVisibleAllowingSea(pos))
+		if (!we.getLevel().canSeeSkyFromBelowWater(pos))
 			return false;
-		Block bAbove = we.world.getBlockState(pos.up(12)).getBlock();
-		Block bBelow = we.world.getBlockState(pos.down(12)).getBlock();
+		Block bAbove = we.level.getBlockState(pos.above(12)).getBlock();
+		Block bBelow = we.level.getBlockState(pos.below(12)).getBlock();
 		if ((bAbove == Blocks.WATER) || (bBelow == Blocks.WATER)) {
 			return true;
 		}
@@ -184,20 +183,20 @@ public class Glooms {
 		return false;
 	}
 
-	public static void doGlooms(ServerWorld serverLevel, long gameTime, float difficulty, LivingEntity le,
+	public static void doGlooms(ServerLevel serverLevel, long gameTime, float difficulty, LivingEntity le,
 			int gloomType) {
-		BlockPos pos = le.getBlockPos();
+		BlockPos pos = le.blockPosition();
 
-		if (le instanceof ServerPlayerEntity sp) {
+		if (le instanceof ServerPlayer sp) {
 			int amplitude = getEffectAmplitudeByDifficulty(difficulty);
 			doGloomPlayer(sp, pos, serverLevel, difficulty, gloomType, amplitude);
-		} else if (le instanceof VillagerEntity ve) {
+		} else if (le instanceof Villager ve) {
 			doGloomVillagers(ve, pos, gameTime, serverLevel);
-		} else if (le instanceof WaterCreatureEntity we) {
+		} else if (le instanceof WaterAnimal we) {
 			Glooms.doGloomWaterAnimals(we, pos, gameTime, serverLevel);
-		} else if (le instanceof AnimalEntity ae) {
+		} else if (le instanceof Animal ae) {
 			doGloomAnimals(ae, pos, gameTime, serverLevel);
-		} else if (le instanceof Monster) {
+		} else if (le instanceof Enemy) {
 			doGloomMonsters(le, pos, gameTime, serverLevel);
 		}
 
@@ -212,27 +211,27 @@ public class Glooms {
 		return 0;
 	}
 
-	public static void doGloomAnimals(AnimalEntity ae, BlockPos pos, long gameTime, ServerWorld level) {
+	public static void doGloomAnimals(Animal ae, BlockPos pos, long gameTime, ServerLevel level) {
 
 		if (!(PrimaryConfig.isGrimEffectAnimals()))
 			return;
 
 		if (level.getRandom().nextInt(400) < 9) {
 			if (ae.getHealth() > 3) {
-				Utility.updateEffect((LivingEntity) ae, 0, StatusEffects.POISON, 10);
-				BlockState bs = level.getBlockState(ae.getBlockPos().down());
+				Utility.updateEffect((LivingEntity) ae, 0, MobEffects.POISON, 10);
+				BlockState bs = level.getBlockState(ae.blockPosition().below());
 				if ((!isStoneOrWall(bs)) && (!GrimCitadelManager.getFloorBlocks().contains(bs.getBlock()))) {
-					level.setBlockState(ae.getBlockPos().down(), Blocks.GRAVEL.getDefaultState(), 3);
+					level.setBlock(ae.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
 				}
 			}
 			doGloomGroundTransform(ae, level);
 		}
 		if (level.getRandom().nextInt(9000) == 51) {
-			BlockPos firePos = level.getTopPosition(Type.MOTION_BLOCKING_NO_LEAVES, pos.north(2));
-			level.setBlockState(firePos, Blocks.FIRE.getDefaultState(), 3);
+			BlockPos firePos = level.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, pos.north(2));
+			level.setBlock(firePos, Blocks.FIRE.defaultBlockState(), 3);
 		}
-		if (ae instanceof PigEntity) {
-			Glooms.doGloomPigs((PigEntity) ae, pos, gameTime, level);
+		if (ae instanceof Pig) {
+			Glooms.doGloomPigs((Pig) ae, pos, gameTime, level);
 		}
 	}
 
@@ -250,59 +249,59 @@ public class Glooms {
 	
 	
 	
-	public static void doGloomMobCreepers(LivingEntity le, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomMobCreepers(LivingEntity le, long gameTime, ServerLevel serverLevel) {
 		if (creeperTimer < gameTime) {
 			creeperTimer = gameTime + 240;
-			Utility.updateEffect(le, 0, StatusEffects.INVISIBILITY, 960);
+			Utility.updateEffect(le, 0, MobEffects.INVISIBILITY, 960);
 		}
 	}
 
-	public static void doGloomMobPhantoms(LivingEntity le, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomMobPhantoms(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (phantomTimer < gameTime) {
 			phantomTimer = gameTime + 160;
-			Utility.updateEffect(le, 0, StatusEffects.FIRE_RESISTANCE, 640);
+			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 640);
 			if (serverLevel.getRandom().nextInt(6) == 1) {
-				TntEntity tnt = EntityType.TNT.spawn(serverLevel, null, null, null, pos, SpawnReason.NATURAL, true,
+				PrimedTnt tnt = EntityType.TNT.spawn(serverLevel, null, null, null, pos, MobSpawnType.NATURAL, true,
 						true);
 				tnt.setFuse(80);
 			}
 		}
 	}
 
-	public static void doGloomMobSkeletons(LivingEntity le, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomMobSkeletons(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (skeletonTimer < gameTime) {
 			skeletonTimer = gameTime + 120;
 //			Block b = serverLevel.getBlockState(pos).getBlock(); possible buff based on block standing on feature.
-			Utility.updateEffect(le, 0, StatusEffects.STRENGTH, 480);
-			Utility.updateEffect(le, 0, StatusEffects.FIRE_RESISTANCE, 480);
-			if (le instanceof WitherSkeletonEntity) {
-				Utility.updateEffect(le, 0, StatusEffects.INVISIBILITY, 480);
+			Utility.updateEffect(le, 0, MobEffects.DAMAGE_BOOST, 480);
+			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 480);
+			if (le instanceof WitherSkeleton) {
+				Utility.updateEffect(le, 0, MobEffects.INVISIBILITY, 480);
 			} else {
-				if (serverLevel.getLightLevel(pos) < 9) {
+				if (serverLevel.getMaxLocalRawBrightness(pos) < 9) {
 					if (witherSkeletonTimer < gameTime) {
 						witherSkeletonTimer = gameTime + 1800;
-						Utility.populateEntityType(EntityType.WITHER_SKELETON, serverLevel, le.getBlockPos(), 1, 0);
+						Utility.populateEntityType(EntityType.WITHER_SKELETON, serverLevel, le.blockPosition(), 1, 0);
 					}
 				}
 			}
 		}
 	}
 
-	public static void doGloomMobSpiders(LivingEntity le, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomMobSpiders(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (spiderTimer < gameTime) {
 			spiderTimer = gameTime + 80;
-			Utility.updateEffect(le, 0, StatusEffects.STRENGTH, 480);
-			Utility.updateEffect(le, 0, StatusEffects.ABSORPTION, 480);
+			Utility.updateEffect(le, 0, MobEffects.DAMAGE_BOOST, 480);
+			Utility.updateEffect(le, 0, MobEffects.ABSORPTION, 480);
 		}
 		if (spiderWebTimer < gameTime) {
 			spiderWebTimer = gameTime + 1200; // 1 per two minutes.
 			if (Utility.isNotNearWebs(pos, serverLevel)) {
-				le.world.setBlockState(pos, Blocks.COBWEB.getDefaultState(), 3);
+				le.level.setBlock(pos, Blocks.COBWEB.defaultBlockState(), 3);
 			}
 		}
 	}
 
-	public static void doGloomMobZoglins(LivingEntity le, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomMobZoglins(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (Utility.isOutside(pos, serverLevel)) {
 			if (zoglinTimer < gameTime) {
 				zoglinTimer = gameTime + 500;
@@ -314,24 +313,24 @@ public class Glooms {
 		}
 	}
 
-	public static void doGloomMobZombies(LivingEntity le, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomMobZombies(LivingEntity le, long gameTime, ServerLevel serverLevel) {
 		if (zombieTimer < gameTime) {
 			zombieTimer = gameTime + 240;
-			Utility.updateEffect(le, 1, StatusEffects.REGENERATION, Utility.FOUR_SECONDS);
-			Utility.updateEffect(le, AMP_1, StatusEffects.FIRE_RESISTANCE, 720);
+			Utility.updateEffect(le, 1, MobEffects.REGENERATION, Utility.FOUR_SECONDS);
+			Utility.updateEffect(le, AMP_1, MobEffects.FIRE_RESISTANCE, 720);
 		}
 	}
 
 	public static void doGloomMobZombifiedPiglin(LivingEntity le, BlockPos pos, long gameTime,
-			ServerWorld serverLevel) {
+			ServerLevel serverLevel) {
 		if (Utility.isOutside(pos, serverLevel)) {
 			if (zombifiedPiglinTimer < gameTime) {
 				zombifiedPiglinTimer = gameTime + 600;
 				doGloomGrassTransform(pos, serverLevel);
 				doGloomGroundTransform(le, serverLevel);
-				if (serverLevel.toServerWorld().getRandom().nextInt(10000) == 42) {
-					ZombifiedPiglinEntity ze = (ZombifiedPiglinEntity) le;
-					ze.setAttacking(true);
+				if (serverLevel.getLevel().getRandom().nextInt(10000) == 42) {
+					ZombifiedPiglin ze = (ZombifiedPiglin) le;
+					ze.setAggressive(true);
 				}
 			} else {
 				zombifiedPiglinTimer--; // when lots of zoglin speed up timer
@@ -339,63 +338,63 @@ public class Glooms {
 		}
 	}
 
-	public static void doGloomMonsters(LivingEntity le, BlockPos pos, long gameTime, ServerWorld serverLevel) {
-		if (le instanceof AbstractSkeletonEntity) {
+	public static void doGloomMonsters(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (le instanceof AbstractSkeleton) {
 			doGloomMobSkeletons(le, pos, gameTime, serverLevel);
-		} else if (le instanceof ZombieEntity) {
+		} else if (le instanceof Zombie) {
 			doGloomMobZombies(le, gameTime, serverLevel);
-		} else if (le instanceof CreeperEntity) {
+		} else if (le instanceof Creeper) {
 			doGloomMobCreepers(le, gameTime, serverLevel);
-		} else if (le instanceof PhantomEntity) {
+		} else if (le instanceof Phantom) {
 			doGloomMobPhantoms(le, pos, gameTime, serverLevel);
-		} else if (le instanceof SpiderEntity) {
+		} else if (le instanceof Spider) {
 			doGloomMobSpiders(le, pos, gameTime, serverLevel);
-		} else if (le instanceof ZoglinEntity) {
+		} else if (le instanceof Zoglin) {
 			doGloomMobZoglins(le, pos, gameTime, serverLevel);
-		} else if (le instanceof ZombifiedPiglinEntity) {
+		} else if (le instanceof ZombifiedPiglin) {
 			doGloomMobZombifiedPiglin(le, pos, gameTime, serverLevel);
 		}
 	}
 
-	public static void doGloomPlayer(ServerPlayerEntity p, BlockPos pos, ServerWorld serverLevel, float difficulty,
+	public static void doGloomPlayer(ServerPlayer p, BlockPos pos, ServerLevel serverLevel, float difficulty,
 			int gloomType, int amplitude) {
 
 		Block b = serverLevel.getBlockState(pos).getBlock();
-		Block bBelow = serverLevel.getBlockState(pos.down()).getBlock();
+		Block bBelow = serverLevel.getBlockState(pos.below()).getBlock();
 		if (gloomHungerBlocks.contains(b) || gloomHungerBlocks.contains(bBelow)) {
-			Utility.updateEffect((LivingEntity) p, AMP_1, StatusEffects.HUNGER, Utility.FOUR_SECONDS);
+			Utility.updateEffect((LivingEntity) p, AMP_1, MobEffects.HUNGER, Utility.FOUR_SECONDS);
 		}
 		doGloomPlayerCurse(difficulty, gloomType, amplitude, p);
 		if (GrimCitadelManager.isGCNear(difficulty)) {
 			Utility.slowFlyingMotion(p);
 			if (p.isFallFlying()) {
-				Utility.updateEffect((LivingEntity) p, AMP_1, StatusEffects.POISON, Utility.FOUR_SECONDS);
+				Utility.updateEffect((LivingEntity) p, AMP_1, MobEffects.POISON, Utility.FOUR_SECONDS);
 			}
 		}
 		if ((difficulty > Utility.Pct09) && (serverLevel.getRandom().nextInt(36000) == 42)) {
 			BlockPos phantomPos = new BlockPos(pos.getX(),
-					serverLevel.getTopPosition(Type.MOTION_BLOCKING, pos).getY() + 12, pos.getZ());
+					serverLevel.getHeightmapPos(Types.MOTION_BLOCKING, pos).getY() + 12, pos.getZ());
 			Utility.populateEntityType(EntityType.PHANTOM, serverLevel, phantomPos, 1, 0);
 		}
 	}
 
-	public static void doGloomVillagers(VillagerEntity ve, BlockPos pos, long gameTime, ServerWorld serverLevel) {
+	public static void doGloomVillagers(Villager ve, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (PrimaryConfig.isGrimEffectVillagers()) {
 			if (villagerTimer < gameTime) {
 				villagerTimer = gameTime + 2400;
 				Utility.populateEntityType(EntityType.WITCH, serverLevel, pos, 1, 0);
-				Utility.updateEffect(ve, 9, StatusEffects.WITHER, 240);
+				Utility.updateEffect(ve, 9, MobEffects.WITHER, 240);
 			}
 		}
 	}
 
-	public static void doGloomGrassTransform(BlockPos pos, ServerWorld serverLevel) {
+	public static void doGloomGrassTransform(BlockPos pos, ServerLevel serverLevel) {
 		BlockPos workPos = pos;
-		if (serverLevel.getBlockState(pos.down()).getBlock() == Blocks.AIR) {
-			workPos = pos.down();
+		if (serverLevel.getBlockState(pos.below()).getBlock() == Blocks.AIR) {
+			workPos = pos.below();
 		}
-		if ((serverLevel.getBlockState(pos).getBlock() instanceof FernBlock)
-				|| (serverLevel.getBlockState(workPos).getBlock() instanceof TallPlantBlock)) {
+		if ((serverLevel.getBlockState(pos).getBlock() instanceof TallGrassBlock)
+				|| (serverLevel.getBlockState(workPos).getBlock() instanceof DoublePlantBlock)) {
 
 			Block b = Blocks.NETHER_SPROUTS;
 			if (serverLevel.getBlockState(workPos).getBlock() == Blocks.TALL_GRASS) {
@@ -403,62 +402,62 @@ public class Glooms {
 			} else if (serverLevel.getBlockState(workPos).getBlock() == Blocks.LARGE_FERN) {
 				b = Blocks.WARPED_ROOTS;
 			}
-			serverLevel.setBlockState(pos, b.getDefaultState(), 3);
+			serverLevel.setBlock(pos, b.defaultBlockState(), 3);
 		}
 
 	}
 
-	public static void doGloomGroundTransform(LivingEntity le, ServerWorld level) {
-		if (level.getBlockState(le.getBlockPos().down()).getBlock() == Blocks.COARSE_DIRT) {
-			level.setBlockState(le.getBlockPos().down(), Blocks.NETHERRACK.getDefaultState(), 3);
+	public static void doGloomGroundTransform(LivingEntity le, ServerLevel level) {
+		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.COARSE_DIRT) {
+			level.setBlock(le.blockPosition().below(), Blocks.NETHERRACK.defaultBlockState(), 3);
 		}
-		if (level.getBlockState(le.getBlockPos().down()).getBlock() == Blocks.GRASS_BLOCK) {
-			level.setBlockState(le.getBlockPos().down(), Blocks.COARSE_DIRT.getDefaultState(), 3);
+		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
+			level.setBlock(le.blockPosition().below(), Blocks.COARSE_DIRT.defaultBlockState(), 3);
 		}
 	}
 
-	public static void doGloomPlayerCurse(float difficulty, int gloomType, int amplitude, ServerPlayerEntity sp) {
+	public static void doGloomPlayerCurse(float difficulty, int gloomType, int amplitude, ServerPlayer sp) {
 
-		RandomGenerator rand = sp.getWorld().getRandom();
+		RandomSource rand = sp.getLevel().getRandom();
 		boolean hasLifeHeart = sp.getInventory().contains(new ItemStack(ModItems.LIFE_HEART));
 
 		if (hasLifeHeart) {
 			if ((difficulty > Utility.Pct50) && (rand.nextInt(42) == 42)) {
 				// System.out.println("regen");
-				Utility.updateEffect((LivingEntity) sp, 0, StatusEffects.REGENERATION, Utility.FOUR_SECONDS);
+				Utility.updateEffect((LivingEntity) sp, 0, MobEffects.REGENERATION, Utility.FOUR_SECONDS);
 			}
 		}
 		doGrimPlayerCurses(difficulty, gloomType, amplitude, sp, hasLifeHeart);
 		doTimePlayerCurses(difficulty, gloomType, amplitude, sp);
 	}
 
-	private static void doTimePlayerCurses(float difficulty, int gloomType, int amplitude, ServerPlayerEntity sp) {
+	private static void doTimePlayerCurses(float difficulty, int gloomType, int amplitude, ServerPlayer sp) {
 		if (gloomType == Glooms.TIME) {
 			if (difficulty > Utility.Pct25)
-				Utility.updateEffect((LivingEntity) sp, AMP_1, StatusEffects.WEAKNESS, Utility.FOUR_SECONDS);
+				Utility.updateEffect((LivingEntity) sp, AMP_1, MobEffects.WEAKNESS, Utility.FOUR_SECONDS);
 			if (difficulty > Utility.Pct75)
-				Utility.updateEffect((LivingEntity) sp, amplitude, StatusEffects.SLOWNESS, Utility.FOUR_SECONDS);
+				Utility.updateEffect((LivingEntity) sp, amplitude, MobEffects.MOVEMENT_SLOWDOWN, Utility.FOUR_SECONDS);
 		}
 	}
 
-	private static void doGrimPlayerCurses(float difficulty, int gloomType, int amplitude, ServerPlayerEntity sp,
+	private static void doGrimPlayerCurses(float difficulty, int gloomType, int amplitude, ServerPlayer sp,
 			boolean hasLifeHeart) {
 		if (gloomType == Glooms.GRIM) {
 			if (difficulty > Utility.Pct00)
-				Utility.updateEffect((LivingEntity) sp, AMP_1, StatusEffects.WEAKNESS, Utility.FOUR_SECONDS);
+				Utility.updateEffect((LivingEntity) sp, AMP_1, MobEffects.WEAKNESS, Utility.FOUR_SECONDS);
 			if (hasLifeHeart) {
 				if ((difficulty > Utility.Pct25) && (difficulty < Utility.Pct91))
-					Utility.updateEffect((LivingEntity) sp, amplitude, StatusEffects.SLOWNESS,
+					Utility.updateEffect((LivingEntity) sp, amplitude, MobEffects.MOVEMENT_SLOWDOWN,
 							Utility.FOUR_SECONDS);
 				if ((difficulty > Utility.Pct50) && (difficulty < Utility.Pct84))
-					Utility.updateEffect((LivingEntity) sp, amplitude, StatusEffects.MINING_FATIGUE, Utility.FOUR_SECONDS);
+					Utility.updateEffect((LivingEntity) sp, amplitude, MobEffects.DIG_SLOWDOWN, Utility.FOUR_SECONDS);
 
 			} else {
 				if (difficulty > Utility.Pct09)
-					Utility.updateEffect((LivingEntity) sp, amplitude, StatusEffects.SLOWNESS,
+					Utility.updateEffect((LivingEntity) sp, amplitude, MobEffects.MOVEMENT_SLOWDOWN,
 							Utility.FOUR_SECONDS);
 				if ((difficulty > Utility.Pct50) && (difficulty < Utility.Pct95))
-					Utility.updateEffect((LivingEntity) sp, amplitude, StatusEffects.MINING_FATIGUE, Utility.FOUR_SECONDS);
+					Utility.updateEffect((LivingEntity) sp, amplitude, MobEffects.DIG_SLOWDOWN, Utility.FOUR_SECONDS);
 			}
 		}
 	}

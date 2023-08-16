@@ -2,24 +2,24 @@ package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
 
 public interface ServerWorldTickCallback {
 
     Event<ServerWorldTickCallback> EVENT = EventFactory.createArrayBacked(ServerWorldTickCallback.class,
             (listeners) -> (player) -> {
                 for (ServerWorldTickCallback listener : listeners) {
-                    ActionResult result = listener.interact(player);
+                    InteractionResult result = listener.interact(player);
 
-                    if(result != ActionResult.PASS) {
+                    if(result != InteractionResult.PASS) {
                         return result;
                     }
                 }
 
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             });
 
-    ActionResult interact(ServerWorld world);
+    InteractionResult interact(ServerLevel world);
 
 }

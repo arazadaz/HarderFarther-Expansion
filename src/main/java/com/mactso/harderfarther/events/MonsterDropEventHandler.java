@@ -2,27 +2,26 @@ package com.mactso.harderfarther.events;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.AbstractFish;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.item.ItemStack;
 import com.mactso.harderfarther.api.LivingEntityDropCallback;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.utility.Utility;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.mob.SlimeEntity;
-import net.minecraft.entity.mob.WaterCreatureEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.FishEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
 
 public class MonsterDropEventHandler {
 
@@ -73,11 +72,11 @@ public class MonsterDropEventHandler {
 				(damageSource, entity)  -> {
 
 					if (!isDropsSpecialLoot(entity, damageSource))
-						return ActionResult.PASS;
+						return InteractionResult.PASS;
 
-					ServerWorld serverLevel = (ServerWorld) entity.world;
+					ServerLevel serverLevel = (ServerLevel) entity.level;
 
-					RandomGenerator rand = serverLevel.getRandom();
+					RandomSource rand = serverLevel.getRandom();
 					BlockPos pos = new BlockPos(entity.getX(), entity.getY(), entity.getZ());
 
 					// in this section prevent ALL drops if players are killing mobs too quickly.
@@ -95,7 +94,7 @@ public class MonsterDropEventHandler {
 
 					float boostDifficulty = DifficultyCalculator.getDifficultyHere(serverLevel,entity);
 					if (boostDifficulty == 0)
-						return ActionResult.PASS;
+						return InteractionResult.PASS;
 					if (boostDifficulty > PrimaryConfig.getGrimCitadelMaxBoostPercent()) {
 						if (boostDifficulty == GrimCitadelManager.getGrimDifficulty(entity)) {
 							boostDifficulty = PrimaryConfig.getGrimCitadelMaxBoostPercent();
@@ -108,28 +107,28 @@ public class MonsterDropEventHandler {
 
 					if (d1000 > odds) {
 						Utility.debugMsg(1, pos, "No Loot Upgrade: Roll " + d1000 + " odds " + odds);
-						return ActionResult.PASS;
+						return InteractionResult.PASS;
 					}
 
-					d1000 = (int) (Math.ceil(entity.world.getRandom().nextDouble() * 1000));
+					d1000 = (int) (Math.ceil(entity.level.getRandom().nextDouble() * 1000));
 					if (d1000 < 640) {
 						d1000 += odds / 10;
 					}
 
-					MobEntity me = (MobEntity) entity;
+					Mob me = (Mob) entity;
 					ItemStack itemStackToDrop = LootManager.doGetLootStack(entity, me, boostDifficulty, d1000);
 
 
 					eventItems.add(itemStackToDrop);
 
 					for(ItemStack item:eventItems){
-						entity.dropStack(item);
+						entity.spawnAtLocation(item);
 					}
 
 
 					Utility.debugMsg(1, pos, entity.getName().getString() + " died and dropped loot: "
 							+ itemStackToDrop.getItem().toString());
-					return ActionResult.PASS;
+					return InteractionResult.PASS;
 
 			});
 	}
@@ -151,42 +150,42 @@ public class MonsterDropEventHandler {
 			return false;
 		}
 
-		if (!(eventEntity.world instanceof ServerWorld)) {
+		if (!(eventEntity.level instanceof ServerLevel)) {
 			return false;
 		}
 
 		// Has to have been killed by a player to drop bonus loot.
-		if ((dS != null) && (dS.getAttacker() == null)) {
+		if ((dS != null) && (dS.getEntity() == null)) {
 			return false;
 		}
 
-		if (!(dS.getAttacker() instanceof ServerPlayerEntity)) {
+		if (!(dS.getEntity() instanceof ServerPlayer)) {
 			return false;
 		}
 
-		if (!(eventEntity instanceof Monster)) { 
+		if (!(eventEntity instanceof Enemy)) { 
 			return false;
 		}
 
-		if (eventEntity instanceof SlimeEntity) {
-			SlimeEntity se = (SlimeEntity) eventEntity;
+		if (eventEntity instanceof Slime) {
+			Slime se = (Slime) eventEntity;
 
 			if (se.getSize() < 4) {
 				return false;
 			}
 		}
 
-		if (!(eventEntity instanceof Monster)) {
+		if (!(eventEntity instanceof Enemy)) {
 
-			if (eventEntity instanceof FishEntity) {
+			if (eventEntity instanceof AbstractFish) {
 				return false;
 			}
 
-			if (eventEntity instanceof WaterCreatureEntity) {
+			if (eventEntity instanceof WaterAnimal) {
 				return false;
 			}
 
-			if (eventEntity instanceof AnimalEntity) {
+			if (eventEntity instanceof Animal) {
 				return false;
 			}
 			

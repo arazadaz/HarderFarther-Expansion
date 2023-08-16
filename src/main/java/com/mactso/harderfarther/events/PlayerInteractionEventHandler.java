@@ -1,8 +1,6 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
 
 public class PlayerInteractionEventHandler {
 

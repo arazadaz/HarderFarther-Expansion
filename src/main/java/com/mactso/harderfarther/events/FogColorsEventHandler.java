@@ -3,10 +3,10 @@ package com.mactso.harderfarther.events;
 import com.mactso.harderfarther.api.FogColorCallback;
 import com.mactso.harderfarther.api.FogRenderCallback;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.BackgroundRenderer.FogType;
-import net.minecraft.util.ActionResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.FogRenderer.FogMode;
+import net.minecraft.world.InteractionResult;
 
 public class FogColorsEventHandler {
 	
@@ -124,9 +124,9 @@ public class FogColorsEventHandler {
 		FogColorCallback.EVENT.register(
 				(fog) -> {
 
-					MinecraftClient m = MinecraftClient.getInstance();
-					ClientPlayerEntity cp = m.player;
-					long gametick = cp.world.getTime();
+					Minecraft m = Minecraft.getInstance();
+					LocalPlayer cp = m.player;
+					long gametick = cp.level.getGameTime();
 					if ((colorTick != gametick)) {
 						colorTick = gametick;
 						float percent = Math.max(clientLocalGrimDifficulty, clientLocalTimeDifficulty);
@@ -147,10 +147,10 @@ public class FogColorsEventHandler {
 		FogRenderCallback.EVENT.register(
 				(camera, fogType, viewDistance, thickFog, tickDelta) -> {
 //					FogMode sky = FogMode.FOG_SKY;
-					if (fogType == FogType.FOG_TERRAIN) {
-						MinecraftClient m = MinecraftClient.getInstance();
-						ClientPlayerEntity cp = m.player;
-						long gametick = cp.world.getTime();
+					if (fogType == FogMode.FOG_TERRAIN) {
+						Minecraft m = Minecraft.getInstance();
+						LocalPlayer cp = m.player;
+						long gametick = cp.level.getGameTime();
 						if ((FogColorsEventHandler.fogTick != gametick)) {
 							FogColorsEventHandler.fogTick = gametick;
 
@@ -179,7 +179,7 @@ public class FogColorsEventHandler {
 						adjustFogDistance(sliderStartFogDistance, sliderFogThickness);
 
 					}
-					return ActionResult.PASS;
+					return InteractionResult.PASS;
 				});
 
 	}

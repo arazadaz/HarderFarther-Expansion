@@ -5,17 +5,16 @@ import com.mactso.harderfarther.config.BiomeConfig;
 import com.mactso.harderfarther.config.Platform;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.OreFeature;
-import net.minecraft.world.gen.feature.OreFeatureConfig;
-import net.minecraft.world.gen.feature.PlacedFeature;
-import net.minecraft.world.gen.feature.StructureFeature;
-
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.feature.OreFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,29 +41,29 @@ public class ServerStartingEventHandler {
 
 
             //Dumping registries for convenience
-            DynamicRegistryManager registryAccess = server.getRegistryManager();
+            RegistryAccess registryAccess = server.registryAccess();
 
-            Registry<StructureFeature> structures = registryAccess.get(Registry.STRUCTURE_WORLDGEN);
-            Registry<EntityType> entitieTypes = registryAccess.get(Registry.ENTITY_TYPE_KEY);
-            Registry<Biome> biomes = registryAccess.get(BuiltinRegistries.BIOME.getKey());
-            Registry<PlacedFeature> ores = registryAccess.get(Registry.PLACED_FEATURE_KEY);
+            Registry<Structure> structures = registryAccess.registryOrThrow(Registry.STRUCTURE_REGISTRY);
+            Registry<EntityType> entitieTypes = registryAccess.registryOrThrow(Registry.ENTITY_TYPE_REGISTRY);
+            Registry<Biome> biomes = registryAccess.registryOrThrow(BuiltinRegistries.BIOME.key());
+            Registry<PlacedFeature> ores = registryAccess.registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
 
-            structures.getKeys().forEach(structureFeatureKey -> {
-                structureList.add(structureFeatureKey.getValue().toString());
+            structures.registryKeySet().forEach(structureFeatureKey -> {
+                structureList.add(structureFeatureKey.location().toString());
             });
 
-            entitieTypes.getKeys().forEach(entityTypeKey -> {
-                entityTypeList.add(entityTypeKey.getValue().toString());
+            entitieTypes.registryKeySet().forEach(entityTypeKey -> {
+                entityTypeList.add(entityTypeKey.location().toString());
             });
 
-            biomes.getKeys().forEach(biomeKey -> {
-                biomeList.add(biomeKey.getValue().toString());
+            biomes.registryKeySet().forEach(biomeKey -> {
+                biomeList.add(biomeKey.location().toString());
             });
 
-            ores.getKeys().forEach(placedFeatureKey -> {
-                if(ores.get(placedFeatureKey).feature().value().getFeature() instanceof OreFeature){
-                    Block block = ((OreFeatureConfig)ores.get(placedFeatureKey).feature().value().getConfig()).targets.get(0).state.getBlock();
-                    String blockId = Registry.BLOCK.getKey(block).get().getValue().toString();
+            ores.registryKeySet().forEach(placedFeatureKey -> {
+                if(ores.get(placedFeatureKey).feature().value().feature() instanceof OreFeature){
+                    Block block = ((OreConfiguration)ores.get(placedFeatureKey).feature().value().config()).targetStates.get(0).state.getBlock();
+                    String blockId = Registry.BLOCK.getResourceKey(block).get().location().toString();
                     if(!oreList.contains(blockId)) {
                         oreList.add(blockId);
                     }

@@ -2,25 +2,25 @@ package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.util.ActionResult;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.world.InteractionResult;
 
 public interface FogRenderCallback {
 
     Event<FogRenderCallback> EVENT = EventFactory.createArrayBacked(FogRenderCallback.class,
             (listeners) -> (camera, fogType, viewDistance, thickFog, tickDelta) -> {
                 for (FogRenderCallback listener : listeners) {
-                    ActionResult result = listener.interact(camera, fogType, viewDistance, thickFog, tickDelta);
+                    InteractionResult result = listener.interact(camera, fogType, viewDistance, thickFog, tickDelta);
 
-                    if(result != ActionResult.PASS) {
+                    if(result != InteractionResult.PASS) {
                         return result;
                     }
                 }
 
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             });
 
-    ActionResult interact(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta);
+    InteractionResult interact(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog, float tickDelta);
 
 }

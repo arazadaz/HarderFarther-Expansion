@@ -1,34 +1,34 @@
 package com.mactso.harderfarther.block;
 
 import com.mactso.harderfarther.block.properties.GrimGateType;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.TransparentBlock;
-import net.minecraft.state.StateManager.Builder;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
-public class GrimGateBlock extends TransparentBlock {
-	public static final EnumProperty<GrimGateType> TYPE = EnumProperty.of("type", GrimGateType.class);
+public class GrimGateBlock extends HalfTransparentBlock {
+	public static final EnumProperty<GrimGateType> TYPE = EnumProperty.create("type", GrimGateType.class);
 
 	@Override
-	public void neighborUpdate(BlockState myBlockState, World level, BlockPos myPos, Block neighborOldBlock,
+	public void neighborChanged(BlockState myBlockState, Level level, BlockPos myPos, Block neighborOldBlock,
 			BlockPos neighborPos, boolean pushing) {
 		Block neighborNewBlock = level.getBlockState(neighborPos).getBlock();
 		if ((neighborNewBlock == Blocks.AIR) && (neighborOldBlock == ModBlocks.GRIM_GATE)) {
-			level.breakBlock(myPos, false);
+			level.destroyBlock(myPos, false);
 		}
 	}
 
 	@Override
-	protected void appendProperties(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(TYPE);
 	}
 
-	public GrimGateBlock(Settings prop) {
+	public GrimGateBlock(Properties prop) {
 		super(prop);
-        setDefaultState(getStateManager().getDefaultState().with(TYPE, GrimGateType.FLOOR));
+        registerDefaultState(getStateDefinition().any().setValue(TYPE, GrimGateType.FLOOR));
 	}
 }

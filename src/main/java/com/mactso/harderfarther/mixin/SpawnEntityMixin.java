@@ -4,14 +4,14 @@ import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.config.MobConfig;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedMobEntity;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedServerWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -94,18 +94,18 @@ public class SpawnHelperMixin {
 }*/
 
 
-@Mixin(ServerWorldAccess.class)
+@Mixin(ServerLevelAccessor.class)
 public interface SpawnEntityMixin {
 
-    @Inject(at = @At(value = "HEAD"), method = "spawnEntityAndPassengers(Lnet/minecraft/entity/Entity;)V", cancellable = true)
+    @Inject(at = @At(value = "HEAD"), method = "addFreshEntityWithPassengers", cancellable = true)
     private void harderfarther$RemoveEntityNaturalAndChunkSpawn(Entity entity, CallbackInfo ci) {
 
-        if (this instanceof ServerWorld && (entity instanceof MobEntity)) {
+        if (this instanceof ServerLevel && (entity instanceof Mob)) {
 
-            SpawnReason spawnReason = ((IExtendedMobEntity)entity).getSpawnReason();
+            MobSpawnType spawnReason = ((IExtendedMobEntity)entity).getSpawnReason();
 
             //Catches natural properly, but chunk spawning still happens. Not sure why, but not my biggest priority.
-            if( (spawnReason == SpawnReason.NATURAL || spawnReason == SpawnReason.CHUNK_GENERATION )){
+            if( (spawnReason == MobSpawnType.NATURAL || spawnReason == MobSpawnType.CHUNK_GENERATION )){
 
 
 
@@ -113,8 +113,8 @@ public interface SpawnEntityMixin {
                 if ( !((IExtendedServerWorld)this).areListInitialized() ) {
 
                     MobConfig.getDifficultySections().forEach(section -> {
-                        ((IExtendedServerWorld)this).getDifficultySectionNumbers().add(section.getLeft());
-                        ((IExtendedServerWorld)this).getDifficultySectionMobs().add(section.getRight());
+                        ((IExtendedServerWorld)this).getDifficultySectionNumbers().add(section.getA());
+                        ((IExtendedServerWorld)this).getDifficultySectionMobs().add(section.getB());
                     });
 
 
@@ -128,17 +128,17 @@ public interface SpawnEntityMixin {
 
 
 
-                ServerWorld world = (ServerWorld) entity.getWorld();
+                ServerLevel world = (ServerLevel) entity.getLevel();
 
                 //Start of overworld logic
-                if (world.getRegistryKey() == World.OVERWORLD) {
+                if (world.dimension() == Level.OVERWORLD) {
 
-                    BlockPos pos = entity.getBlockPos();
+                    BlockPos pos = entity.blockPosition();
                     String entityIdentifier = entity.getType().toString().substring(7);
                     entityIdentifier = entityIdentifier.replace(".", ":");
 
 
-                    float difficulty = DifficultyCalculator.getDistanceDifficultyHere(world, new Vec3d(pos.getX(), pos.getY(), pos.getZ())) * 100;
+                    float difficulty = DifficultyCalculator.getDistanceDifficultyHere(world, new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 100;
 
                     int[] choosenAreaIndex = {-1};
                     ((IExtendedServerWorld)this).getDifficultySectionNumbers().forEach(difficultySectionNumber -> {

@@ -6,16 +6,16 @@ import com.mactso.harderfarther.client.GrimSongManager;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public class GrimClientSongPacket {
 
-	public static Identifier GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C = new Identifier(Main.MODID, "gamepacketsetgrimclientsongs2c");
+	public static ResourceLocation GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C = new ResourceLocation(Main.MODID, "gamepacketsetgrimclientsongs2c");
 
 	private int song;
 
@@ -24,7 +24,7 @@ public class GrimClientSongPacket {
 		this.song = song;
 	}
 
-	public static void processPacket(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender){
+	public static void processPacket(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender){
 		int song = buf.readInt();
 
 		client.execute(() ->{
@@ -33,12 +33,12 @@ public class GrimClientSongPacket {
 	}
 
 
-	public void send(PlayerEntity player)
+	public void send(Player player)
 	{
-		PacketByteBuf buf = PacketByteBufs.create();
+		FriendlyByteBuf buf = PacketByteBufs.create();
 		buf.writeInt(this.song);
 
-		ServerPlayNetworking.send((ServerPlayerEntity) player, GrimClientSongPacket.GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C, buf);
+		ServerPlayNetworking.send((ServerPlayer) player, GrimClientSongPacket.GAME_PACKET_SET_GRIM_CLIENT_SONG_S2C, buf);
 	}
 }
 

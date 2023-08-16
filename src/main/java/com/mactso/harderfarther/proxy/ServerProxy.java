@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.proxy;
 
 import java.util.List;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class ServerProxy implements IProxy{
 	

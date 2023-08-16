@@ -1,37 +1,37 @@
 package com.mactso.harderfarther.utility;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
-import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap.Type;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.phys.Vec3;
 
 public class Utility {
 	public final static int FOUR_SECONDS = 80;
@@ -76,41 +76,41 @@ public class Utility {
 
 		if (PrimaryConfig.getDebugLevel() > level - 1) {
 			LOGGER.info("L" + level + " (" 
-					+ le.getBlockPos().getX() + "," 
-					+ le.getBlockPos().getY() + ","
-					+ le.getBlockPos().getZ() + "): " + dMsg);
+					+ le.blockPosition().getX() + "," 
+					+ le.blockPosition().getY() + ","
+					+ le.blockPosition().getZ() + "): " + dMsg);
 		}
 
 	}
 
-	public static void sendBoldChat(PlayerEntity p, String chatMessage, Formatting textColor) {
-		MutableText component = Text.literal(chatMessage);
+	public static void sendBoldChat(Player p, String chatMessage, ChatFormatting textColor) {
+		MutableComponent component = Component.literal(chatMessage);
 		component.setStyle(component.getStyle().withBold(true));
 		component.setStyle(component.getStyle().withColor(textColor));
 		p.sendSystemMessage(component);
 
 	}
 
-	public static void sendChat(PlayerEntity p, String chatMessage, Formatting textColor) {
+	public static void sendChat(Player p, String chatMessage, ChatFormatting textColor) {
 
-		MutableText component = Text.literal(chatMessage);
+		MutableComponent component = Component.literal(chatMessage);
 		component.setStyle(component.getStyle().withColor(textColor));
 		p.sendSystemMessage(component);
 
 	}
 
 	public static BlockPos getBlockPosition (Entity e) {
-		return e.getBlockPos();
+		return e.blockPosition();
 	}
 	
-	public static void updateEffect(LivingEntity e, int amplifier, StatusEffect mobEffect, int duration) {
-		StatusEffectInstance ei = e.getStatusEffect(mobEffect);
+	public static void updateEffect(LivingEntity e, int amplifier, MobEffect mobEffect, int duration) {
+		MobEffectInstance ei = e.getEffect(mobEffect);
 		if (amplifier == 10) {
 			amplifier = 20; // player "plaid" speed.
 		}
 		if (ei != null) {
 			if (amplifier > ei.getAmplifier()) {
-				e.removeStatusEffect(mobEffect);
+				e.removeEffect(mobEffect);
 			}
 			if (amplifier == ei.getAmplifier() && ei.getDuration() > 10) {
 				return;
@@ -118,45 +118,45 @@ public class Utility {
 			if (ei.getDuration() > 10) {
 				return;
 			}
-			e.removeStatusEffect(mobEffect);
+			e.removeEffect(mobEffect);
 		}
-		e.addStatusEffect(new StatusEffectInstance(mobEffect, duration, amplifier, true, true));
+		e.addEffect(new MobEffectInstance(mobEffect, duration, amplifier, true, true));
 		return;
 	}
 
-	public static boolean populateEntityType(EntityType<?> et, ServerWorld level, BlockPos savePos, int range,
+	public static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range,
 			int modifier) {
 		boolean isBaby = false;
 		return populateEntityType(et, level, savePos, range, modifier, isBaby);
 	}
 
-	public static boolean populateEntityType(EntityType<?> et, ServerWorld level, BlockPos savePos, int range,
+	public static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range,
 			int modifier, boolean isBaby) {
 		boolean persistant = false;
 		return populateEntityType(et, level, savePos, range, modifier, persistant, isBaby);
 	}
 
-	public static boolean populateEntityType(EntityType<?> et, ServerWorld level, BlockPos savePos, int range,
+	public static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range,
 			int modifier, boolean persistant, boolean isBaby) {
 		int numZP;
-		MobEntity e;
+		Mob e;
 		numZP = level.random.nextInt(range) - modifier;
 		if (numZP < 0)
 			return false;
 		for (int i = 0; i <= numZP; i++) {
 			if (et == EntityType.PHANTOM) {
-				e = (MobEntity) et.spawn(level, null, null, null, savePos.north(2).west(2), SpawnReason.SPAWNER, true, true);
+				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.SPAWNER, true, true);
 			} else {
-				e = (MobEntity) et.spawn(level, null, null, null, savePos.north(2).west(2), SpawnReason.NATURAL, true, true);
+				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL, true, true);
 			}
 			if (e == null) {
 				return false;
 			}
 			if (persistant) {
-				e.setPersistent();
+				e.setPersistenceRequired();
 			}
 			if (et == EntityType.ZOMBIFIED_PIGLIN) {
-				e.setAttacking(true);
+				e.setAggressive(true);
 			}
 			e.setBaby(isBaby);
 		}
@@ -166,16 +166,16 @@ public class Utility {
 	
 	public static void setLore(ItemStack stack, String inString)
 	{
-		NbtCompound tag = stack.getOrCreateSubNbt("display");
-		NbtList list = new NbtList();
-		list.add(NbtString.of(inString));
+		CompoundTag tag = stack.getOrCreateTagElement("display");
+		ListTag list = new ListTag();
+		list.add(StringTag.valueOf(inString));
 		tag.put("Lore", list);
 	}
 	
 	
 	public static ItemResult parseItemKey(StringReader sr) throws CommandSyntaxException
 	{
-		NbtCompound nbt = null;
+		CompoundTag nbt = null;
 		String rl = sr.readUnquotedString();
 		if (sr.canRead() && sr.peek() == ':')
 		{
@@ -185,33 +185,33 @@ public class Utility {
 		sr.skipWhitespace();
 		if (sr.canRead() && sr.peek() == '{')
 		{
-			nbt = new StringNbtReader(sr).parseCompound();
+			nbt = new TagParser(sr).readStruct();
 			if (nbt.isEmpty())
 				nbt = null;
 		}
-		return new ItemResult(new Identifier(rl), nbt);
+		return new ItemResult(new ResourceLocation(rl), nbt);
 	}
 	
 	
 	public static class ItemResult
 	{
-		public final Identifier res;
-		public final NbtCompound nbt;
+		public final ResourceLocation res;
+		public final CompoundTag nbt;
 
-		public ItemResult(Identifier res, @Nullable NbtCompound nbt)
+		public ItemResult(ResourceLocation res, @Nullable CompoundTag nbt)
 		{
 			this.res = res;
 			this.nbt = nbt;
 		}
 	}
 	
-	public static boolean isNotNearWebs(BlockPos pos, ServerWorld serverLevel) {
+	public static boolean isNotNearWebs(BlockPos pos, ServerLevel serverLevel) {
 
 		if (serverLevel.getBlockState(pos).getBlock() == Blocks.COBWEB)
 			return true;
-		if (serverLevel.getBlockState(pos.up()).getBlock() == Blocks.COBWEB)
+		if (serverLevel.getBlockState(pos.above()).getBlock() == Blocks.COBWEB)
 			return true;
-		if (serverLevel.getBlockState(pos.down()).getBlock() == Blocks.COBWEB)
+		if (serverLevel.getBlockState(pos.below()).getBlock() == Blocks.COBWEB)
 			return true;
 		if (serverLevel.getBlockState(pos.north()).getBlock() == Blocks.COBWEB)
 			return true;
@@ -225,16 +225,16 @@ public class Utility {
 		return false;
 	}
 
-	public static boolean isOutside(BlockPos pos, ServerWorld serverLevel) {
-		return serverLevel.getTopPosition(Type.MOTION_BLOCKING_NO_LEAVES, pos) == pos;
+	public static boolean isOutside(BlockPos pos, ServerLevel serverLevel) {
+		return serverLevel.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, pos) == pos;
 	}
 
 	public static Item getItemFromString (String name)
 	{
 		Item ret = Items.AIR;
 		try {
-			Identifier key = new Identifier(name);
-			if (Registry.ITEM.containsId(key))
+			ResourceLocation key = new ResourceLocation(name);
+			if (Registry.ITEM.containsKey(key))
 			{
 				ret = Registry.ITEM.get(key);
 			}
@@ -251,16 +251,16 @@ public class Utility {
 	
 	public static void slowFlyingMotion(LivingEntity le) {
 
-		if ((le instanceof PlayerEntity) && (le.isFallFlying())) {
-			PlayerEntity cp = (PlayerEntity) le;
-			Vec3d vec = cp.getVelocity();
-			Vec3d slowedVec;
+		if ((le instanceof Player) && (le.isFallFlying())) {
+			Player cp = (Player) le;
+			Vec3 vec = cp.getDeltaMovement();
+			Vec3 slowedVec;
 			if (vec.y > 0) {
 				slowedVec = vec.multiply(0.17, -0.75, 0.17);
 			} else {
 				slowedVec = vec.multiply(0.17, 1.001, 0.17);
 			}
-			cp.setVelocity(slowedVec);
+			cp.setDeltaMovement(slowedVec);
 		}
 	}
 

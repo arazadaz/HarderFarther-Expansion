@@ -1,22 +1,21 @@
 package com.mactso.harderfarther.config;
 
 import com.mactso.harderfarther.Main;
-import net.minecraft.util.Pair;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import net.minecraft.core.Registry;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.level.biome.Biome;
 
 public class BiomeConfig {
 
     private static int size;
 
     private static ArrayList<String> difficultySectionsAsString = new ArrayList<>();
-    private static ArrayList<Pair<Float, List<String>>> difficultySections = new ArrayList<>();
+    private static ArrayList<Tuple<Float, List<String>>> difficultySections = new ArrayList<>();
 
     private static ArrayList<String> difficultySectionBiomeReplacementsAsString = new ArrayList<>();
     private static ArrayList<Map<String, String>> difficultySectionBiomeReplacements = new ArrayList<>();
@@ -66,7 +65,7 @@ public class BiomeConfig {
         for(int x=0; x<size/2; x++) {
             float section = Float.parseFloat(difficultySectionsAsString.get(x).substring(1).split(":",2)[0]);
             List<String> biomes = List.of(difficultySectionsAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
-            difficultySections.add(new Pair<>(section, biomes));
+            difficultySections.add(new Tuple<>(section, biomes));
 
             Map map = new HashMap<>();
             String[] replacements = difficultySectionBiomeReplacementsAsString.get(x).replace("\"", "").split(",");
@@ -111,7 +110,7 @@ public class BiomeConfig {
         return size;
     }
 
-    public static ArrayList<Pair<Float, List<String>>> getDifficultySections(){
+    public static ArrayList<Tuple<Float, List<String>>> getDifficultySections(){
         return difficultySections;
     }
     public static ArrayList<Map<String, String>> getDifficultySectionBiomeReplacements(){

@@ -8,27 +8,6 @@ import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedChunkRegion;
 import com.mactso.harderfarther.utility.Utility;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureManager;
-import net.minecraft.structure.StructurePlacement;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.util.Holder;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.biome.source.BiomeCoords;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.RandomState;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.gen.structure.StructureSet;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,6 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGenStructurePlacementMixin {
@@ -207,15 +201,15 @@ public abstract class ChunkGenStructurePlacementMixin {
 
 
     //This seems to be the best target for structures. The locate structure command respects it as well.
-    @Inject(at = @At(value = "HEAD"), method = "m_dbfhxbvh", cancellable = true)
-    private void harderfarther$skipStructureGeneration(StructureSet.StructureSelectionEntry structureSelectionEntry, StructureManager structureManager, DynamicRegistryManager registryManager, RandomState randomState, StructureTemplateManager structureTemplateManager, long l, Chunk chunk, ChunkPos chunkPos, ChunkSectionPos chunkSectionPos, CallbackInfoReturnable<Boolean> cir){
+    @Inject(at = @At(value = "HEAD"), method = "tryGenerateStructure", cancellable = true)
+    private void harderfarther$skipStructureGeneration(StructureSet.StructureSelectionEntry structureSelectionEntry, StructureManager structureManager, RegistryAccess registryManager, RandomState randomState, StructureTemplateManager structureTemplateManager, long l, ChunkAccess chunk, ChunkPos chunkPos, SectionPos chunkSectionPos, CallbackInfoReturnable<Boolean> cir){
         if(!areListInitialized) {
             synchronized (this) {
                 if (!areListInitialized) {
 
                     StructureConfig.getDifficultySections().forEach(section -> {
-                        difficultySectionNumbers.add(section.getLeft());
-                        difficultySectionStructure.add(section.getRight());
+                        difficultySectionNumbers.add(section.getA());
+                        difficultySectionStructure.add(section.getB());
                     });
 
 
@@ -228,27 +222,27 @@ public abstract class ChunkGenStructurePlacementMixin {
 
 
 
-        ServerWorld worldReal = ((IExtendedBiomeSourceHF)this.getBiomeSource()).getWorld();
+        ServerLevel worldReal = ((IExtendedBiomeSourceHF)this.getBiomeSource()).getWorld();
 
 
-        int x = chunkPos.getCenterX();
-        int z = chunkPos.getCenterZ();
+        int x = chunkPos.getMiddleBlockX();
+        int z = chunkPos.getMiddleBlockZ();
 
 
         String structure = "";
-        Registry<StructureFeature> registry = worldReal.getRegistryManager().get(Registry.STRUCTURE_WORLDGEN);
-        StructureFeature structureFeature = structureSelectionEntry.structure().value();
-        structure = (String)registry.getKey(structureFeature).map(Object::toString).orElseGet(structureFeature::toString);
+        Registry<Structure> registry = worldReal.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        Structure structureFeature = structureSelectionEntry.structure().value();
+        structure = (String)registry.getResourceKey(structureFeature).map(Object::toString).orElseGet(structureFeature::toString);
         structure = structure.substring(0, structure.length() - 1);
         structure = structure.split("/")[2].substring(1);
 
         //System.out.println(structure);
 
         //only overworld right now.
-        if (worldReal.getRegistryKey() == World.OVERWORLD) {
+        if (worldReal.dimension() == Level.OVERWORLD) {
 
 
-            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(worldReal, new Vec3d(x, 0, z)) * 100;
+            float difficulty = DifficultyCalculator.getDistanceDifficultyHere(worldReal, new Vec3(x, 0, z)) * 100;
             //System.out.println(difficulty + " is difficulty");
 
             int[] choosenAreaIndex = {-1};

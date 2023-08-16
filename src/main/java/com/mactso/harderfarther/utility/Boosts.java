@@ -6,24 +6,24 @@ import java.util.UUID;
 import com.mactso.harderfarther.config.PrimaryConfig;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.CaveSpider;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.entity.monster.Zombie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.api.DifficultyCalculator;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
-import net.minecraft.entity.mob.CaveSpiderEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.SpiderEntity;
-import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.server.world.ServerWorld;
 
 public class Boosts {
 
@@ -38,8 +38,8 @@ public class Boosts {
 			//String name = ASMAPI.mapField("f_21364_");
 			//fieldXpReward = MobEntity.class.getDeclaredField(name);
 			MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
-			String name = resolver.mapFieldName("intermediary", resolver.unmapClassName("intermediary", MobEntity.class.getName()), "field_6194", "I");
-			fieldXpReward = MobEntity.class.getDeclaredField(name);
+			String name = resolver.mapFieldName("intermediary", resolver.unmapClassName("intermediary", Mob.class.getName()), "field_6194", "I");
+			fieldXpReward = Mob.class.getDeclaredField(name);
 			fieldXpReward.setAccessible(true);
 		} catch (Exception e) {
 			LOGGER.error("XXX Unexpected Reflection Failure xpReward in Mob");
@@ -52,11 +52,11 @@ public class Boosts {
 
 	private static void boostAtkDmg(LivingEntity le, String eDsc, float difficulty) {
 		if (PrimaryConfig.isAtkDmgBoosted()) {
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE) != null) {
-				float baseAttackDamage = (float) le.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).getBaseValue();
+			if (le.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
+				float baseAttackDamage = (float) le.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue();
 				float damageBoost = (PrimaryConfig.getAtkPercent() * difficulty);
 				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
-				le.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(newAttackDamage);
+				le.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
 				Utility.debugMsg(2, le,
 						"--Boost " + eDsc + " attack damage from " + baseAttackDamage + " to " + newAttackDamage + ".");
 			} else {
@@ -68,12 +68,12 @@ public class Boosts {
 	private static void boostHealth(LivingEntity le, String eDsc, float difficulty) {
 
 		if (PrimaryConfig.isHpMaxBoosted()) {
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH) != null) {
+			if (le.getAttribute(Attributes.MAX_HEALTH) != null) {
 
 				float startHealth = le.getHealth();
 				float healthBoost = (PrimaryConfig.getHpMaxPercent() * difficulty);
 				healthBoost = limitHealthBoostByMob(healthBoost, le);
-				le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).addPersistentModifier(new EntityAttributeModifier(HF_HEALTH_BOOST,
+				le.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HF_HEALTH_BOOST,
 						"hf_health_boost", healthBoost, Operation.MULTIPLY_TOTAL));
 				le.setHealth(le.getMaxHealth());
 
@@ -84,9 +84,9 @@ public class Boosts {
 				Utility.debugMsg(1, le, "erBoost: " + eDsc + " " + le.getHealth() + " MaxHealth attribute null.");
 			}
 		} else {
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH) != null) {
-				le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).addPersistentModifier(
-						new EntityAttributeModifier(HF_HEALTH_BOOST, "hf_health_boost", NO_CHANGE, Operation.MULTIPLY_TOTAL));
+			if (le.getAttribute(Attributes.MAX_HEALTH) != null) {
+				le.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(
+						new AttributeModifier(HF_HEALTH_BOOST, "hf_health_boost", NO_CHANGE, Operation.MULTIPLY_TOTAL));
 			}
 		}
 	}
@@ -94,14 +94,14 @@ public class Boosts {
 	// note KnockBack Resistance ranges from 0 to 100% (0.0f to 1.0f)
 	private static void boostKnockbackResistance(LivingEntity le, String eDsc, float difficulty) {
 		if (PrimaryConfig.isKnockBackBoosted()) {
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE) != null) {
-				float baseKnockBackResistance = (float) le.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).getValue();
+			if (le.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
+				float baseKnockBackResistance = (float) le.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
 				if (baseKnockBackResistance == 0) {
 					baseKnockBackResistance = getKBRBoostByMob(le);
 				}
 				float kbrBoost = (PrimaryConfig.getKnockBackPercent() * difficulty);
 				float newKnockBackResistance = baseKnockBackResistance + baseKnockBackResistance * kbrBoost;
-				le.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
+				le.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
 
 				Utility.debugMsg(2, le, "--Boost " + eDsc + " Boost KB Resist from " + baseKnockBackResistance + " to "
 						+ newKnockBackResistance + ".");
@@ -116,17 +116,17 @@ public class Boosts {
 	private static void boostSpeed(LivingEntity le, String eDsc, float difficulty) {
 
 		if (PrimaryConfig.isSpeedBoosted()) {
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED) != null) {
-				float baseSpeed = (float) le.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).getValue();
+			if (le.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
+				float baseSpeed = (float) le.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
 				float speedModifier = (PrimaryConfig.getSpeedPercent() * difficulty);
-				if (le instanceof ZombieEntity) {
-					ZombieEntity z = (ZombieEntity) le;
+				if (le instanceof Zombie) {
+					Zombie z = (Zombie) le;
 					if (z.isBaby()) {
 						speedModifier *= 0.5f;
 					}
 				}
 				float newSpeed = baseSpeed + (baseSpeed * speedModifier);
-				le.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(newSpeed);
+				le.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
 				Utility.debugMsg(2, le, "--Boost " + eDsc + " speed from " + baseSpeed + " to " + newSpeed + ".");
 			} else {
 				Utility.debugMsg(2, le, "erBoost : " + eDsc + " Speed Value Null .");
@@ -149,14 +149,14 @@ public class Boosts {
 
 	public static boolean isBoostable(LivingEntity le) {
 
-		Utility.debugMsg(2, "is entity boostable? (" + le.age + " ticks old)");
+		Utility.debugMsg(2, "is entity boostable? (" + le.tickCount + " ticks old)");
 
-		if ((le instanceof HostileEntity) && (le.age > 0) && le.age < 120) {
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH) == null) {
+		if ((le instanceof Monster) && (le.tickCount > 0) && le.tickCount < 120) {
+			if (le.getAttribute(Attributes.MAX_HEALTH) == null) {
 				Utility.debugMsg(2, "entity can't be boosted.");
 				return false;
 			}
-			if (le.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).getModifier(HF_HEALTH_BOOST) != null) {
+			if (le.getAttribute(Attributes.MAX_HEALTH).getModifier(HF_HEALTH_BOOST) != null) {
 				Utility.debugMsg(2, "entity is already boosted.");
 				return false;
 			} 
@@ -173,20 +173,20 @@ public class Boosts {
 	private static float limitHealthBoostByMob(float healthBoost, LivingEntity entity) {
 
 		// give some mobs more bonus hit points.
-		if (entity instanceof ZombieEntity) {
-			ZombieEntity z = (ZombieEntity) entity;
+		if (entity instanceof Zombie) {
+			Zombie z = (Zombie) entity;
 			if (z.isBaby()) {
 				healthBoost *= 0.6f;
 			}
-		} else if (entity instanceof CaveSpiderEntity) {
+		} else if (entity instanceof CaveSpider) {
 			healthBoost *= 0.5f; // lower boost
-		} else if (entity instanceof SpiderEntity) {
+		} else if (entity instanceof Spider) {
 			healthBoost *= 1.10f; // higher boost
-		} else if (entity instanceof CreeperEntity) {
+		} else if (entity instanceof Creeper) {
 			healthBoost *= 0.85f; // lower boost
-		} else if (EntityType.getId((entity.getType())).toString().equals("nasty:skeleton")) {
+		} else if (EntityType.getKey((entity.getType())).toString().equals("nasty:skeleton")) {
 			healthBoost *= 0.1f; // much lower boost they are self boosted.
-		} else if (entity instanceof AbstractSkeletonEntity) {
+		} else if (entity instanceof AbstractSkeleton) {
 			healthBoost *= 0.9f;
 		}
 		return healthBoost;
@@ -203,13 +203,13 @@ public class Boosts {
 		if (!isBoostable(le))  
 			return;
 
-		float difficulty = DifficultyCalculator.getDifficultyHere((ServerWorld)le.getWorld(), le );
+		float difficulty = DifficultyCalculator.getDifficultyHere((ServerLevel)le.getLevel(), le );
 		
 		if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed
 			// this field.
 			return;
 		}
-		float difficultyClamped = MathHelper.clamp(difficulty, 0, 1);
+		float difficultyClamped = Mth.clamp(difficulty, 0, 1);
 		Utility.debugMsg(2, "doHealth");
 		boostHealth(le, eDsc, difficulty);
 		Utility.debugMsg(2, "doSpeed");
@@ -227,17 +227,17 @@ public class Boosts {
 
 		float kbrBoost = 0;
 		// give some mobs more bonus hit points.
-		if (le instanceof ZombieEntity) {
+		if (le instanceof Zombie) {
 			kbrBoost = .45f;
-		} else if (le instanceof CaveSpiderEntity) {
+		} else if (le instanceof CaveSpider) {
 			kbrBoost = 0.05f; // lower boost
-		} else if (le instanceof SpiderEntity) {
+		} else if (le instanceof Spider) {
 			kbrBoost = .6f; // higher boost
-		} else if (le instanceof CreeperEntity) {
+		} else if (le instanceof Creeper) {
 			kbrBoost = 0.2f; // lower boost
-		} else if (EntityType.getId(le.getType()).toString().equals("nasty:skeleton")) {
+		} else if (EntityType.getKey(le.getType()).toString().equals("nasty:skeleton")) {
 			kbrBoost = 0.2f;
-		} else if (le instanceof AbstractSkeletonEntity) {
+		} else if (le instanceof AbstractSkeleton) {
 			kbrBoost = 0.3f;
 		} else if (le.getMaxHealth() < 10) {
 			kbrBoost = 0.05f;

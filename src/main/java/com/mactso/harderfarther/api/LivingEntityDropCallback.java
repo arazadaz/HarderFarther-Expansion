@@ -2,25 +2,25 @@ package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface LivingEntityDropCallback {
 
     Event<LivingEntityDropCallback> EVENT = EventFactory.createArrayBacked(LivingEntityDropCallback.class,
             (listeners) -> (damageSource, entity) -> {
                 for (LivingEntityDropCallback listener : listeners) {
-                    ActionResult result = listener.interact(damageSource, entity);
+                    InteractionResult result = listener.interact(damageSource, entity);
 
-                    if(result != ActionResult.PASS) {
+                    if(result != InteractionResult.PASS) {
                         return result;
                     }
                 }
 
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             });
 
-    ActionResult interact(DamageSource damageSource, LivingEntity entity);
+    InteractionResult interact(DamageSource damageSource, LivingEntity entity);
 
 }

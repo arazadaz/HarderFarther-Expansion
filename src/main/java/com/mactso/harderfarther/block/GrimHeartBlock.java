@@ -1,85 +1,83 @@
 package com.mactso.harderfarther.block;
 
 import java.util.Random;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.mactso.harderfarther.blockentities.GrimHeartBlockEntity;
 import com.mactso.harderfarther.client.PlayGrimSongs;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.sounds.ModSounds;
 
-public class GrimHeartBlock extends BlockWithEntity {
-	protected final ParticleEffect particle;
-	protected static final VoxelShape SHAPE = Block.createCuboidShape(7.0D, 7.0D, 7.0D, 10.0D, 10.0D, 10.0D);
+public class GrimHeartBlock extends BaseEntityBlock {
+	protected final ParticleOptions particle;
+	protected static final VoxelShape SHAPE = Block.box(7.0D, 7.0D, 7.0D, 10.0D, 10.0D, 10.0D);
 
 	
-	public GrimHeartBlock(Settings properties, ParticleEffect particleChoice) {
+	public GrimHeartBlock(Properties properties, ParticleOptions particleChoice) {
 		super(properties);
 	    this.particle = particleChoice;
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView worldIn, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}
 
 	@Override
-	public BlockRenderType getRenderType(BlockState state) {
-		return BlockRenderType.MODEL;
+	public RenderShape getRenderShape(BlockState state) {
+		return RenderShape.MODEL;
 	}
 	
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new GrimHeartBlockEntity(pos, state);
 	}
 
 	@Override
-	public PistonBehavior getPistonBehavior(BlockState p_60584_) {
-		return PistonBehavior.DESTROY;
+	public PushReaction getPistonPushReaction(BlockState p_60584_) {
+		return PushReaction.DESTROY;
 	}
 
 	@Override
-	public void dropExperience(ServerWorld world, BlockPos pos, int size) {
-		super.dropExperience(world, pos, 171);
+	public void popExperience(ServerLevel world, BlockPos pos, int size) {
+		super.popExperience(world, pos, 171);
 	}
 
 	@Override
-	public void onStateReplaced(BlockState oldbs, World level, BlockPos pos, BlockState newbs, boolean moving) {
+	public void onRemove(BlockState oldbs, Level level, BlockPos pos, BlockState newbs, boolean moving) {
 
-		if (level instanceof ServerWorld) {
-			level.playSound(null, pos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE , SoundCategory.AMBIENT, 4.0f, 0.8f);
+		if (level instanceof ServerLevel) {
+			level.playSound(null, pos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE , SoundSource.AMBIENT, 4.0f, 0.8f);
 			// start flute music SoundEvent.
-			GrimCitadelManager.removeHeart((ServerWorld) level, pos);
+			GrimCitadelManager.removeHeart((ServerLevel) level, pos);
 //			level.playSound(null, pos, ModSounds.LAKE_DESTINY, SoundSource.MUSIC, 2.0f, 1.0f);
 
 		} else {
-			if (level.isClient()) {
+			if (level.isClientSide()) {
 //				PlayGrimSongs.stopCurrentSong();
 				PlayGrimSongs.playSong(ModSounds.LAKE_DESTINY);
 			}			
 		}
-		super.onStateReplaced(oldbs, level, pos, newbs, moving);
+		super.onRemove(oldbs, level, pos, newbs, moving);
 	}
 	
 		// this is client side.
-	   public void animateTick(BlockState bs, World level, BlockPos pos, Random rand) {
+	   public void animateTick(BlockState bs, Level level, BlockPos pos, Random rand) {
 		      double d0 = (double)pos.getX() + 0.5D;
 		      double d1 = (double)pos.getY() + 0.5D;
 		      double d2 = (double)pos.getZ() + 0.5D;

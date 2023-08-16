@@ -2,24 +2,24 @@ package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 
 public interface PlayerTickCallback {
 
     Event<PlayerTickCallback> EVENT = EventFactory.createArrayBacked(PlayerTickCallback.class,
             (listeners) -> (player) -> {
                 for (PlayerTickCallback listener : listeners) {
-                    ActionResult result = listener.interact(player);
+                    InteractionResult result = listener.interact(player);
 
-                    if(result != ActionResult.PASS) {
+                    if(result != InteractionResult.PASS) {
                         return result;
                     }
                 }
 
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             });
 
-    ActionResult interact(PlayerEntity player);
+    InteractionResult interact(Player player);
 
 }

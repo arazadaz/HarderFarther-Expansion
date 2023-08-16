@@ -4,31 +4,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.monster.CaveSpider;
+import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import com.mactso.harderfarther.config.PrimaryConfig;
-import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.utility.Utility;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.CaveSpiderEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PillagerEntity;
-import net.minecraft.entity.passive.BatEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.potion.PotionUtil;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
 
 public class LootManager {
 	private static int rareDice = 0;
@@ -39,7 +38,7 @@ public class LootManager {
 	public static Hashtable<Integer, LootItem> lootHashtable = new Hashtable<>();
 	public static boolean init = false;
 	
-	public static ItemStack getLootItem (String Rarity, RandomGenerator rand) {
+	public static ItemStack getLootItem (String Rarity, RandomSource rand) {
 
 
 		int workroll = 0;
@@ -129,8 +128,8 @@ public class LootManager {
 	{
 		Item ret = Items.PAPER;
 		try {
-			Identifier key = new Identifier(name);
-			if (Registry.ITEM.containsId(key))
+			ResourceLocation key = new ResourceLocation(name);
+			if (Registry.ITEM.containsKey(key))
 			{
 				ret = Registry.ITEM.get(key);
 			}
@@ -149,7 +148,7 @@ public class LootManager {
 	public static String asString (LootItem li) {
 		return ("("+li.lootRarityKey + ":" 
 	+ li.lootWeight + ") " 
-	+ li.lootItem.getName().getString().toString() + ", " 
+	+ li.lootItem.getDescription().getString().toString() + ", " 
 	+ li.lootMin + " to " 
 	+ li.lootMax );
 	}
@@ -175,7 +174,7 @@ public class LootManager {
 
 	}
 	
-	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemStack> eventItems, RandomGenerator rand) {
+	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemStack> eventItems, RandomSource rand) {
 		int d100 = (int) (Math.ceil(rand.nextDouble() * 100));
 		if (d100 < PrimaryConfig.getOddsDropExperienceBottle()) {
 			Utility.debugMsg(1, "XP Bottle dropped with roll " + d100);
@@ -185,37 +184,37 @@ public class LootManager {
 		}
 	}
 	
-	public static ItemStack doGetLootStack(Entity eventEntity, MobEntity me, float difficulty, int lootRoll) {
+	public static ItemStack doGetLootStack(Entity eventEntity, Mob me, float difficulty, int lootRoll) {
 		ItemStack itemStackToDrop;
-		BlockPos pos = me.getBlockPos();
+		BlockPos pos = me.blockPosition();
 		Utility.debugMsg(1, pos, "doGetLootStack: Roll " + lootRoll + ". " + "distanceModifier = " + difficulty  );
 		
-		if (me instanceof BatEntity) {
+		if (me instanceof Bat) {
 			itemStackToDrop = new ItemStack(Items.LEATHER, (int) 1);
 		} else {
 			float itemPowerModifier = difficulty;
 			if (lootRoll < 690) {
-				itemStackToDrop = LootManager.getLootItem("c", eventEntity.world.getRandom());
+				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level.getRandom());
 			} else if (lootRoll < 750) {
 				itemStackToDrop = makeLifeSavingPotion(itemPowerModifier);
 			} else if (lootRoll < 830) {
 				itemStackToDrop = makeOgreStrengthPotion(itemPowerModifier);
 			} else if (lootRoll < 975) {
-				if (me instanceof PillagerEntity) {
-					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.world.getRandom().nextInt(2) + 1);
+				if (me instanceof Pillager) {
+					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.level.getRandom().nextInt(2) + 1);
 					Utility.setLore(itemStackToDrop,
-							Text.Serializer.toJson(Text.translatable("item.harderfarther.burnishing_stone.lore")));
+							Component.Serializer.toJson(Component.translatable("item.harderfarther.burnishing_stone.lore")));
 				} else
-				if (me instanceof CaveSpiderEntity) {
+				if (me instanceof CaveSpider) {
 					itemStackToDrop = new ItemStack(Items.COAL, (int) 1);
 				} else {
-					itemStackToDrop = LootManager.getLootItem("u", eventEntity.world.getRandom());
+					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
 				}
 			} else {
 				if (difficulty > 0.95) {
-					itemStackToDrop = LootManager.getLootItem("r", eventEntity.world.getRandom());
+					itemStackToDrop = LootManager.getLootItem("r", eventEntity.level.getRandom());
 				} else {
-					itemStackToDrop = LootManager.getLootItem("u", eventEntity.world.getRandom());
+					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
 				}
 			}
 		}
@@ -229,13 +228,13 @@ public class LootManager {
 		int durationRegen = (int) (20 + 200 * distanceFactor);
 		int effectRegen = (int) (1 + 4 * distanceFactor);
 
-		MutableText potionName = Text.literal("Life Saving Potion");
-		ItemStack potion = new ItemStack(Items.POTION).setCustomName(potionName);
-		Collection<StatusEffectInstance> col = new ArrayList<StatusEffectInstance>();
-		col.add(new StatusEffectInstance(StatusEffects.ABSORPTION, durationAbsorb, effectAbsorb));
-		col.add(new StatusEffectInstance(StatusEffects.REGENERATION, durationRegen, effectRegen));
-		PotionUtil.setCustomPotionEffects(potion, col);
-		NbtCompound compoundnbt = potion.getNbt();
+		MutableComponent potionName = Component.literal("Life Saving Potion");
+		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
+		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
+		col.add(new MobEffectInstance(MobEffects.ABSORPTION, durationAbsorb, effectAbsorb));
+		col.add(new MobEffectInstance(MobEffects.REGENERATION, durationRegen, effectRegen));
+		PotionUtils.setCustomEffects(potion, col);
+		CompoundTag compoundnbt = potion.getTag();
 		compoundnbt.putInt("CustomPotionColor", 1369022);
 		itemStackToDrop = potion;
 		return itemStackToDrop;
@@ -243,18 +242,18 @@ public class LootManager {
 
 	public static ItemStack makeOgreStrengthPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
-		MutableText potionName = Text.literal("Ogre Power Potion");
-		ItemStack potion = new ItemStack(Items.POTION).setCustomName(potionName);
-		Collection<StatusEffectInstance> col = new ArrayList<StatusEffectInstance>();
+		MutableComponent potionName = Component.literal("Ogre Power Potion");
+		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
+		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
 		int durationAbsorb = (int) (12000 * distanceFactor);
 		int effectAbsorb = (int)  (1 + (4 * distanceFactor));
 		if (effectAbsorb > 2)
 			effectAbsorb = 2;
-		col.add(new StatusEffectInstance(StatusEffects.STRENGTH, durationAbsorb, effectAbsorb));
-		col.add(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 60 + durationAbsorb / 2, 0));
-		col.add(new StatusEffectInstance(StatusEffects.REGENERATION, 120, effectAbsorb));
-		PotionUtil.setCustomPotionEffects(potion, col);
-		NbtCompound compoundnbt = potion.getNbt();
+		col.add(new MobEffectInstance(MobEffects.DAMAGE_BOOST, durationAbsorb, effectAbsorb));
+		col.add(new MobEffectInstance(MobEffects.NIGHT_VISION, 60 + durationAbsorb / 2, 0));
+		col.add(new MobEffectInstance(MobEffects.REGENERATION, 120, effectAbsorb));
+		PotionUtils.setCustomEffects(potion, col);
+		CompoundTag compoundnbt = potion.getTag();
 		compoundnbt.putInt("CustomPotionColor", 13415603);
 		itemStackToDrop = potion;
 		return itemStackToDrop;

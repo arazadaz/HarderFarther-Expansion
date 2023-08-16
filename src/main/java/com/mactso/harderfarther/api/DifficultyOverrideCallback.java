@@ -2,8 +2,8 @@ package com.mactso.harderfarther.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 public interface DifficultyOverrideCallback {
 
@@ -16,6 +16,6 @@ public interface DifficultyOverrideCallback {
         }
     });
 
-    void interact(float currentDifficulty[], ServerWorld world, Vec3d[] outposts, int minBoostDistance, int maxBoostDistance);
+    void interact(float currentDifficulty[], ServerLevel world, Vec3[] outposts, int minBoostDistance, int maxBoostDistance);
 
 }

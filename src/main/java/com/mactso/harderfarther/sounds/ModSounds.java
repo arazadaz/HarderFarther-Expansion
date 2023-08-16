@@ -1,9 +1,9 @@
 package com.mactso.harderfarther.sounds;
 
 import com.mactso.harderfarther.Main;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 
 public class ModSounds {
 //	Attribution Tags for Ambient Music
@@ -40,14 +40,14 @@ public class ModSounds {
 
 	public static void register()
 	{
-		Registry.register(Registry.SOUND_EVENT, new Identifier(Main.MODID, "dust"), DUSTY_MEMORIES);
-		Registry.register(Registry.SOUND_EVENT, new Identifier(Main.MODID, "lady"), LABYRINTH_LOST_DREAMS);
-		Registry.register(Registry.SOUND_EVENT, new Identifier(Main.MODID, "lake"), LAKE_DESTINY);
+		Registry.register(Registry.SOUND_EVENT, new ResourceLocation(Main.MODID, "dust"), DUSTY_MEMORIES);
+		Registry.register(Registry.SOUND_EVENT, new ResourceLocation(Main.MODID, "lady"), LABYRINTH_LOST_DREAMS);
+		Registry.register(Registry.SOUND_EVENT, new ResourceLocation(Main.MODID, "lake"), LAKE_DESTINY);
 	}
 
 	private static SoundEvent create(String key)
 	{
-		Identifier res = new Identifier(Main.MODID, key);
+		ResourceLocation res = new ResourceLocation(Main.MODID, key);
 		SoundEvent ret = new SoundEvent(res);
 		return ret;
 	}

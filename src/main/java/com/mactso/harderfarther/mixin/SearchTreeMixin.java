@@ -2,29 +2,29 @@ package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.biome.source.util.MultiNoiseUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import net.minecraft.world.level.biome.Climate;
 
-@Mixin(MultiNoiseUtil.SearchTree.class)
+@Mixin(Climate.RTree.class)
 public class SearchTreeMixin<T>  implements IExtendedSearchTree<T> {
 
-    private List<Pair<MultiNoiseUtil.NoiseHypercube, T>> originalBiomePairs;
+    private List<Pair<Climate.ParameterPoint, T>> originalBiomePairs;
 
-    @Inject(at = @At(value = "RETURN"), method = "Lnet/minecraft/world/biome/source/util/MultiNoiseUtil$SearchTree;create(Ljava/util/List;)Lnet/minecraft/world/biome/source/util/MultiNoiseUtil$SearchTree;", cancellable = true)
-    private static <T> void onCreate(List<Pair<MultiNoiseUtil.NoiseHypercube, T>> entries, CallbackInfoReturnable<MultiNoiseUtil.SearchTree<T>> cir) {
-        MultiNoiseUtil.SearchTree searchTree = cir.getReturnValue();
+    @Inject(at = @At(value = "RETURN"), method = "create", cancellable = true)
+    private static <T> void onCreate(List<Pair<Climate.ParameterPoint, T>> entries, CallbackInfoReturnable<Climate.RTree<T>> cir) {
+        Climate.RTree searchTree = cir.getReturnValue();
         ((IExtendedSearchTree)(Object)searchTree).setOriginalList(entries);
         cir.setReturnValue(searchTree);
     }
 
 
     @Override
-    public List<Pair<MultiNoiseUtil.NoiseHypercube, T>> getOriginalList() {
+    public List<Pair<Climate.ParameterPoint, T>> getOriginalList() {
         return this.originalBiomePairs;
     }
 

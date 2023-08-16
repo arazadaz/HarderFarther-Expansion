@@ -7,19 +7,18 @@ import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldProperties;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class DifficultyCalculator {
 
-	public static float calcDistanceModifier(Vec3d eventVec, Vec3d nearestOutpostVec) {
+	public static float calcDistanceModifier(Vec3 eventVec, Vec3 nearestOutpostVec) {
 		double distance = eventVec.distanceTo(nearestOutpostVec);
 		distance = Math.max(0, distance - PrimaryConfig.getBoostMinDistance());
 		Float f = (float) Math.min(1.0f, distance / PrimaryConfig.getBoostMaxDistance());
@@ -40,21 +39,21 @@ public class DifficultyCalculator {
 	
 	
 	
-	public static float getDistanceDifficultyHere (ServerWorld serverWorld, Vec3d eventVec) {
-		double xzf = serverWorld.getDimension().coordinateScale();
+	public static float getDistanceDifficultyHere (ServerLevel serverWorld, Vec3 eventVec) {
+		double xzf = serverWorld.dimensionType().coordinateScale();
 		if (xzf == 0.0) {
 			xzf = 1.0d;
 		}
-		WorldProperties winfo = serverWorld.getLevelProperties();
-		Vec3d spawnVec = new Vec3d(winfo.getSpawnX() / xzf, winfo.getSpawnY(), winfo.getSpawnZ() / xzf);
+		LevelData winfo = serverWorld.getLevelData();
+		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 
 		//Add spawn to outpost list if enabled & get nearest outpost
-		Vec3d[] outposts = PrimaryConfig.getOutpostPositions();
+		Vec3[] outposts = PrimaryConfig.getOutpostPositions();
 		if(PrimaryConfig.isSpawnAnOutpost()){
 			outposts[0] = spawnVec;
 		}
 
-		Vec3d nearestOutpost = getNearestOutpost(outposts, eventVec);
+		Vec3 nearestOutpost = getNearestOutpost(outposts, eventVec);
 
 		float difficulty = DifficultyCalculator.calcDistanceModifier(eventVec, nearestOutpost);
 		return difficulty;
@@ -62,26 +61,26 @@ public class DifficultyCalculator {
 	
 	
 	
-	public static float getDifficultyHere(ServerWorld serverWorld, LivingEntity le) {
+	public static float getDifficultyHere(ServerLevel serverWorld, LivingEntity le) {
 		
 		Utility.debugMsg(2, "getdifficulty here top");
-		BlockPos pos = le.getBlockPos();
+		BlockPos pos = le.blockPosition();
 
-		double xzf = serverWorld.getDimension().coordinateScale();
+		double xzf = serverWorld.dimensionType().coordinateScale();
 		if (xzf == 0.0) {
 			xzf = 1.0d;
 		}
-		WorldProperties winfo = serverWorld.getLevelProperties();
-		Vec3d spawnVec = new Vec3d(winfo.getSpawnX() / xzf, winfo.getSpawnY(), winfo.getSpawnZ() / xzf);
-		Vec3d eventVec = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+		LevelData winfo = serverWorld.getLevelData();
+		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
+		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
 
 		//Add spawn to outpost list if enabled & get nearest outpost
-		Vec3d[] outposts = PrimaryConfig.getOutpostPositions();
+		Vec3[] outposts = PrimaryConfig.getOutpostPositions();
 		if(PrimaryConfig.isSpawnAnOutpost()){
 			outposts[0] = spawnVec;
 		}
 
-		Vec3d nearestOutpost = getNearestOutpost(outposts, eventVec);
+		Vec3 nearestOutpost = getNearestOutpost(outposts, eventVec);
 
 		Utility.debugMsg(2, "getTimedifficulty here top");
 		float timeDifficulty = 0;
@@ -97,16 +96,16 @@ public class DifficultyCalculator {
 		float highDifficulty[] = new float[]{Math.max(timeDifficulty, hfDifficulty)};
 		highDifficulty[0] = Math.max(gcDifficultyPct, highDifficulty[0]);
 
-		if (le instanceof ServerPlayerEntity sp) {
+		if (le instanceof ServerPlayer sp) {
 //			System.out.println("HFM sending hf:"+hfDifficulty + " gc:" + gcDifficultyPct + " tm:" + timeDifficulty);
 			Utility.debugMsg(2, "getdifficulty here network message");
 
 
-			PacketByteBuf buf = PacketByteBufs.create();
+			FriendlyByteBuf buf = PacketByteBufs.create();
 			buf.writeFloat(hfDifficulty);
 			buf.writeFloat(gcDifficultyPct);
 			buf.writeFloat(timeDifficulty);
-			ServerPlayNetworking.send((ServerPlayerEntity) sp, SyncDifficultyToClientsPacket.GAME_PACKET_SYNC_DIFFICULTY_S2C, buf);
+			ServerPlayNetworking.send((ServerPlayer) sp, SyncDifficultyToClientsPacket.GAME_PACKET_SYNC_DIFFICULTY_S2C, buf);
 
 		}
 
@@ -119,7 +118,7 @@ public class DifficultyCalculator {
 
 
 
-	public static Vec3d getNearestOutpost(Vec3d[] outposts, Vec3d eventVec){
+	public static Vec3 getNearestOutpost(Vec3[] outposts, Vec3 eventVec){
 
 		int iterator=0;
 		if(!PrimaryConfig.isSpawnAnOutpost()){
@@ -127,7 +126,7 @@ public class DifficultyCalculator {
 		}
 
 		int nearestOutpostDistance = Integer.MAX_VALUE;
-		Vec3d nearestOutpost = outposts[iterator];
+		Vec3 nearestOutpost = outposts[iterator];
 		iterator ++;
 		for(;iterator<outposts.length; iterator++){
 			if(outposts[iterator].distanceTo(eventVec)<nearestOutpostDistance){
