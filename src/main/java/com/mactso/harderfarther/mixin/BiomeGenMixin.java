@@ -66,7 +66,7 @@ public class BiomeGenMixin extends BiomeSource{
                     }
 
                     //Return default value if terrablender biomesource is not initialized
-                    if (!((IExtendedParameterList<Holder<Biome>>) this.parameters).isInitialized()) {
+                    if (!((IExtendedParameterList<Holder<Biome>>) this.parameters()).isInitialized()) {
 
                         if (PrimaryConfig.getDebugLevel() > 1) {
                             Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
@@ -78,14 +78,14 @@ public class BiomeGenMixin extends BiomeSource{
                     }
 
 
-                    int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.parameters).getTreeCount();
+                    int regionCount = ((IExtendedParameterList<Holder<Biome>>) this.parameters()).getTreeCount();
                     List<Pair<Climate.ParameterPoint, Holder<Biome>>> modifiedBiomePoints = new ArrayList<>();
                     defaultSearchTrees = new IExtendedSearchTree[regionCount];
                     newSearchTree = new Climate.RTree[BiomeConfig.getDifficultySections().size()][regionCount];
 
 
                     for (int iterator = 0; iterator < regionCount; iterator++) {
-                        defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.parameters).getTree(iterator));
+                        defaultSearchTrees[iterator] = ((IExtendedSearchTree<Holder<Biome>>) (Object) ((IExtendedParameterList<Holder<Biome>>) this.parameters()).getTree(iterator));
 
                         List<Pair<Climate.ParameterPoint, Holder<Biome>>> biomePairs = defaultSearchTrees[iterator].getOriginalList();
 
@@ -171,7 +171,7 @@ public class BiomeGenMixin extends BiomeSource{
         //Start of primary logic
 
         // Fallback on findValue if we are uninitialized (may be the case for non-TerraBlender dimensions) - Also nether is bugged & not initialized in 1.19.2 fabric terrablender
-        if(!((IExtendedParameterList<Holder<Biome>>) this.parameters).isInitialized()) {
+        if(!((IExtendedParameterList<Holder<Biome>>) this.parameters()).isInitialized()) {
 
             if (PrimaryConfig.getDebugLevel() > 1) {
                 Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
@@ -183,7 +183,7 @@ public class BiomeGenMixin extends BiomeSource{
 
 
 
-        int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.parameters).getUniqueness(i, j, k);
+        int uniqueness = ((IExtendedParameterList<Holder<Biome>>)this.parameters()).getUniqueness(i, j, k);
 
         //Make sure worlds are initialized before running main logic
         if(((IExtendedBiomeSourceHF)this).getInit()) {
