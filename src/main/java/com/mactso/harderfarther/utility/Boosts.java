@@ -203,7 +203,7 @@ public class Boosts {
 		if (!isBoostable(le))  
 			return;
 
-		float difficulty = DifficultyCalculator.getDifficultyHere((ServerLevel)le.getLevel(), le );
+		float difficulty = DifficultyCalculator.getDifficultyHere((ServerLevel)le.level(), le );
 		
 		if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed
 			// this field.

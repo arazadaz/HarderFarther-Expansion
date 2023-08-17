@@ -126,7 +126,7 @@ public class FogColorsEventHandler {
 
 					Minecraft m = Minecraft.getInstance();
 					LocalPlayer cp = m.player;
-					long gametick = cp.level.getGameTime();
+					long gametick = cp.level().getGameTime();
 					if ((colorTick != gametick)) {
 						colorTick = gametick;
 						float percent = Math.max(clientLocalGrimDifficulty, clientLocalTimeDifficulty);
@@ -150,7 +150,7 @@ public class FogColorsEventHandler {
 					if (fogType == FogMode.FOG_TERRAIN) {
 						Minecraft m = Minecraft.getInstance();
 						LocalPlayer cp = m.player;
-						long gametick = cp.level.getGameTime();
+						long gametick = cp.level().getGameTime();
 						if ((FogColorsEventHandler.fogTick != gametick)) {
 							FogColorsEventHandler.fogTick = gametick;
 

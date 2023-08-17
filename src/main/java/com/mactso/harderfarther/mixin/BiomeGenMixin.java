@@ -6,8 +6,11 @@ import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
 import com.mactso.harderfarther.utility.Utility;
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.biome.*;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -22,13 +25,8 @@ import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = MultiNoiseBiomeSource.class, priority = 995)
@@ -37,7 +35,7 @@ public class BiomeGenMixin extends BiomeSource{
     @Final
     @Mutable
     @Shadow
-    private Climate.ParameterList<Holder<Biome>> parameters; //biomePoints in quilt mappings
+    private Either<Climate.ParameterList<Holder<Biome>>, Holder<MultiNoiseBiomeSourceParameterList>> parameters; //biomePoints in quilt mappings
 
     private boolean areListInitialized = false;
 
@@ -53,7 +51,7 @@ public class BiomeGenMixin extends BiomeSource{
     private ArrayList<Integer> filledListsIndexes = new ArrayList<>();
 
     protected BiomeGenMixin(Stream<Holder<Biome>> biomes) {
-        super(biomes);
+        super();
     }
 
     @Inject(at = @At(value = "HEAD"), method = "Lnet/minecraft/world/level/biome/MultiNoiseBiomeSource;getNoiseBiome(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;", cancellable = true)
@@ -74,7 +72,7 @@ public class BiomeGenMixin extends BiomeSource{
                             Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
                         }
                         areListInitialized = true;
-                        cir.setReturnValue(this.parameters.findValue(multiNoiseSampler.sample(i, j, k)));
+                        cir.setReturnValue(this.parameters().findValue(multiNoiseSampler.sample(i, j, k)));
                         return;
 
                     }
@@ -114,7 +112,7 @@ public class BiomeGenMixin extends BiomeSource{
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), noiseHypercubeHolderPair.getSecond()));
                                 } else if (replacementBiome != null){
                                     //replaces an original biome point with another specified biome and adds it to the list
-                                    ResourceKey<Biome> key = ResourceKey.create(BuiltinRegistries.BIOME.key(), new ResourceLocation(replacementBiome.split(":")[0], replacementBiome.split(":")[1]));
+                                    ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, new ResourceLocation(replacementBiome.split(":")[0], replacementBiome.split(":")[1]));
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), BiomeConfig.getDynamicBiomeRegistry().getHolderOrThrow(key)));
                                     if(PrimaryConfig.getDebugLevel() > 0) {
                                         Utility.debugMsg(1, ("replaced " + biome + " > " + replacementBiome));
@@ -178,7 +176,7 @@ public class BiomeGenMixin extends BiomeSource{
             if (PrimaryConfig.getDebugLevel() > 1) {
                 Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
             }
-            cir.setReturnValue(this.parameters.findValue(multiNoiseSampler.sample(i,j,k)));
+            cir.setReturnValue(this.parameters().findValue(multiNoiseSampler.sample(i,j,k)));
             return;
 
         }
@@ -309,6 +307,17 @@ public class BiomeGenMixin extends BiomeSource{
     @Shadow
     @Override
     public Codec<? extends BiomeSource> codec() {
+        return null;
+    }
+
+    @Shadow
+    @Override
+    protected Stream<Holder<Biome>> collectPossibleBiomes() {
+        return null;
+    }
+
+    @Shadow
+    private Climate.ParameterList<Holder<Biome>> parameters(){
         return null;
     }
 

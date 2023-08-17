@@ -8,6 +8,7 @@ import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedChunkRegion;
 import com.mactso.harderfarther.utility.Utility;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.registries.Registries;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -230,7 +231,7 @@ public abstract class ChunkGenStructurePlacementMixin {
 
 
         String structure = "";
-        Registry<Structure> registry = worldReal.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        Registry<Structure> registry = worldReal.registryAccess().registryOrThrow(Registries.STRUCTURE);
         Structure structureFeature = structureSelectionEntry.structure().value();
         structure = (String)registry.getResourceKey(structureFeature).map(Object::toString).orElseGet(structureFeature::toString);
         structure = structure.substring(0, structure.length() - 1);

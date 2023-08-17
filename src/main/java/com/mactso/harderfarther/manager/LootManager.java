@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -129,9 +130,9 @@ public class LootManager {
 		Item ret = Items.PAPER;
 		try {
 			ResourceLocation key = new ResourceLocation(name);
-			if (Registry.ITEM.containsKey(key))
+			if (BuiltInRegistries.ITEM.containsKey(key))
 			{
-				ret = Registry.ITEM.get(key);
+				ret = BuiltInRegistries.ITEM.get(key);
 			}
 			else
 				LOGGER.warn("Unknown item: " + name);
@@ -194,27 +195,27 @@ public class LootManager {
 		} else {
 			float itemPowerModifier = difficulty;
 			if (lootRoll < 690) {
-				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level.getRandom());
+				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level().getRandom());
 			} else if (lootRoll < 750) {
 				itemStackToDrop = makeLifeSavingPotion(itemPowerModifier);
 			} else if (lootRoll < 830) {
 				itemStackToDrop = makeOgreStrengthPotion(itemPowerModifier);
 			} else if (lootRoll < 975) {
 				if (me instanceof Pillager) {
-					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.level.getRandom().nextInt(2) + 1);
+					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.level().getRandom().nextInt(2) + 1);
 					Utility.setLore(itemStackToDrop,
 							Component.Serializer.toJson(Component.translatable("item.harderfarther.burnishing_stone.lore")));
 				} else
 				if (me instanceof CaveSpider) {
 					itemStackToDrop = new ItemStack(Items.COAL, (int) 1);
 				} else {
-					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
+					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level().getRandom());
 				}
 			} else {
 				if (difficulty > 0.95) {
-					itemStackToDrop = LootManager.getLootItem("r", eventEntity.level.getRandom());
+					itemStackToDrop = LootManager.getLootItem("r", eventEntity.level().getRandom());
 				} else {
-					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
+					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level().getRandom());
 				}
 			}
 		}

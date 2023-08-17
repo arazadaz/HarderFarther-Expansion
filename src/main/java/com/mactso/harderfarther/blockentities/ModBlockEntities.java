@@ -3,6 +3,7 @@ package com.mactso.harderfarther.blockentities;
 import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.block.ModBlocks;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -13,6 +14,6 @@ public class ModBlockEntities
 
 	public static void register()
 	{
-		Registry.register(Registry.BLOCK_ENTITY_TYPE, new ResourceLocation(Main.MODID, "grim_heart"), GRIM_HEART);
+		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, new ResourceLocation(Main.MODID, "grim_heart"), GRIM_HEART);
 	}
 }

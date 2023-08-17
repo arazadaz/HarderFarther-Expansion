@@ -36,9 +36,9 @@ public class HarderTimeManager {
 
 	static float pitch = 0.67f; // slower and longer
 
-	static List<SoundEvent> spookySounds = Arrays.asList(SoundEvents.AMBIENT_CAVE, SoundEvents.WITCH_AMBIENT,
+	static List<SoundEvent> spookySounds = Arrays.asList(SoundEvents.AMBIENT_CAVE.value(), SoundEvents.WITCH_AMBIENT,
 			SoundEvents.SOUL_ESCAPE, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SOUL_SAND_STEP,
-			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
+			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD.value());
 
 	private static void doClientParticles(Player cp, RandomSource rand,
 			SimpleParticleType p1,
@@ -52,7 +52,7 @@ public class HarderTimeManager {
 			lookv = lookv.reverse();
 		}
 		lookv.scale(7.0);
-		BlockPos pPos = new BlockPos(pos.getX()+lookv.x,pos.getY()+lookv.y,pos.getZ()+lookv.z);
+		BlockPos pPos = BlockPos.containing(pos.getX()+lookv.x,pos.getY()+lookv.y,pos.getZ()+lookv.z);
 		for (int k = 0; k < 5; ++k) {
 			
 			int xv = (rand.nextInt(7) - 4) * 2;
@@ -66,19 +66,19 @@ public class HarderTimeManager {
 				double y = (double) temp.getY() + rand.nextDouble();
 				double z = (double) temp.getZ() + rand.nextDouble();
 
-				cp.level.addParticle(p1,  x, y, z, xv/3, yv/2, zv/2);
-				cp.level.addParticle(p2,  x, y, z, xv/3, yv/2, zv/2);
-				cp.level.addParticle(p3,  x, y, z, xv/3, yv/2, zv/2);
+				cp.level().addParticle(p1,  x, y, z, xv/3, yv/2, zv/2);
+				cp.level().addParticle(p2,  x, y, z, xv/3, yv/2, zv/2);
+				cp.level().addParticle(p3,  x, y, z, xv/3, yv/2, zv/2);
 			}
 
-			cp.level.playSound(cp, pPos, soundEvent, SoundSource.AMBIENT, 0.95f, pitch);
+			cp.level().playSound(cp, pPos, soundEvent, SoundSource.AMBIENT, 0.95f, pitch);
 
 		}
 	}
 
 	private static void doNiceAtmosphere(Player cp) {
 
-		RandomSource rand = cp.level.getRandom();
+		RandomSource rand = cp.level().getRandom();
 
 		
 		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
@@ -87,16 +87,16 @@ public class HarderTimeManager {
 			return;
 		}
 
-		if (!cp.level.canSeeSky(cp.blockPosition())) {
+		if (!cp.level().canSeeSky(cp.blockPosition())) {
 			if (rand.nextInt(2400) == 43) {
-				cp.level.playSound(cp, cp.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 0.95f, pitch);
+				cp.level().playSound(cp, cp.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 0.95f, pitch);
 			}	
 			return;
 		}
 		
 
 		int chance = 5;
-		if (cp.level.isNight())
+		if (cp.level().isNight())
 			chance += 3;
 		if (rand.nextInt(1200) > (chance))
 			return;
@@ -110,7 +110,7 @@ public class HarderTimeManager {
 
 	private static void doRandomScaryThings(ServerPlayer sp) {
 
-		ServerLevel sl = sp.getLevel();
+		ServerLevel sl = (ServerLevel) sp.level();
 		RandomSource rand = sl.getRandom();
 
 		float timeDifficulty = getTimeDifficulty(sl, sp);
@@ -129,7 +129,7 @@ public class HarderTimeManager {
 		if (rand.nextInt(20) == 1) {
 			lookv = lookv.reverse();
 		}
-		BlockPos pPos = new BlockPos(1+pos.getX()+(lookv.x*7),3+ pos.getY()+(lookv.y*3),1+pos.getZ()+(lookv.z*7));
+		BlockPos pPos = BlockPos.containing(1+pos.getX()+(lookv.x*7),3+ pos.getY()+(lookv.y*3),1+pos.getZ()+(lookv.z*7));
 		sl.sendParticles(sp, ParticleTypes.SOUL, false, pPos.getX(), pPos.getY(), pPos.getZ(), 1, 0, 0.08d, 0, 1);
 
 		for (int k = 0; k < 3; ++k) {
@@ -200,7 +200,7 @@ public class HarderTimeManager {
 	}
 
 	public static void doScarySpookyThings(Player p) {
-		if (p.level.isClientSide) {
+		if (p.level().isClientSide) {
 			doNiceAtmosphere(p);
 			doSpookyAtmosphere(p);
 			return;
@@ -211,25 +211,25 @@ public class HarderTimeManager {
 	// clientside
 	private static void doSpookyAtmosphere(Player cp) {
 
-		RandomSource rand = cp.level.getRandom();
+		RandomSource rand = cp.level().getRandom();
 
 		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
 		if (timeDifficulty == 0)
 			return;
 
 		int chance = 5;
-		if (cp.level.isNight())
+		if (cp.level().isNight())
 			chance -= 3;
 		if (rand.nextInt(320) > (chance))
 			return;
 		
 		int i = rand.nextInt(spookySounds.size());
-		cp.level.playSound(cp, cp.blockPosition(), spookySounds.get(i), SoundSource.AMBIENT, 0.12f, pitch);
+		cp.level().playSound(cp, cp.blockPosition(), spookySounds.get(i), SoundSource.AMBIENT, 0.12f, pitch);
 		if (rand.nextInt(100) == 42) {
-			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.GOAT_SCREAMING_PREPARE_RAM, SoundSource.AMBIENT, 0.12f, pitch);
+			cp.level().playSound(cp, cp.blockPosition(), SoundEvents.GOAT_SCREAMING_PREPARE_RAM, SoundSource.AMBIENT, 0.12f, pitch);
 		}
 		if (rand.nextInt(100) < 5) 
-			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.AMBIENT_CAVE, SoundSource.AMBIENT, 0.23f, 0.66f);
+			cp.level().playSound(cp, cp.blockPosition(), SoundEvents.AMBIENT_CAVE.value(), SoundSource.AMBIENT, 0.23f, 0.66f);
 		doClientParticles(cp, rand,
 				ParticleTypes.LARGE_SMOKE,
 				ParticleTypes.SMALL_FLAME,

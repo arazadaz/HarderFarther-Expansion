@@ -4,6 +4,8 @@ import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.MusicManager;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 
@@ -25,6 +27,8 @@ public class PlayGrimSongs {
 
 		doInit();
 
+		Holder<SoundEvent> songHolder = BuiltInRegistries.SOUND_EVENT.getHolderOrThrow(BuiltInRegistries.SOUND_EVENT.getResourceKey(song).get());
+
 		clientPsuedoTicks = Util.getMillis() / 50;
 		if (grimSongDelayTicks < clientPsuedoTicks) {
 			grimSongDelayTicks = clientPsuedoTicks + (1200); // ignore calls within 60 seconds.  
@@ -32,7 +36,7 @@ public class PlayGrimSongs {
 		}
 		musicTicker.stopPlaying();
 		boolean replaceCurrentMusic = true;
-		Music m = new Music(song, minDelay, maxDelay, replaceCurrentMusic);
+		Music m = new Music(songHolder, minDelay, maxDelay, replaceCurrentMusic);
 		musicTicker.startPlaying(m);
 	}
 

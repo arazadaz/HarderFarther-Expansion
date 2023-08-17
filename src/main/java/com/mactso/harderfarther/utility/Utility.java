@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.utility;
 
 import com.mactso.harderfarther.config.PrimaryConfig;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -145,9 +146,9 @@ public class Utility {
 			return false;
 		for (int i = 0; i <= numZP; i++) {
 			if (et == EntityType.PHANTOM) {
-				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.SPAWNER, true, true);
+				e = (Mob) et.spawn(level, savePos.north(2).west(2), MobSpawnType.SPAWNER);
 			} else {
-				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL, true, true);
+				e = (Mob) et.spawn(level, savePos.north(2).west(2), MobSpawnType.NATURAL);
 			}
 			if (e == null) {
 				return false;
@@ -234,9 +235,9 @@ public class Utility {
 		Item ret = Items.AIR;
 		try {
 			ResourceLocation key = new ResourceLocation(name);
-			if (Registry.ITEM.containsKey(key))
+			if (BuiltInRegistries.ITEM.containsKey(key))
 			{
-				ret = Registry.ITEM.get(key);
+				ret = BuiltInRegistries.ITEM.get(key);
 			}
 			else {
 				LOGGER.warn("Unknown item: " + name);

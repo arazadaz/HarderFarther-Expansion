@@ -128,7 +128,7 @@ public interface SpawnEntityMixin {
 
 
 
-                ServerLevel world = (ServerLevel) entity.getLevel();
+                ServerLevel world = (ServerLevel) entity.level();
 
                 //Start of overworld logic
                 if (world.dimension() == Level.OVERWORLD) {

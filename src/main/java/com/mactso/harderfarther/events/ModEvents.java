@@ -17,6 +17,7 @@ public class ModEvents {
         registerPlayerTeleportEvents();
         registerPlayerTickEvents();
         registerWorldTickEvents();
+        registerCreativeTabs();
 
         registerDimensionOverrides();
 
@@ -68,6 +69,10 @@ public class ModEvents {
 
     private static void registerDimensionOverrides(){
         DifficultyOverrideEvents.onDifficultyOverrideEventRegister();
+    }
+
+    private static void registerCreativeTabs(){
+        CreativeTabsHandler.onTabRegister();
     }
 
 }

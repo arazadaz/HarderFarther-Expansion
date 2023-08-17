@@ -34,9 +34,9 @@ public class LivingEventMovementHandler {
 		LivingEntityTickCallback.EVENT.register(
 				(entity) -> {
 
-					RandomSource rand = entity.getLevel().getRandom();
+					RandomSource rand = entity.level().getRandom();
 
-					if (entity.level.isClientSide()) {
+					if (entity.level().isClientSide()) {
 						if (entity instanceof Player cp) {
 							GrimCitadelManager.playGCOptionalSoundCues(cp);
 						}
@@ -48,7 +48,7 @@ public class LivingEventMovementHandler {
 						return InteractionResult.PASS;
 					}
 
-					ServerLevel serverLevel = (ServerLevel) entity.getLevel();
+					ServerLevel serverLevel = (ServerLevel) entity.level();
 
 					if (entity instanceof ServerPlayer sp) {
 						Utility.debugMsg(2, "LivingEventMovementHandler");
@@ -82,7 +82,7 @@ public class LivingEventMovementHandler {
 										duration = Utility.FOUR_SECONDS + Utility.FOUR_SECONDS;
 
 									}
-									serverLevel.playSound(null, sp.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME,
+									serverLevel.playSound(null, sp.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME.value(),
 											SoundSource.PLAYERS, volume, 0.86f);
 								}
 								Utility.updateEffect((LivingEntity) sp, healingpower, MobEffects.REGENERATION,

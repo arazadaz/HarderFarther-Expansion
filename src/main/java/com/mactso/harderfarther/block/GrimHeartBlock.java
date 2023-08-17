@@ -48,10 +48,10 @@ public class GrimHeartBlock extends BaseEntityBlock {
 		return new GrimHeartBlockEntity(pos, state);
 	}
 
-	@Override
-	public PushReaction getPistonPushReaction(BlockState p_60584_) {
-		return PushReaction.DESTROY;
-	}
+//	@Override
+//	public PushReaction getPistonPushReaction(BlockState p_60584_) {
+//		return PushReaction.DESTROY;
+//	}
 
 	@Override
 	public void popExperience(ServerLevel world, BlockPos pos, int size) {

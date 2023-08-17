@@ -7,7 +7,7 @@ import com.mactso.harderfarther.manager.GrimCitadelManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -40,13 +40,14 @@ public class ServerStartingEventHandler {
 
 
 
-            //Dumping registries for convenience
+            //Dumping registries for convenience (registryAcess Code for biome snippet from Glitchfiend from terrablender
             RegistryAccess registryAccess = server.registryAccess();
 
-            Registry<Structure> structures = registryAccess.registryOrThrow(Registry.STRUCTURE_REGISTRY);
-            Registry<EntityType> entitieTypes = registryAccess.registryOrThrow(Registry.ENTITY_TYPE_REGISTRY);
-            Registry<Biome> biomes = registryAccess.registryOrThrow(BuiltinRegistries.BIOME.key());
-            Registry<PlacedFeature> ores = registryAccess.registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+            Registry<Structure> structures = registryAccess.registryOrThrow(Registries.STRUCTURE);
+            Registry<EntityType> entitieTypes = registryAccess.registryOrThrow(Registries.ENTITY_TYPE);
+            Registry<Biome> biomes = registryAccess.registryOrThrow(Registries.BIOME);
+            Registry<PlacedFeature> ores = registryAccess.registryOrThrow(Registries.PLACED_FEATURE);
+            Registry<Block> blocks = registryAccess.registryOrThrow(Registries.BLOCK);
 
             structures.registryKeySet().forEach(structureFeatureKey -> {
                 structureList.add(structureFeatureKey.location().toString());
@@ -63,7 +64,8 @@ public class ServerStartingEventHandler {
             ores.registryKeySet().forEach(placedFeatureKey -> {
                 if(ores.get(placedFeatureKey).feature().value().feature() instanceof OreFeature){
                     Block block = ((OreConfiguration)ores.get(placedFeatureKey).feature().value().config()).targetStates.get(0).state.getBlock();
-                    String blockId = Registry.BLOCK.getResourceKey(block).get().location().toString();
+                    String blockId = blocks.getKey(block).toString();
+                    System.out.println(blockId);
                     if(!oreList.contains(blockId)) {
                         oreList.add(blockId);
                     }

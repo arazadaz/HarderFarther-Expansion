@@ -15,7 +15,7 @@ public class PlayerLoginEventHandler {
 		ServerPlayConnectionEvents.JOIN.register(
 				(handler, sender, server) -> {
 
-					if (handler.getPlayer().level.isClientSide) return;
+					if (handler.getPlayer().level().isClientSide) return;
 					Player sp = handler.getPlayer();
 					if (sp == null) return;
 					if (!(sp instanceof ServerPlayer)) return;

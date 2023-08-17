@@ -74,10 +74,10 @@ public class MonsterDropEventHandler {
 					if (!isDropsSpecialLoot(entity, damageSource))
 						return InteractionResult.PASS;
 
-					ServerLevel serverLevel = (ServerLevel) entity.level;
+					ServerLevel serverLevel = (ServerLevel) entity.level();
 
 					RandomSource rand = serverLevel.getRandom();
-					BlockPos pos = new BlockPos(entity.getX(), entity.getY(), entity.getZ());
+					BlockPos pos = BlockPos.containing(entity.getX(), entity.getY(), entity.getZ());
 
 					// in this section prevent ALL drops if players are killing mobs too quickly.
 
@@ -110,7 +110,7 @@ public class MonsterDropEventHandler {
 						return InteractionResult.PASS;
 					}
 
-					d1000 = (int) (Math.ceil(entity.level.getRandom().nextDouble() * 1000));
+					d1000 = (int) (Math.ceil(entity.level().getRandom().nextDouble() * 1000));
 					if (d1000 < 640) {
 						d1000 += odds / 10;
 					}
@@ -150,7 +150,7 @@ public class MonsterDropEventHandler {
 			return false;
 		}
 
-		if (!(eventEntity.level instanceof ServerLevel)) {
+		if (!(eventEntity.level() instanceof ServerLevel)) {
 			return false;
 		}
 
