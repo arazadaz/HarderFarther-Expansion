@@ -65,7 +65,6 @@ public class ServerStartingEventHandler {
                 if(ores.get(placedFeatureKey).feature().value().feature() instanceof OreFeature){
                     Block block = ((OreConfiguration)ores.get(placedFeatureKey).feature().value().config()).targetStates.get(0).state.getBlock();
                     String blockId = blocks.getKey(block).toString();
-                    System.out.println(blockId);
                     if(!oreList.contains(blockId)) {
                         oreList.add(blockId);
                     }
