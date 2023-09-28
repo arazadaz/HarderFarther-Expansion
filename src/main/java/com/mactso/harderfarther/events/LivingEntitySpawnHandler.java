@@ -11,6 +11,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -75,7 +76,7 @@ public class LivingEntitySpawnHandler {
                 }
 
                 if ( !((IExtendedServerWorld)world).getDifficultySectionMobs().get(choosenAreaIndex[0]).contains(entityIdentifier) ) {
-                    spawnEvent.setCanceled(true);
+                    spawnEvent.setResult(Event.Result.DENY);
                 }
             }
             //End of Overworld logic
